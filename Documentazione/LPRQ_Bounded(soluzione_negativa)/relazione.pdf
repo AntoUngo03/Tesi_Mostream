@@ -1,0 +1,459 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R] /Count 8 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 4309 >>
+stream
+BT /F2 20 Tf 48.0 766.0 Td (BoundedLPRQInspired: riduzione bounded exact-turn della) Tj ET
+BT /F2 20 Tf 48.0 741.0 Td (PRQ in Mojo) Tj ET
+BT /F3 11 Tf 48.0 704.0 Td (Documentazione tecnica per attivit\340 di tesi) Tj ET
+BT /F3 11 Tf 48.0 688.0 Td (Progetto MoStream - 22 luglio 2026) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (Questa relazione documenta BoundedLPRQInspired, un prototipo MPMC bounded e) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (riusabile ispirato al protocollo di cella della Portable Ring Queue usata dalla) Tj ET
+BT /F1 10.2 Tf 48.0 645.0 Td (LPRQ di Raed Romanov e Nikita Koval. La LPRQ pubblicata collega dinamicamente) Tj ET
+BT /F1 10.2 Tf 48.0 631.5 Td (segmenti PRQ ed \350 unbounded rispetto al numero di segmenti allocabili. Il) Tj ET
+BT /F1 10.2 Tf 48.0 618.0 Td (prototipo MoStream usa invece un solo ring preallocato, gate CAS e turno FIFO) Tj ET
+BT /F1 10.2 Tf 48.0 604.5 Td (esatto; non implementa skip, UNSAFE e chiusura dei segmenti e non eredita la) Tj ET
+BT /F1 10.2 Tf 48.0 591.0 Td (propriet\340 lock-free della LPRQ. I test eseguiti non hanno rilevato perdita,) Tj ET
+BT /F1 10.2 Tf 48.0 577.5 Td (duplicazione o errori di riuso, ma il throughput \350 inferiore a tutte le) Tj ET
+BT /F1 10.2 Tf 48.0 564.0 Td (alternative migliori: zero vittorie su 18 configurazioni e distacco geometrico) Tj ET
+BT /F1 10.2 Tf 48.0 550.5 Td (medio di 3,63 volte dal vincitore. Il risultato riguarda questa riduzione) Tj ET
+BT /F1 10.2 Tf 48.0 537.0 Td (bounded, non le prestazioni della LPRQ originale.) Tj ET
+BT /F2 15 Tf 48.0 508.5 Td (Obiettivo dello studio) Tj ET
+BT /F1 10.2 Tf 48.0 482.5 Td (MoStream usa code bounded per comunicare fra stage e per strutture del runtime.) Tj ET
+BT /F1 10.2 Tf 48.0 469.0 Td (L'obiettivo dell'esperimento \350 verificare se alcune idee della LPRQ possano) Tj ET
+BT /F1 10.2 Tf 48.0 455.5 Td (essere trasferite a una coda con memoria fisica e occupazione logica limitate,) Tj ET
+BT /F1 10.2 Tf 48.0 442.0 Td (con payload Mojo generico Optional[T].) Tj ET
+BT /F1 10.2 Tf 48.0 423.5 Td (Il risultato implementato si chiama deliberatamente BoundedLPRQInspired. Non \350) Tj ET
+BT /F1 10.2 Tf 48.0 410.0 Td (corretto chiamarlo LPRQ bounded senza qualificazione, perch\351 la trasformazione) Tj ET
+BT /F1 10.2 Tf 48.0 396.5 Td (rimuove meccanismi essenziali dell'algoritmo pubblicato e modifica le garanzie) Tj ET
+BT /F1 10.2 Tf 48.0 383.0 Td (di progresso.) Tj ET
+BT /F2 15 Tf 48.0 354.5 Td (LPRQ originale e segmenti PRQ) Tj ET
+BT /F1 10.2 Tf 48.0 328.5 Td (La LPRQ di Raed Romanov e Nikita Koval \350 una lista dinamica di segmenti Portable) Tj ET
+BT /F1 10.2 Tf 48.0 315.0 Td (Ring Queue. Quando un producer supera il ring, il segmento viene chiuso) Tj ET
+BT /F1 10.2 Tf 48.0 301.5 Td (definitivamente, ne viene collegato uno nuovo e il precedente viene drenato e) Tj ET
+BT /F1 10.2 Tf 48.0 288.0 Td (poi abbandonato. Il numero di segmenti allocabili non \350 fissato alla costruzione;) Tj ET
+BT /F1 10.2 Tf 48.0 274.5 Td (in questo senso l'algoritmo completo \350 unbounded.) Tj ET
+BT /F1 10.2 Tf 48.0 256.0 Td (Il protocollo PRQ pu\362 marcare una cella UNSAFE e tollerare ticket saltati perch\351) Tj ET
+BT /F1 10.2 Tf 48.0 242.5 Td (il segmento non viene riciclato indefinitamente. Il bit pu\362 restare permanente:) Tj ET
+BT /F1 10.2 Tf 48.0 229.0 Td (la chiusura sposta il lavoro su un segmento nuovo.) Tj ET
+BT /F1 10.2 Tf 48.0 210.5 Td (Riutilizzare direttamente lo stesso segmento come ring bounded \350 pericoloso.) Tj ET
+BT /F1 10.2 Tf 48.0 197.0 Td (Un'operazione sospesa di una generazione precedente potrebbe riprendere dopo un) Tj ET
+BT /F1 10.2 Tf 48.0 183.5 Td (reset e pubblicare nella nuova generazione, producendo un problema ABA. Se) Tj ET
+BT /F1 10.2 Tf 48.0 170.0 Td (UNSAFE restasse permanente, il ring riusato perderebbe progressivamente celle) Tj ET
+BT /F1 10.2 Tf 48.0 156.5 Td (fino al livelock.) Tj ET
+BT /F1 10.2 Tf 48.0 138.0 Td (Una trasposizione pi\371 fedele richiederebbe almeno un pool fisso di segmenti,) Tj ET
+BT /F1 10.2 Tf 48.0 124.5 Td (generation tag per segmento e un protocollo sicuro di reclamation. Non \350) Tj ET
+BT /F1 10.2 Tf 48.0 111.0 Td (l'oggetto del prototipo corrente.) Tj ET
+BT /F2 15 Tf 48.0 82.5 Td (Scelta exact-turn) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 1 di 8) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 4325 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (BoundedLPRQInspired elimina skip, UNSAFE e close. Usa ticket monotoni ma ammette) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (un'operazione soltanto sulla cella e sull'epoca esatte associate al ticket FIFO) Tj ET
+BT /F1 10.2 Tf 48.0 767.0 Td (corrente. Il riuso diventa esplicito e bounded, al costo di head-of-line) Tj ET
+BT /F1 10.2 Tf 48.0 753.5 Td (blocking.) Tj ET
+BT /F1 10.2 Tf 48.0 735.0 Td (La coda \350 bounded in due sensi:) Tj ET
+BT /F1 10.2 Tf 60.0 721.5 Td (1. memoria fisica fissa: un solo array di capacity celle, allocato nel costruttore;) Tj ET
+BT /F1 10.2 Tf 60.0 708.0 Td (2. occupazione logica limitata: il gate impedisce pi\371 di capacity ticket producer) Tj ET
+BT /F1 10.2 Tf 48.0 694.5 Td (non ancora consumati.) Tj ET
+BT /F1 10.2 Tf 48.0 676.0 Td (La capacit\340 deve essere una potenza di due e almeno pari a due. L'indice fisico) Tj ET
+BT /F1 10.2 Tf 48.0 662.5 Td (\350 ticket & \(capacity-1\), mentre il ticket completo identifica la generazione.) Tj ET
+BT /F2 15 Tf 48.0 634.0 Td (Struttura dati) Tj ET
+BT /F1 10.2 Tf 48.0 608.0 Td (I campi principali sono:) Tj ET
+BT /F4 8.8 Tf 60.0 594.5 Td (cells       array allineato di BoundedLPRQCell[T]) Tj ET
+BT /F4 8.8 Tf 60.0 582.5 Td (capacity    numero fisso di celle) Tj ET
+BT /F4 8.8 Tf 60.0 570.5 Td (mask        capacity - 1) Tj ET
+BT /F4 8.8 Tf 60.0 558.5 Td (head        prossimo ticket consumatore) Tj ET
+BT /F4 8.8 Tf 60.0 546.5 Td (tail        prossimo ticket producer) Tj ET
+BT /F1 10.2 Tf 48.0 524.5 Td (I nomi seguono il codice corrente: tail avanza al push e head al pop. Entrambi) Tj ET
+BT /F1 10.2 Tf 48.0 511.0 Td (sono atomici UInt64 racchiusi in strutture padded da 64 byte, cos\354 producer e) Tj ET
+BT /F1 10.2 Tf 48.0 497.5 Td (consumer non aggiornano la stessa cache line.) Tj ET
+BT /F1 10.2 Tf 48.0 479.0 Td (Ogni cella contiene:) Tj ET
+BT /F4 8.8 Tf 60.0 465.5 Td (state       token del ticket e fase, in un UInt64 atomico) Tj ET
+BT /F4 8.8 Tf 60.0 453.5 Td (index       epoca/ticket logico della cella, in un UInt64 atomico) Tj ET
+BT /F4 8.8 Tf 60.0 441.5 Td (data        payload generico Optional[T], non atomico) Tj ET
+BT /F4 8.8 Tf 60.0 429.5 Td (padding     isolamento al multiplo successivo di 64 byte) Tj ET
+BT /F1 10.2 Tf 48.0 407.5 Td (L'array \350 allocato con alignment=64. Il padding riduce il false sharing fra) Tj ET
+BT /F1 10.2 Tf 48.0 394.0 Td (celle adiacenti, ma aumenta il footprint e pu\362 esercitare pressione su cache e) Tj ET
+BT /F1 10.2 Tf 48.0 380.5 Td (TLB con capacit\340 elevate. Il costruttore contiene assert compile-time che lo) Tj ET
+BT /F1 10.2 Tf 48.0 367.0 Td (stride di BoundedLPRQCell[T] sia multiplo di 64 byte e che il wrapper dei) Tj ET
+BT /F1 10.2 Tf 48.0 353.5 Td (contatori occupi esattamente 64 byte; un tipo T con layout incompatibile viene) Tj ET
+BT /F1 10.2 Tf 48.0 340.0 Td (quindi rifiutato in compilazione invece di invalidare silenziosamente il) Tj ET
+BT /F1 10.2 Tf 48.0 326.5 Td (padding.) Tj ET
+BT /F2 15 Tf 48.0 298.0 Td (Indice ed epoca della cella) Tj ET
+BT /F1 10.2 Tf 48.0 272.0 Td (All'inizializzazione, la cella fisica i contiene index=i e stato EMPTY. Per il) Tj ET
+BT /F1 10.2 Tf 48.0 258.5 Td (ticket producer t, la cella attesa \350 cells[t & mask] e deve avere index=t.) Tj ET
+BT /F1 10.2 Tf 48.0 240.0 Td (Dopo la riserva, il producer cambia index da t a t+capacity. Il consumer del) Tj ET
+BT /F1 10.2 Tf 48.0 226.5 Td (ticket t richiede proprio index=t+capacity. Dopo il consumo, index non viene) Tj ET
+BT /F1 10.2 Tf 48.0 213.0 Td (azzerato: t+capacity \350 gi\340 il ticket producer della generazione successiva) Tj ET
+BT /F1 10.2 Tf 48.0 199.5 Td (sulla stessa cella.) Tj ET
+BT /F4 8.8 Tf 60.0 186.0 Td (vuota per producer t:       index = t) Tj ET
+BT /F4 8.8 Tf 60.0 174.0 Td (piena per consumer t:       index = t + capacity) Tj ET
+BT /F4 8.8 Tf 60.0 162.0 Td (vuota per producer t+C:     index = t + capacity) Tj ET
+BT /F1 10.2 Tf 48.0 140.0 Td (Lo stato distingue pieno e vuoto quando il valore di index coincide al confine) Tj ET
+BT /F1 10.2 Tf 48.0 126.5 Td (fra due generazioni.) Tj ET
+BT /F2 15 Tf 48.0 98.0 Td (Token e fasi) Tj ET
+BT /F1 10.2 Tf 48.0 72.0 Td (Tre bit bassi di state rappresentano la fase. I bit superiori contengono un) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 2 di 8) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 4238 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (token derivato dal ticket:) Tj ET
+BT /F4 8.8 Tf 60.0 780.5 Td (ticket_state\(t, phase\) = \(\(t + 1\) << 3\) | phase) Tj ET
+BT /F4 8.8 Tf 60.0 768.5 Td (phase\(state\)           = state & 7) Tj ET
+BT /F1 10.2 Tf 48.0 746.5 Td (Le fasi sono:) Tj ET
+BT /F4 8.2 Tf 50.0 733.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 722.0 Td (Fase  Valore  Significato) Tj ET
+BT /F4 8.2 Tf 50.0 711.0 Td (EMPTY  0  nessun proprietario, cella riusabile) Tj ET
+BT /F4 8.2 Tf 50.0 700.0 Td (RESERVED  1  producer ha rivendicato la cella) Tj ET
+BT /F4 8.2 Tf 50.0 689.0 Td (WRITING  2  accesso esclusivo al payload in scrittura) Tj ET
+BT /F4 8.2 Tf 50.0 678.0 Td (FULL  3  payload pubblicato) Tj ET
+BT /F4 8.2 Tf 50.0 667.0 Td (READING  4  accesso esclusivo al payload in lettura) Tj ET
+BT /F1 10.2 Tf 48.0 646.0 Td (Il token rende lo stato specifico del ticket e riduce l'ABA fra generazioni.) Tj ET
+BT /F1 10.2 Tf 48.0 632.5 Td (WRITING e READING sono necessari perch\351 Optional[T] non \350 nello stesso word) Tj ET
+BT /F1 10.2 Tf 48.0 619.0 Td (atomico del token: solo il proprietario della fase pu\362 accedere al payload non) Tj ET
+BT /F1 10.2 Tf 48.0 605.5 Td (atomico.) Tj ET
+BT /F1 10.2 Tf 48.0 587.0 Td (La codifica usa 61 bit effettivi per il ticket. Dopo 2^61 ticket il token di) Tj ET
+BT /F1 10.2 Tf 48.0 573.5 Td (stato si ripete per wrap-around. Il prototipo considera il limite impraticabile) Tj ET
+BT /F1 10.2 Tf 48.0 560.0 Td (nell'esperimento, ma il wrap non \350 formalmente supportato o verificato.) Tj ET
+BT /F2 15 Tf 48.0 531.5 Td (Gate bounded dei ticket) Tj ET
+BT /F1 10.2 Tf 48.0 505.5 Td (Il producer carica tail=t e head=h. Rifiuta il tentativo se h>t oppure se) Tj ET
+BT /F1 10.2 Tf 48.0 492.0 Td (t-h>=capacity. Il secondo controllo impedisce di riservare oltre la capacit\340) Tj ET
+BT /F1 10.2 Tf 48.0 478.5 Td (logica. Se la cella ha index=t e stato EMPTY, un CAS tail:t->t+1 assegna il) Tj ET
+BT /F1 10.2 Tf 48.0 465.0 Td (ticket.) Tj ET
+BT /F1 10.2 Tf 48.0 446.5 Td (Il consumer carica head=h e tail=t. Se h>=t non esiste un ticket producer) Tj ET
+BT /F1 10.2 Tf 48.0 433.0 Td (riservato. Anche quando h<t, il consumer procede soltanto se la cella di h) Tj ET
+BT /F1 10.2 Tf 48.0 419.5 Td (espone index=h+capacity e l'esatto stato FULL del ticket h. Un CAS head:h->h+1) Tj ET
+BT /F1 10.2 Tf 48.0 406.0 Td (assegna il consumo.) Tj ET
+BT /F1 10.2 Tf 48.0 387.5 Td (Questo gate \350 una differenza sostanziale dalla LPRQ: PRQ pu\362 tollerare buchi e) Tj ET
+BT /F1 10.2 Tf 48.0 374.0 Td (chiudere il segmento; il prototipo bounded deve impedire sovraprenotazione e) Tj ET
+BT /F1 10.2 Tf 48.0 360.5 Td (attendere il ticket FIFO esatto.) Tj ET
+BT /F2 15 Tf 48.0 332.0 Td (Protocollo push) Tj ET
+BT /F1 10.2 Tf 48.0 306.0 Td (try_push esegue un singolo tentativo prudente:) Tj ET
+BT /F1 10.2 Tf 60.0 292.5 Td (1. legge tail e head e verifica il limite capacity;) Tj ET
+BT /F1 10.2 Tf 60.0 279.0 Td (2. verifica index e EMPTY sull'epoca esatta;) Tj ET
+BT /F1 10.2 Tf 60.0 265.5 Td (3. riserva tail con CAS;) Tj ET
+BT /F1 10.2 Tf 60.0 252.0 Td (4. invoca publish_claimed sul ticket ormai irrevocabile.) Tj ET
+BT /F1 10.2 Tf 48.0 233.5 Td (publish_claimed transita EMPTY->RESERVED, cambia index da t a t+capacity,) Tj ET
+BT /F1 10.2 Tf 48.0 220.0 Td (transita RESERVED->WRITING, scrive data e pubblica lo stato FULL con store) Tj ET
+BT /F1 10.2 Tf 48.0 206.5 Td (RELEASE. Il metodo \350 statico e riceve soltanto puntatore, capacity, mask,) Tj ET
+BT /F1 10.2 Tf 48.0 193.0 Td (ticket e payload.) Tj ET
+BT /F4 8.8 Tf 60.0 179.5 Td (EMPTY -> RESERVED -> WRITING -> FULL) Tj ET
+BT /F4 8.8 Tf 60.0 167.5 Td (index t             -> t + capacity) Tj ET
+BT /F4 8.8 Tf 60.0 155.5 Td (payload              scritto prima della RELEASE FULL) Tj ET
+BT /F1 10.2 Tf 48.0 133.5 Td (push \350 un ciclo sopra try_push. Se il ring \350 pieno o un tentativo perde il CAS,) Tj ET
+BT /F1 10.2 Tf 48.0 120.0 Td (conserva il payload e riprova; dopo 1024 spin chiama sleep\(0.0\).) Tj ET
+BT /F2 15 Tf 48.0 91.5 Td (Protocollo pop) Tj ET
+BT /F1 10.2 Tf 48.0 65.5 Td (try_pop verifica il ticket head esatto, index=t+capacity e lo stato FULL) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 3 di 8) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 4476 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (contenente il token di t. Solo dopo questi controlli avanza head con CAS,) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (cambia FULL->READING, estrae il payload e pubblica EMPTY con store RELEASE.) Tj ET
+BT /F4 8.8 Tf 60.0 767.0 Td (FULL -> READING -> EMPTY) Tj ET
+BT /F4 8.8 Tf 60.0 755.0 Td (payload estratto) Tj ET
+BT /F4 8.8 Tf 60.0 743.0 Td (index resta t + capacity per il producer della generazione seguente) Tj ET
+BT /F1 10.2 Tf 48.0 721.0 Td (pop ripete try_pop e applica lo stesso spin-then-yield. Se il producer del) Tj ET
+BT /F1 10.2 Tf 48.0 707.5 Td (ticket head \350 ritardato dopo la prenotazione di tail, i consumer non possono) Tj ET
+BT /F1 10.2 Tf 48.0 694.0 Td (saltarlo anche se altri producer hanno completato ticket successivi.) Tj ET
+BT /F2 15 Tf 48.0 665.5 Td (Semantica weak delle operazioni try) Tj ET
+BT /F1 10.2 Tf 48.0 639.5 Td (try_push e try_pop sono single-attempt e possono fallire temporaneamente. Un) Tj ET
+BT /F1 10.2 Tf 48.0 626.0 Td (try_push pu\362 restituire il payload anche se la capacit\340 diventerebbe disponibile) Tj ET
+BT /F1 10.2 Tf 48.0 612.5 Td (subito dopo o se perde il CAS contro un altro producer.) Tj ET
+BT /F1 10.2 Tf 48.0 594.0 Td (try_pop pu\362 restituire None perch\351 la coda \350 realmente vuota, perch\351 il ticket) Tj ET
+BT /F1 10.2 Tf 48.0 580.5 Td (producer precedente \350 stato riservato ma non ancora pubblicato, oppure perch\351) Tj ET
+BT /F1 10.2 Tf 48.0 567.0 Td (il CAS su head \350 stato perso. None non prova quindi in modo linearizzabile che) Tj ET
+BT /F1 10.2 Tf 48.0 553.5 Td (la coda fosse vuota in un preciso istante. L'API va considerata weak try e il) Tj ET
+BT /F1 10.2 Tf 48.0 540.0 Td (chiamante deve essere disposto a ritentare, come fanno i test e il percorso) Tj ET
+BT /F1 10.2 Tf 48.0 526.5 Td (cooperativo di MoStream.) Tj ET
+BT /F1 10.2 Tf 48.0 508.0 Td (Questa try_pop non \350 quindi un rimpiazzo diretto per un componente che interpreta) Tj ET
+BT /F1 10.2 Tf 48.0 494.5 Td (subito None come end-of-stream. Tale integrazione richiede un segnale di chiusura) Tj ET
+BT /F1 10.2 Tf 48.0 481.0 Td (separato e polling ripetuto, oppure un risultato tri-state Item, Empty e) Tj ET
+BT /F1 10.2 Tf 48.0 467.5 Td (Pending/Contended.) Tj ET
+BT /F1 10.2 Tf 48.0 449.0 Td (Una volta vinto il CAS di prenotazione, invece, il ticket non pu\362 essere) Tj ET
+BT /F1 10.2 Tf 48.0 435.5 Td (abbandonato: publish_claimed deve completare.) Tj ET
+BT /F2 15 Tf 48.0 407.0 Td (Memory ordering) Tj ET
+BT /F1 10.2 Tf 48.0 381.0 Td (Il prototipo privilegia prudenza e usa Ordering.SEQUENTIAL per i contatori,) Tj ET
+BT /F1 10.2 Tf 48.0 367.5 Td (l'indice e la maggior parte dei CAS. Le osservazioni di state usano ACQUIRE;) Tj ET
+BT /F1 10.2 Tf 48.0 354.0 Td (la pubblicazione FULL e il ritorno a EMPTY usano RELEASE.) Tj ET
+BT /F1 10.2 Tf 48.0 335.5 Td (La store RELEASE di FULL rende il payload visibile al consumer che osserva lo) Tj ET
+BT /F1 10.2 Tf 48.0 322.0 Td (stato con ACQUIRE. La fase READING impedisce accessi concorrenti durante) Tj ET
+BT /F1 10.2 Tf 48.0 308.5 Td (l'estrazione. Un lavoro futuro pu\362 tentare ordinamenti pi\371 deboli, ma soltanto) Tj ET
+BT /F1 10.2 Tf 48.0 295.0 Td (dopo una revisione formale del protocollo e test su architetture weak-memory.) Tj ET
+BT /F2 15 Tf 48.0 266.5 Td (Correzione specifica del lowering Mojo) Tj ET
+BT /F1 10.2 Tf 48.0 240.5 Td (Una prima versione usava publish_claimed\(mut self,...\). Con Mojo 1.0.0b1 il) Tj ET
+BT /F1 10.2 Tf 48.0 227.0 Td (lowering applicava copy-in/copy-out dell'intera struct e poteva riscrivere head) Tj ET
+BT /F1 10.2 Tf 48.0 213.5 Td (e tail con snapshot obsoleti. Il sintomo osservato era la prenotazione apparente) Tj ET
+BT /F1 10.2 Tf 48.0 200.0 Td (dello stesso ticket da parte di due thread.) Tj ET
+BT /F1 10.2 Tf 48.0 181.5 Td (La correzione rende publish_claimed @staticmethod e passa solo i dati necessari.) Tj ET
+BT /F1 10.2 Tf 48.0 168.0 Td (L'IR LLVM del percorso concorrente \350 stato ispezionato per escludere load/store) Tj ET
+BT /F1 10.2 Tf 48.0 154.5 Td (aggregati della coda. Questa \350 una correzione del port Mojo, non una propriet\340) Tj ET
+BT /F1 10.2 Tf 48.0 141.0 Td (dell'algoritmo LPRQ pubblicato.) Tj ET
+BT /F2 15 Tf 48.0 112.5 Td (API e ciclo di vita) Tj ET
+BT /F1 10.2 Tf 48.0 86.5 Td (Esempio:) Tj ET
+BT /F4 8.8 Tf 60.0 73.0 Td (from MoStream.Bounded_LPRQ import BoundedLPRQInspired) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 4 di 8) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 4486 >>
+stream
+BT /F4 8.8 Tf 60.0 794.0 Td (var queue = BoundedLPRQInspired[Int]\(1024\)) Tj ET
+BT /F4 8.8 Tf 60.0 782.0 Td (queue.push\(42\)) Tj ET
+BT /F4 8.8 Tf 60.0 770.0 Td (var value = queue.pop\(\)) Tj ET
+BT /F1 10.2 Tf 48.0 748.0 Td (Il payload deve essere Copyable. Sono disponibili push, pop, try_push, try_pop,) Tj ET
+BT /F1 10.2 Tf 48.0 734.5 Td (estimated_len e metodi debug per ticket e celle piene. estimated_len carica) Tj ET
+BT /F1 10.2 Tf 48.0 721.0 Td (head e tail, calcola tail-head e limita il risultato all'intervallo fra zero e) Tj ET
+BT /F1 10.2 Tf 48.0 707.5 Td (capacity; resta uno snapshot approssimativo sotto concorrenza.) Tj ET
+BT /F1 10.2 Tf 48.0 689.0 Td (Move e distruzione sono supportati soltanto in quiescenza, senza operazioni) Tj ET
+BT /F1 10.2 Tf 48.0 675.5 Td (concorrenti attive e senza thread che conservino ticket o puntatori alle celle.) Tj ET
+BT /F1 10.2 Tf 48.0 662.0 Td (Spostare o distruggere la coda mentre \350 in uso causerebbe invalidazione dei) Tj ET
+BT /F1 10.2 Tf 48.0 648.5 Td (puntatori e non rientra nel contratto verificato.) Tj ET
+BT /F2 15 Tf 48.0 620.0 Td (Garanzie di progresso) Tj ET
+BT /F1 10.2 Tf 48.0 594.0 Td (BoundedLPRQInspired non \350 lock-free e non eredita la prova di progresso della) Tj ET
+BT /F1 10.2 Tf 48.0 580.5 Td (LPRQ. Un producer pu\362 vincere il CAS su tail e venire sospeso prima di FULL. Il) Tj ET
+BT /F1 10.2 Tf 48.0 567.0 Td (consumer head non pu\362 saltare quel ticket; il ring pu\362 quindi subire) Tj ET
+BT /F1 10.2 Tf 48.0 553.5 Td (head-of-line blocking e, una volta esauriti gli slot successivi, il progresso) Tj ET
+BT /F1 10.2 Tf 48.0 540.0 Td (globale dipende dal thread sospeso.) Tj ET
+BT /F1 10.2 Tf 48.0 521.5 Td (Lo yield periodico riduce lo spin aggressivo ma non risolve la dipendenza. La) Tj ET
+BT /F1 10.2 Tf 48.0 508.0 Td (FIFO esatta \350 precisamente il compromesso usato per rendere sicuro il riuso di) Tj ET
+BT /F1 10.2 Tf 48.0 494.5 Td (un singolo ring senza il protocollo di chiusura PRQ.) Tj ET
+BT /F2 15 Tf 48.0 466.0 Td (Verifica di correttezza) Tj ET
+BT /F1 10.2 Tf 48.0 440.0 Td (Il test sequenziale verifica riempimento, rifiuto al nono elemento con capacit\340) Tj ET
+BT /F1 10.2 Tf 48.0 426.5 Td (otto, FIFO, coda vuota, 10000 generazioni e riempimento dopo wrap-around.) Tj ET
+BT /F1 10.2 Tf 48.0 408.0 Td (Due test 4P-4C inviano 100000 messaggi per producer con capacit\340 2, 4, 8 e 16:) Tj ET
+BT /F1 10.2 Tf 48.0 394.5 Td (uno usa push/pop bloccanti, l'altro ritenta le weak try_push/try_pop. Entrambi) Tj ET
+BT /F1 10.2 Tf 48.0 381.0 Td (verificano count, checksum N\(N-1\)/2, coda vuota dopo i sentinel e una sola) Tj ET
+BT /F1 10.2 Tf 48.0 367.5 Td (occorrenza di ciascun ID mediante 400000 contatori atomici per-ID. Quest'ultimo) Tj ET
+BT /F1 10.2 Tf 48.0 354.0 Td (oracolo rileva anche combinazioni di duplicati e perdite che conservano somma e) Tj ET
+BT /F1 10.2 Tf 48.0 340.5 Td (conteggio complessivi.) Tj ET
+BT /F1 10.2 Tf 48.0 322.0 Td (La campagna documentata comprende inoltre 20 esecuzioni aggiuntive dei binari e) Tj ET
+BT /F1 10.2 Tf 48.0 308.5 Td (il controllo dell'IR LLVM. Il 22 luglio 2026 i tre test principali sono stati) Tj ET
+BT /F1 10.2 Tf 48.0 295.0 Td (rieseguiti e hanno prodotto:) Tj ET
+BT /F4 8.8 Tf 60.0 281.5 Td (PASS: sequential boundedness and FIFO correctness) Tj ET
+BT /F4 8.8 Tf 60.0 269.5 Td (PASS: blocking API capacity 2, 4, 8, 16) Tj ET
+BT /F4 8.8 Tf 60.0 257.5 Td (PASS: concurrent exact-once correctness) Tj ET
+BT /F4 8.8 Tf 60.0 245.5 Td (PASS: try API capacity 2, 4, 8, 16) Tj ET
+BT /F4 8.8 Tf 60.0 233.5 Td (PASS: concurrent try exact-once correctness) Tj ET
+BT /F1 10.2 Tf 48.0 211.5 Td (I test sono evidenza sperimentale, non una prova formale di linearizzabilit\340 o) Tj ET
+BT /F1 10.2 Tf 48.0 198.0 Td (di correttezza su tutti gli interleaving e memory model.) Tj ET
+BT /F2 15 Tf 48.0 169.5 Td (Metodo sperimentale) Tj ET
+BT /F1 10.2 Tf 48.0 143.5 Td (Il benchmark \350 stato eseguito il 22 luglio 2026 su Intel Xeon Gold 5512U, 28) Tj ET
+BT /F1 10.2 Tf 48.0 130.0 Td (core e 56 thread hardware, singolo nodo NUMA, Linux x86-64 e Mojo 1.0.0b1.) Tj ET
+BT /F1 10.2 Tf 48.0 111.5 Td (Configurazione:) Tj ET
+BT /F1 10.2 Tf 60.0 98.0 Td (- 100000 messaggi per producer e 10 ripetizioni;) Tj ET
+BT /F1 10.2 Tf 60.0 84.5 Td (- topologie 1P-1C, 2P-2C, 4P-4C, 8P-8C, 1P-8C e 8P-1C;) Tj ET
+BT /F1 10.2 Tf 60.0 71.0 Td (- capacit\340 16, 1024 e 65536;) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 5 di 8) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 4253 >>
+stream
+BT /F1 10.2 Tf 60.0 794.0 Td (- ordine delle implementazioni ruotato fra le ripetizioni;) Tj ET
+BT /F1 10.2 Tf 60.0 780.5 Td (- count e checksum verificati in ogni esecuzione;) Tj ET
+BT /F1 10.2 Tf 60.0 767.0 Td (- media, deviazione standard campionaria e intervallo di confidenza 95 percento.) Tj ET
+BT /F1 10.2 Tf 48.0 748.5 Td (Le baseline sono CAS-MPMC, FAA, Rigtorp, Padded-FAA e Hybrid con soglie 1, 2,) Tj ET
+BT /F1 10.2 Tf 48.0 735.0 Td (4 e 8. La macchina non \350 stata isolata e i thread non sono stati pinnati. I) Tj ET
+BT /F1 10.2 Tf 48.0 721.5 Td (risultati sono quindi comparativi locali e richiedono replica controllata prima) Tj ET
+BT /F1 10.2 Tf 48.0 708.0 Td (di una pubblicazione definitiva.) Tj ET
+BT /F2 15 Tf 48.0 679.5 Td (Risultati bilanciati a capacit\340 1024) Tj ET
+BT /F1 10.2 Tf 48.0 653.5 Td (La tabella riporta throughput medio in milioni di messaggi al secondo dal CSV) Tj ET
+BT /F1 10.2 Tf 48.0 640.0 Td (rigenerato results_bounded_lprq.csv. Best Hybrid \350 il massimo delle quattro) Tj ET
+BT /F1 10.2 Tf 48.0 626.5 Td (soglie; l'ultima colonna confronta il vincitore con BLPRQ.) Tj ET
+BT /F4 8.2 Tf 50.0 613.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 602.0 Td (Thread  CAS  FAA  Rigtorp  Padded  Best H  BLPRQ  Winner/BLPRQ) Tj ET
+BT /F4 8.2 Tf 50.0 591.0 Td (1P-1C  5.023  6.690  4.410  4.993  6.367  2.219  FAA 3.01x) Tj ET
+BT /F4 8.2 Tf 50.0 580.0 Td (2P-2C  4.528  7.237  7.880  9.085  5.746  3.315  Padded 2.74x) Tj ET
+BT /F4 8.2 Tf 50.0 569.0 Td (4P-4C  3.841  8.692  8.645  10.842  7.132  3.012  Padded 3.60x) Tj ET
+BT /F4 8.2 Tf 50.0 558.0 Td (8P-8C  2.530  9.416  8.659  10.588  6.678  2.159  Padded 4.90x) Tj ET
+BT /F1 10.2 Tf 48.0 537.0 Td (Gli intervalli 95 percento di BLPRQ sono rispettivamente +/-0.031, +/-0.009,) Tj ET
+BT /F1 10.2 Tf 48.0 523.5 Td (+/-0.066 e +/-0.034 Mmsg/s. Gli intervalli completi di ogni baseline sono) Tj ET
+BT /F1 10.2 Tf 48.0 510.0 Td (conservati nel CSV.) Tj ET
+BT /F2 15 Tf 48.0 481.5 Td (Risultati sull'intera matrice) Tj ET
+BT /F1 10.2 Tf 48.0 455.5 Td (Vittorie per massimo throughput medio:) Tj ET
+BT /F4 8.2 Tf 50.0 442.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 431.0 Td (Implementazione  Vittorie su 18) Tj ET
+BT /F4 8.2 Tf 50.0 420.0 Td (Padded-FAA  14) Tj ET
+BT /F4 8.2 Tf 50.0 409.0 Td (FAA  2) Tj ET
+BT /F4 8.2 Tf 50.0 398.0 Td (Rigtorp  2) Tj ET
+BT /F4 8.2 Tf 50.0 387.0 Td (BLPRQ  0) Tj ET
+BT /F4 8.2 Tf 50.0 376.0 Td (CAS  0) Tj ET
+BT /F4 8.2 Tf 50.0 365.0 Td (Hybrid-1, 2, 4, 8  0) Tj ET
+BT /F1 10.2 Tf 48.0 344.0 Td (La migliore implementazione di ciascuna configurazione \350 fra 2.50 e 5.75) Tj ET
+BT /F1 10.2 Tf 48.0 330.5 Td (volte pi\371 veloce di BLPRQ. La mediana del rapporto \350 3.57x e la media geometrica) Tj ET
+BT /F1 10.2 Tf 48.0 317.0 Td (3.63x.) Tj ET
+BT /F1 10.2 Tf 48.0 298.5 Td (Media geometrica dei rapporti rispetto a BLPRQ:) Tj ET
+BT /F4 8.2 Tf 50.0 285.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 274.0 Td (Queue  Rapporto  Queue  Rapporto) Tj ET
+BT /F4 8.2 Tf 50.0 263.0 Td (CAS  1.53x  FAA  2.69x) Tj ET
+BT /F4 8.2 Tf 50.0 252.0 Td (Rigtorp  2.91x  Padded-FAA  3.46x) Tj ET
+BT /F4 8.2 Tf 50.0 241.0 Td (Hybrid-1  2.43x  Hybrid-2  2.17x) Tj ET
+BT /F4 8.2 Tf 50.0 230.0 Td (Hybrid-4  1.80x  Hybrid-8  1.65x) Tj ET
+BT /F1 10.2 Tf 48.0 209.0 Td (Il distacco minimo, 2.50x, si verifica in 2P-2C capacit\340 16; il massimo, 5.75x,) Tj ET
+BT /F1 10.2 Tf 48.0 195.5 Td (in 1P-1C capacit\340 65536. Quest'ultimo caso presenta elevata variabilit\340 per) Tj ET
+BT /F1 10.2 Tf 48.0 182.0 Td (Padded-FAA e va replicato su macchina isolata.) Tj ET
+BT /F2 15 Tf 48.0 153.5 Td (Interpretazione del risultato negativo) Tj ET
+BT /F1 10.2 Tf 48.0 127.5 Td (BoundedLPRQInspired non ottiene vittorie. I costi principali sono:) Tj ET
+BT /F1 10.2 Tf 60.0 114.0 Td (1. il gate CAS \350 necessario per impedire la sovraprenotazione che PRQ gestisce) Tj ET
+BT /F1 10.2 Tf 48.0 100.5 Td (tramite skip e chiusura del segmento;) Tj ET
+BT /F1 10.2 Tf 60.0 87.0 Td (2. ogni trasferimento attraversa ticket, index, token e pi\371 transizioni atomiche;) Tj ET
+BT /F1 10.2 Tf 60.0 73.5 Td (3. Optional[T] separato richiede WRITING e READING, mentre una rappresentazione) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 6 di 8) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 4652 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (compatta token-puntatore pu\362 ridurre passaggi;) Tj ET
+BT /F1 10.2 Tf 60.0 780.5 Td (4. la FIFO exact-turn elimina gli skip e introduce head-of-line blocking;) Tj ET
+BT /F1 10.2 Tf 60.0 767.0 Td (5. SEQ_CST, CAS retry e cache coherence crescono con la contesa;) Tj ET
+BT /F1 10.2 Tf 60.0 753.5 Td (6. padding e due word atomici per cella aumentano memoria e traffico.) Tj ET
+BT /F1 10.2 Tf 48.0 735.0 Td (Il peggioramento relativo cresce nelle topologie 8P-8C e SPMC, coerentemente) Tj ET
+BT /F1 10.2 Tf 48.0 721.5 Td (con un percorso ricco di CAS e metadati. BLPRQ resta un prototipo utile per) Tj ET
+BT /F1 10.2 Tf 48.0 708.0 Td (studiare perch\351 la chiusura dei segmenti sia strutturale nella LPRQ.) Tj ET
+BT /F2 15 Tf 48.0 679.5 Td (Cosa non dimostrano i numeri) Tj ET
+BT /F1 10.2 Tf 48.0 653.5 Td (Questi dati non dimostrano che la LPRQ di Romanov e Koval sia lenta. Non \350 stata) Tj ET
+BT /F1 10.2 Tf 48.0 640.0 Td (implementata n\351 benchmarkata la lista dinamica di segmenti con il protocollo) Tj ET
+BT /F1 10.2 Tf 48.0 626.5 Td (PRQ completo. \310 stata misurata una riduzione bounded conservativa che sacrifica) Tj ET
+BT /F1 10.2 Tf 48.0 613.0 Td (proprio skip, close e lock-freedom.) Tj ET
+BT /F1 10.2 Tf 48.0 594.5 Td (Le classifiche sono basate sulle medie di una singola campagna. Intervalli) Tj ET
+BT /F1 10.2 Tf 48.0 581.0 Td (sovrapposti, rumore, frequenza CPU, allocazione dei thread e assenza di pinning) Tj ET
+BT /F1 10.2 Tf 48.0 567.5 Td (limitano inferenze causali. Il throughput non descrive latenza p99, fairness,) Tj ET
+BT /F1 10.2 Tf 48.0 554.0 Td (energia o risposta alla sospensione dei thread.) Tj ET
+BT /F2 15 Tf 48.0 525.5 Td (Limiti di correttezza e API) Tj ET
+BT /F1 10.2 Tf 60.0 504.5 Td (- Le try sono weak: un fallimento temporaneo non certifica pieno o vuoto.) Tj ET
+BT /F1 10.2 Tf 60.0 491.0 Td (- Move e distruzione richiedono quiescenza completa.) Tj ET
+BT /F1 10.2 Tf 60.0 477.5 Td (- Il token si ripete dopo 2^61 ticket; wrap-around non formalmente supportato.) Tj ET
+BT /F1 10.2 Tf 60.0 464.0 Td (- Non esiste una prova formale di linearizzabilit\340 del port Mojo.) Tj ET
+BT /F1 10.2 Tf 60.0 450.5 Td (- Non sono stati esplorati sistematicamente tutti gli interleaving.) Tj ET
+BT /F1 10.2 Tf 60.0 437.0 Td (- Il lowering corretto \350 stato verificato per Mojo 1.0.0b1, non per versioni future.) Tj ET
+BT /F1 10.2 Tf 60.0 423.5 Td (- Un thread sospeso dopo la prenotazione pu\362 arrestare il ticket FIFO successivo.) Tj ET
+BT /F1 10.2 Tf 60.0 410.0 Td (- Payload e capacit\340 differenti possono modificare cache, layout e prestazioni.) Tj ET
+BT /F2 15 Tf 48.0 381.5 Td (Applicabilit\340 a MoStream) Tj ET
+BT /F1 10.2 Tf 48.0 355.5 Td (Nella matrice corrente Padded-FAA resta la scelta generale pi\371 forte, FAA vince) Tj ET
+BT /F1 10.2 Tf 48.0 342.0 Td (due casi semplici e Rigtorp due workload SPMC. BoundedLPRQInspired non \350 una) Tj ET
+BT /F1 10.2 Tf 48.0 328.5 Td (sostituzione prestazionale consigliata per Communicator o scheduler.) Tj ET
+BT /F1 10.2 Tf 48.0 310.0 Td (Il prototipo \350 invece utile come risultato di tesi: mostra empiricamente che) Tj ET
+BT /F1 10.2 Tf 48.0 296.5 Td (fissare un singolo ring e attendere il turno esatto annulla i vantaggi del) Tj ET
+BT /F1 10.2 Tf 48.0 283.0 Td (meccanismo PRQ. Per avvicinarsi all'algoritmo originale senza memoria illimitata) Tj ET
+BT /F1 10.2 Tf 48.0 269.5 Td (serve studiare un pool bounded di segmenti con generazioni e reclamation, non) Tj ET
+BT /F1 10.2 Tf 48.0 256.0 Td (aggiungere altre ottimizzazioni locali al solo ring exact-turn.) Tj ET
+BT /F2 15 Tf 48.0 227.5 Td (Lavoro futuro) Tj ET
+BT /F1 10.2 Tf 60.0 206.5 Td (1. Formalizzare linearizzabilit\340 e progresso con model checking.) Tj ET
+BT /F1 10.2 Tf 60.0 193.0 Td (2. Creare uno stress harness con storie concorrenti e verifica offline.) Tj ET
+BT /F1 10.2 Tf 60.0 179.5 Td (3. Sospendere thread dopo tail CAS e durante WRITING o READING.) Tj ET
+BT /F1 10.2 Tf 60.0 166.0 Td (4. Misurare p50, p95, p99, fairness, CPU ed energia su host pinnato.) Tj ET
+BT /F1 10.2 Tf 60.0 152.5 Td (5. Provare ordinamenti meno forti solo dopo analisi memory-model.) Tj ET
+BT /F1 10.2 Tf 60.0 139.0 Td (6. Progettare un pool fisso di segmenti PRQ con generation tag.) Tj ET
+BT /F1 10.2 Tf 60.0 125.5 Td (7. Definire reclamation sicura per segmenti riutilizzabili.) Tj ET
+BT /F1 10.2 Tf 60.0 112.0 Td (8. Confrontare payload atomici compatti e Optional[T] generico.) Tj ET
+BT /F1 10.2 Tf 60.0 98.5 Td (9. Ripetere su ARM e sistemi NUMA per esporre weak ordering e locality.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 7 di 8) Tj ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 19 0 R >>
+endobj
+21 0 obj
+<< /Length 2050 >>
+stream
+BT /F2 15 Tf 48.0 784.0 Td (Conclusione) Tj ET
+BT /F1 10.2 Tf 48.0 758.0 Td (BoundedLPRQInspired raggiunge memoria e occupazione limitate e supera i test) Tj ET
+BT /F1 10.2 Tf 48.0 744.5 Td (eseguiti grazie a index per epoca, token per ticket, fasi esclusive e gate CAS.) Tj ET
+BT /F1 10.2 Tf 48.0 731.0 Td (Questa prudenza trasforma per\362 il protocollo in una coda exact-turn non) Tj ET
+BT /F1 10.2 Tf 48.0 717.5 Td (lock-free, con pi\371 metadati e operazioni atomiche delle baseline.) Tj ET
+BT /F1 10.2 Tf 48.0 699.0 Td (Il risultato sperimentale \350 netto: zero vittorie su 18, Padded-FAA prima in 14) Tj ET
+BT /F1 10.2 Tf 48.0 685.5 Td (casi e un vincitore mediamente 3.63x pi\371 veloce. La conclusione scientificamente) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (corretta non \350 che LPRQ sia inefficiente, ma che la conversione in un unico ring) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (bounded e riusabile rimuove il meccanismo con cui LPRQ tollera i ticket saltati.) Tj ET
+BT /F2 15 Tf 48.0 630.0 Td (Artefatti e fonti) Tj ET
+BT /F1 10.2 Tf 60.0 609.0 Td (- MoStream/Bounded_LPRQ.mojo, implementazione exact-turn.) Tj ET
+BT /F1 10.2 Tf 60.0 595.5 Td (- Tests/test_bounded_lprq.mojo, test sequenziale e generazionale.) Tj ET
+BT /F1 10.2 Tf 60.0 582.0 Td (- Tests/test_bounded_lprq_concurrent.mojo, test bloccante 4P-4C.) Tj ET
+BT /F1 10.2 Tf 60.0 568.5 Td (- Tests/test_bounded_lprq_try_concurrent.mojo, test weak try 4P-4C.) Tj ET
+BT /F1 10.2 Tf 60.0 555.0 Td (- Benchmarks/QueueBenchmark/results_bounded_lprq.csv, dati aggregati.) Tj ET
+BT /F1 10.2 Tf 60.0 541.5 Td (- Benchmarks/QueueBenchmark/analyze_lprq_results.py, riepilogo riproducibile.) Tj ET
+BT /F1 10.2 Tf 60.0 528.0 Td (- Raed Romanov e Nikita Koval, The State-of-the-Art LCRQ Concurrent Queue) Tj ET
+BT /F1 10.2 Tf 48.0 514.5 Td (Algorithm Does NOT Require CAS2, PPoPP 2023, DOI 10.1145/3572848.3577485.) Tj ET
+BT /F1 10.2 Tf 60.0 501.0 Td (- Artifact ufficiale: https://zenodo.org/records/7337237.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 8 di 8) Tj ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 21 0 R >>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000170 00000 n 
+0000000267 00000 n 
+0000000369 00000 n 
+0000000474 00000 n 
+0000000569 00000 n 
+0000004929 00000 n 
+0000005085 00000 n 
+0000009461 00000 n 
+0000009618 00000 n 
+0000013908 00000 n 
+0000014066 00000 n 
+0000018594 00000 n 
+0000018752 00000 n 
+0000023290 00000 n 
+0000023448 00000 n 
+0000027753 00000 n 
+0000027911 00000 n 
+0000032615 00000 n 
+0000032773 00000 n 
+0000034875 00000 n 
+trailer
+<< /Size 23 /Root 1 0 R >>
+startxref
+35033
+%%EOF

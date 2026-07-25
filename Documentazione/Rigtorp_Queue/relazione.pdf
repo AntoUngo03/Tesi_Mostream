@@ -1,0 +1,467 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R] /Count 8 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 4334 >>
+stream
+BT /F2 20 Tf 48.0 766.0 Td (Rigtorp MPMC Queue: algoritmo, port Mojo e valutazione) Tj ET
+BT /F2 20 Tf 48.0 741.0 Td (in MoStream) Tj ET
+BT /F3 11 Tf 48.0 704.0 Td (Documentazione tecnica per attivit\340 di tesi) Tj ET
+BT /F3 11 Tf 48.0 688.0 Td (Progetto MoStream - 22 luglio 2026) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (Questa relazione descrive il port Mojo della bounded MPMCQueue turn-based di) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (Erik Rigtorp. La coda assegna ticket mediante Fetch-And-Add, associa ogni ticket) Tj ET
+BT /F1 10.2 Tf 48.0 645.0 Td (a uno slot e a una generazione, e usa un contatore atomico turn per coordinare) Tj ET
+BT /F1 10.2 Tf 48.0 631.5 Td (producer e consumer. Il port isola contatori globali e slot su cache line da 64) Tj ET
+BT /F1 10.2 Tf 48.0 618.0 Td (byte. Nel primo confronto con CAS-MPMC, FAA compatta e Hybrid, Rigtorp ottiene il) Tj ET
+BT /F1 10.2 Tf 48.0 604.5 Td (miglior throughput medio in 10 configurazioni su 18, dominando tutti i workload) Tj ET
+BT /F1 10.2 Tf 48.0 591.0 Td (sbilanciati 1P-8C e 8P-1C. Non \350 per\362 universalmente superiore: FAA prevale ad) Tj ET
+BT /F1 10.2 Tf 48.0 577.5 Td (alta contesa bilanciata e la successiva Padded-FAA risulta la migliore scelta) Tj ET
+BT /F1 10.2 Tf 48.0 564.0 Td (generale. Rimangono inoltre ticket irrevocabili, head-of-line blocking, puro) Tj ET
+BT /F1 10.2 Tf 48.0 550.5 Td (spin e un footprint di memoria elevato.) Tj ET
+BT /F2 15 Tf 48.0 522.0 Td (Scopo e provenienza) Tj ET
+BT /F1 10.2 Tf 48.0 496.0 Td (Il file MoStream/Rigtorp_queue.mojo \350 dichiarato come port Mojo) Tj ET
+BT /F1 10.2 Tf 48.0 482.5 Td (dell'implementazione bounded MPMCQueue di Erik Rigtorp, distribuita con licenza) Tj ET
+BT /F1 10.2 Tf 48.0 469.0 Td (MIT. La relazione analizza il codice presente nel repository MoStream; non) Tj ET
+BT /F1 10.2 Tf 48.0 455.5 Td (costituisce una prova formale di equivalenza con ogni revisione del sorgente C++) Tj ET
+BT /F1 10.2 Tf 48.0 442.0 Td (originale.) Tj ET
+BT /F1 10.2 Tf 48.0 423.5 Td (MPMC significa Multiple Producer, Multiple Consumer: pi\371 thread possono) Tj ET
+BT /F1 10.2 Tf 48.0 410.0 Td (inserire e rimuovere elementi concorrenti. Bounded significa che la memoria del) Tj ET
+BT /F1 10.2 Tf 48.0 396.5 Td (ring buffer viene allocata alla costruzione e la capacit\340 fisica non cresce.) Tj ET
+BT /F1 10.2 Tf 48.0 383.0 Td (Nel port la capacit\340 deve essere almeno uno e pu\362 essere arbitraria. Il) Tj ET
+BT /F1 10.2 Tf 48.0 369.5 Td (benchmark comune usa soltanto potenze di due, perch\351 le altre code confrontate) Tj ET
+BT /F1 10.2 Tf 48.0 356.0 Td (impongono questo vincolo.) Tj ET
+BT /F1 10.2 Tf 48.0 337.5 Td (La coda \350 progettata per push e pop bloccanti ad alto throughput. Quando il ring) Tj ET
+BT /F1 10.2 Tf 48.0 324.0 Td (\350 pieno, push attende; quando \350 vuoto, pop attende. Le varianti try_push e) Tj ET
+BT /F1 10.2 Tf 48.0 310.5 Td (try_pop ritornano senza attendere se l'operazione non pu\362 essere completata.) Tj ET
+BT /F2 15 Tf 48.0 282.0 Td (Struttura dati) Tj ET
+BT /F1 10.2 Tf 48.0 256.0 Td (I campi principali di RigtorpMPMCQueue sono:) Tj ET
+BT /F4 8.8 Tf 60.0 242.5 Td (slots       array di RigtorpSlot[T]) Tj ET
+BT /F4 8.8 Tf 60.0 230.5 Td (capacity    numero fisso di celle del ring) Tj ET
+BT /F4 8.8 Tf 60.0 218.5 Td (head        prossimo ticket riservabile da un producer) Tj ET
+BT /F4 8.8 Tf 60.0 206.5 Td (tail        prossimo ticket riservabile da un consumer) Tj ET
+BT /F1 10.2 Tf 48.0 184.5 Td (head e tail sono PaddedAtomicU64 distinti. Ogni oggetto contiene un Atomic) Tj ET
+BT /F1 10.2 Tf 48.0 171.0 Td (UInt64 e byte di padding fino a 64 byte. L'obiettivo \350 impedire che gli) Tj ET
+BT /F1 10.2 Tf 48.0 157.5 Td (aggiornamenti dei producer su head invalidino la cache line modificata dai) Tj ET
+BT /F1 10.2 Tf 48.0 144.0 Td (consumer su tail.) Tj ET
+BT /F1 10.2 Tf 48.0 125.5 Td (Ogni RigtorpSlot contiene:) Tj ET
+BT /F4 8.8 Tf 60.0 112.0 Td (turn        contatore atomico di stato e generazione) Tj ET
+BT /F4 8.8 Tf 60.0 100.0 Td (data        payload Optional[T]) Tj ET
+BT /F4 8.8 Tf 60.0 88.0 Td (padding     byte fino al successivo multiplo di 64) Tj ET
+BT /F1 10.2 Tf 48.0 66.0 Td (L'array \350 allocato con alignment=64. La dimensione di ogni slot \350 arrotondata a) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 1 di 8) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 4002 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (un multiplo di 64 byte; quindi il primo slot e quelli successivi iniziano su un) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (confine di cache line. Se turn e payload richiedono pi\371 di 64 byte, la cella) Tj ET
+BT /F1 10.2 Tf 48.0 767.0 Td (occupa il multiplo successivo.) Tj ET
+BT /F2 15 Tf 48.0 738.5 Td (Ticket, indice e ciclo) Tj ET
+BT /F1 10.2 Tf 48.0 712.5 Td (Ogni operazione bloccante riceve un ticket monotono t. Il ticket individua sia) Tj ET
+BT /F1 10.2 Tf 48.0 699.0 Td (la posizione fisica sia la generazione logica:) Tj ET
+BT /F4 8.8 Tf 60.0 685.5 Td (index\(t\) = t modulo capacity) Tj ET
+BT /F4 8.8 Tf 60.0 673.5 Td (cycle\(t\) = t div capacity) Tj ET
+BT /F1 10.2 Tf 48.0 651.5 Td (L'indice riutilizza lo stesso ring; il ciclo distingue passaggi diversi sullo) Tj ET
+BT /F1 10.2 Tf 48.0 638.0 Td (stesso slot. Questa scelta supporta capacit\340 non power-of-two, a differenza) Tj ET
+BT /F1 10.2 Tf 48.0 624.5 Td (della mask ticket & \(capacity-1\), ma richiede modulo e divisione intera.) Tj ET
+BT /F2 15 Tf 48.0 596.0 Td (Protocollo del turn) Tj ET
+BT /F1 10.2 Tf 48.0 570.0 Td (Per il ticket t e il ciclo g = cycle\(t\), il producer attende il valore 2g e il) Tj ET
+BT /F1 10.2 Tf 48.0 556.5 Td (consumer attende 2g+1:) Tj ET
+BT /F4 8.2 Tf 50.0 543.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 532.0 Td (Turn  Significato  Attore abilitato) Tj ET
+BT /F4 8.2 Tf 50.0 521.0 Td (2g  slot libero nel ciclo g  producer) Tj ET
+BT /F4 8.2 Tf 50.0 510.0 Td (2g+1  payload pubblicato nel ciclo g  consumer) Tj ET
+BT /F4 8.2 Tf 50.0 499.0 Td (2g+2  slot libero nel ciclo g+1  producer successivo) Tj ET
+BT /F1 10.2 Tf 48.0 478.0 Td (Il turn parte da zero. Dopo la scrittura, il producer lo incrementa di uno; dopo) Tj ET
+BT /F1 10.2 Tf 48.0 464.5 Td (la lettura, il consumer lo incrementa ancora. Il valore crescente elimina) Tj ET
+BT /F1 10.2 Tf 48.0 451.0 Td (l'ambiguit\340 fra slot vuoto e slot pieno e associa lo stato alla corretta) Tj ET
+BT /F1 10.2 Tf 48.0 437.5 Td (generazione del ring.) Tj ET
+BT /F1 10.2 Tf 48.0 419.0 Td (Esempio con capacit\340 quattro: i ticket 0 e 4 usano entrambi lo slot zero. Il) Tj ET
+BT /F1 10.2 Tf 48.0 405.5 Td (ticket 0 attende turn 0, pubblica turn 1 e il consumer libera con turn 2. Il) Tj ET
+BT /F1 10.2 Tf 48.0 392.0 Td (ticket 4 appartiene al ciclo uno, attende turn 2 e pubblica turn 3.) Tj ET
+BT /F2 15 Tf 48.0 363.5 Td (Push bloccante) Tj ET
+BT /F1 10.2 Tf 48.0 337.5 Td (Il percorso di inserimento \350:) Tj ET
+BT /F4 8.8 Tf 60.0 324.0 Td (t = head.fetch_add\(1, SEQ_CST\)) Tj ET
+BT /F4 8.8 Tf 60.0 312.0 Td (s = slots[t modulo capacity]) Tj ET
+BT /F4 8.8 Tf 60.0 300.0 Td (g = t div capacity) Tj ET
+BT /F4 8.8 Tf 60.0 288.0 Td (attendi finch\351 s.turn.load\(ACQUIRE\) == 2g) Tj ET
+BT /F4 8.8 Tf 60.0 276.0 Td (s.data = item) Tj ET
+BT /F4 8.8 Tf 60.0 264.0 Td (s.turn.store\(2g + 1, RELEASE\)) Tj ET
+BT /F1 10.2 Tf 48.0 242.0 Td (Fetch-And-Add assegna un ticket distinto a ogni producer senza un ciclo di CAS) Tj ET
+BT /F1 10.2 Tf 48.0 228.5 Td (sul contatore condiviso. Se il ring \350 pieno, il producer ha comunque gi\340) Tj ET
+BT /F1 10.2 Tf 48.0 215.0 Td (prenotato la propria posizione futura e attende il turn corretto. Il ticket non) Tj ET
+BT /F1 10.2 Tf 48.0 201.5 Td (pu\362 essere annullato.) Tj ET
+BT /F1 10.2 Tf 48.0 183.0 Td (La store RELEASE sul turn pubblica il payload. Un consumer che osserva il turn) Tj ET
+BT /F1 10.2 Tf 48.0 169.5 Td (con ACQUIRE vede la scrittura su data, che non deve quindi essere atomica.) Tj ET
+BT /F2 15 Tf 48.0 141.0 Td (Pop bloccante) Tj ET
+BT /F1 10.2 Tf 48.0 115.0 Td (Il percorso di estrazione \350 simmetrico:) Tj ET
+BT /F4 8.8 Tf 60.0 101.5 Td (t = tail.fetch_add\(1, SEQ_CST\)) Tj ET
+BT /F4 8.8 Tf 60.0 89.5 Td (s = slots[t modulo capacity]) Tj ET
+BT /F4 8.8 Tf 60.0 77.5 Td (g = t div capacity) Tj ET
+BT /F4 8.8 Tf 60.0 65.5 Td (attendi finch\351 s.turn.load\(ACQUIRE\) == 2g + 1) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 2 di 8) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 4493 >>
+stream
+BT /F4 8.8 Tf 60.0 794.0 Td (item = s.data.take\(\)) Tj ET
+BT /F4 8.8 Tf 60.0 782.0 Td (s.turn.store\(2g + 2, RELEASE\)) Tj ET
+BT /F1 10.2 Tf 48.0 760.0 Td (La store finale libera la cella per il producer del ciclo successivo. Anche il) Tj ET
+BT /F1 10.2 Tf 48.0 746.5 Td (consumer prenota prima di sapere quando il dato sar\340 disponibile, quindi un pop) Tj ET
+BT /F1 10.2 Tf 48.0 733.0 Td (su coda vuota rimane in spin sul proprio ticket.) Tj ET
+BT /F2 15 Tf 48.0 704.5 Td (Memory ordering) Tj ET
+BT /F1 10.2 Tf 48.0 678.5 Td (Nel port corrente i fetch_add su head e tail usano Ordering.SEQUENTIAL, in) Tj ET
+BT /F1 10.2 Tf 48.0 665.0 Td (linea con le operazioni predefinite seq_cst menzionate nel commento del codice) Tj ET
+BT /F1 10.2 Tf 48.0 651.5 Td (originale. I turn usano load ACQUIRE e store RELEASE. Le operazioni try usano) Tj ET
+BT /F1 10.2 Tf 48.0 638.0 Td (load ACQUIRE e compare_exchange con successo SEQUENTIAL e fallimento ACQUIRE.) Tj ET
+BT /F1 10.2 Tf 48.0 619.5 Td (La relazione di pubblicazione essenziale \350 stabilita dal turn: scrittura del) Tj ET
+BT /F1 10.2 Tf 48.0 606.0 Td (payload prima della store RELEASE, poi osservazione tramite load ACQUIRE. \310) Tj ET
+BT /F1 10.2 Tf 48.0 592.5 Td (possibile studiare ordinamenti pi\371 deboli sui soli contatori di ticket, come fa) Tj ET
+BT /F1 10.2 Tf 48.0 579.0 Td (Padded-FAA, ma una modifica del memory ordering richiede validazione specifica) Tj ET
+BT /F1 10.2 Tf 48.0 565.5 Td (e non \350 implicita nei risultati qui riportati.) Tj ET
+BT /F2 15 Tf 48.0 537.0 Td (try_push e try_pop) Tj ET
+BT /F1 10.2 Tf 48.0 511.0 Td (Le operazioni non bloccanti non possono consumare alla cieca un ticket FAA: se) Tj ET
+BT /F1 10.2 Tf 48.0 497.5 Td (lo slot non fosse pronto, abbandonare il ticket creerebbe un buco permanente.) Tj ET
+BT /F1 10.2 Tf 48.0 484.0 Td (Per questo usano CAS.) Tj ET
+BT /F1 10.2 Tf 48.0 465.5 Td (try_push carica head, verifica il turn atteso e tenta compare_exchange da t a) Tj ET
+BT /F1 10.2 Tf 48.0 452.0 Td (t+1. In caso di collisione, il valore expected aggiornato diventa il nuovo) Tj ET
+BT /F1 10.2 Tf 48.0 438.5 Td (ticket e il ciclo prosegue. Se lo slot non \350 disponibile, rilegge head: ritorna) Tj ET
+BT /F1 10.2 Tf 48.0 425.0 Td (il payload al chiamante soltanto quando head \350 rimasto invariato, riducendo i) Tj ET
+BT /F1 10.2 Tf 48.0 411.5 Td (falsi fallimenti dovuti a una vista obsoleta.) Tj ET
+BT /F1 10.2 Tf 48.0 393.0 Td (try_pop applica lo stesso schema a tail. Restituisce Optional[T]: Some contiene) Tj ET
+BT /F1 10.2 Tf 48.0 379.5 Td (l'elemento estratto, None indica che non era disponibile. try_push usa la) Tj ET
+BT /F1 10.2 Tf 48.0 366.0 Td (convenzione complementare: None indica inserimento riuscito, mentre Some) Tj ET
+BT /F1 10.2 Tf 48.0 352.5 Td (restituisce al chiamante il payload non inserito.) Tj ET
+BT /F2 15 Tf 48.0 324.0 Td (API Mojo e ciclo di vita) Tj ET
+BT /F1 10.2 Tf 48.0 298.0 Td (Il tipo richiede un payload Copyable ed \350 Movable:) Tj ET
+BT /F4 8.8 Tf 60.0 284.5 Td (from MoStream.Rigtorp_queue import RigtorpMPMCQueue) Tj ET
+BT /F4 8.8 Tf 60.0 267.5 Td (var queue = RigtorpMPMCQueue[Int]\(1024\)) Tj ET
+BT /F4 8.8 Tf 60.0 255.5 Td (queue.push\(42\)) Tj ET
+BT /F4 8.8 Tf 60.0 243.5 Td (var value = queue.pop\(\)) Tj ET
+BT /F1 10.2 Tf 48.0 221.5 Td (Metodi esposti:) Tj ET
+BT /F1 10.2 Tf 60.0 208.0 Td (- push\(item\): inserimento bloccante;) Tj ET
+BT /F1 10.2 Tf 60.0 194.5 Td (- pop\(\): estrazione bloccante;) Tj ET
+BT /F1 10.2 Tf 60.0 181.0 Td (- try_push\(item\): inserimento immediato con restituzione dell'item al fallimento;) Tj ET
+BT /F1 10.2 Tf 60.0 167.5 Td (- try_pop\(\): estrazione immediata tramite Optional;) Tj ET
+BT /F1 10.2 Tf 60.0 154.0 Td (- estimated_len\(\): differenza istantanea fra head e tail.) Tj ET
+BT /F1 10.2 Tf 48.0 135.5 Td (Il costruttore inizializza tutti i turn a zero. Il move constructor trasferisce) Tj ET
+BT /F1 10.2 Tf 48.0 122.0 Td (i puntatori e conserva i contatori. Il distruttore distrugge ogni slot e libera) Tj ET
+BT /F1 10.2 Tf 48.0 108.5 Td (l'allocazione allineata.) Tj ET
+BT /F1 10.2 Tf 48.0 90.0 Td (estimated_len non \350 una misura esatta dell'occupazione: head e tail contano) Tj ET
+BT /F1 10.2 Tf 48.0 76.5 Td (anche ticket gi\340 riservati da operazioni ancora in attesa. Con producer o) Tj ET
+BT /F1 10.2 Tf 48.0 63.0 Td (consumer prenotati in anticipo pu\362 superare la capacit\340 o diventare negativo.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 3 di 8) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 4488 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (Deve essere usato solo come indicatore diagnostico, non per la correttezza.) Tj ET
+BT /F2 15 Tf 48.0 765.5 Td (Boundedness e uso della memoria) Tj ET
+BT /F1 10.2 Tf 48.0 739.5 Td (Il numero di payload materialmente contenuti non supera capacity. Possono per\362) Tj ET
+BT /F1 10.2 Tf 48.0 726.0 Td (esistere pi\371 thread in attesa con ticket futuri; queste prenotazioni non) Tj ET
+BT /F1 10.2 Tf 48.0 712.5 Td (espandono il ring.) Tj ET
+BT /F1 10.2 Tf 48.0 694.0 Td (Con slot minimi da 64 byte, la sola area delle celle richiede almeno:) Tj ET
+BT /F4 8.2 Tf 50.0 680.5 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 669.5 Td (Capacit\340  Memoria minima slot  Osservazione) Tj ET
+BT /F4 8.2 Tf 50.0 658.5 Td (16  1 KiB  footprint ridotto) Tj ET
+BT /F4 8.2 Tf 50.0 647.5 Td (1024  64 KiB  ordine di grandezza delle cache private) Tj ET
+BT /F4 8.2 Tf 50.0 636.5 Td (65536  4 MiB  maggiore pressione su cache e TLB) Tj ET
+BT /F1 10.2 Tf 48.0 615.5 Td (A questi valori si aggiungono i contatori padded, i puntatori e l'eventuale) Tj ET
+BT /F1 10.2 Tf 48.0 602.0 Td (arrotondamento dovuto al payload. Una FAA compatta pu\362 collocare pi\371 sequence) Tj ET
+BT /F1 10.2 Tf 48.0 588.5 Td (number nella stessa cache line e consumare molto meno spazio; Rigtorp scambia) Tj ET
+BT /F1 10.2 Tf 48.0 575.0 Td (memoria per minore false sharing.) Tj ET
+BT /F2 15 Tf 48.0 546.5 Td (False sharing e comportamento della cache) Tj ET
+BT /F1 10.2 Tf 48.0 520.5 Td (Senza padding, thread che operano su slot logici diversi possono modificare) Tj ET
+BT /F1 10.2 Tf 48.0 507.0 Td (atomiche presenti nella stessa linea. Il protocollo di coerenza trasferisce o) Tj ET
+BT /F1 10.2 Tf 48.0 493.5 Td (invalida l'intera cache line, creando contesa non richiesta dall'algoritmo.) Tj ET
+BT /F1 10.2 Tf 48.0 480.0 Td (Rigtorp separa i turn degli slot e i contatori head/tail.) Tj ET
+BT /F1 10.2 Tf 48.0 461.5 Td (Il beneficio dipende dal workload, dalla capacit\340, dal payload e dalla) Tj ET
+BT /F1 10.2 Tf 48.0 448.0 Td (microarchitettura. Per ring molto grandi, il padding pu\362 ridurre la localit\340 e) Tj ET
+BT /F1 10.2 Tf 48.0 434.5 Td (aumentare miss e pressione TLB. I risultati sperimentali mostrano correlazioni,) Tj ET
+BT /F1 10.2 Tf 48.0 421.0 Td (ma non isolano causalmente padding, modulo, memory ordering e politica di spin.) Tj ET
+BT /F2 15 Tf 48.0 392.5 Td (Politica di attesa) Tj ET
+BT /F1 10.2 Tf 48.0 366.5 Td (Il port usa puro spin: i cicli di push e pop rileggono turn senza sleep, yield o) Tj ET
+BT /F1 10.2 Tf 48.0 353.0 Td (backoff. Su core dedicati questo pu\362 ridurre la latenza di risveglio. In) Tj ET
+BT /F1 10.2 Tf 48.0 339.5 Td (oversubscription o durante attese lunghe pu\362 invece consumare un intero core e) Tj ET
+BT /F1 10.2 Tf 48.0 326.0 Td (ritardare proprio il thread che deve far avanzare il turn.) Tj ET
+BT /F1 10.2 Tf 48.0 307.5 Td (FAA e Padded-FAA del repository effettuano uno yield periodico dopo un numero) Tj ET
+BT /F1 10.2 Tf 48.0 294.0 Td (di spin. Il confronto di throughput include quindi anche la diversa politica di) Tj ET
+BT /F1 10.2 Tf 48.0 280.5 Td (attesa; non misura soltanto la struttura turn-based.) Tj ET
+BT /F2 15 Tf 48.0 252.0 Td (Correttezza verificata) Tj ET
+BT /F1 10.2 Tf 48.0 226.0 Td (Il test Tests/test_rigtorp_queue.mojo usa capacit\340 otto e verifica:) Tj ET
+BT /F1 10.2 Tf 60.0 212.5 Td (- riempimento completo tramite try_push;) Tj ET
+BT /F1 10.2 Tf 60.0 199.0 Td (- rifiuto di un elemento aggiuntivo a coda piena;) Tj ET
+BT /F1 10.2 Tf 60.0 185.5 Td (- ordine FIFO degli otto elementi;) Tj ET
+BT /F1 10.2 Tf 60.0 172.0 Td (- risposta vuota di try_pop dopo lo svuotamento.) Tj ET
+BT /F1 10.2 Tf 48.0 153.5 Td (Il test \350 stato rieseguito il 22 luglio 2026 con Mojo 1.0.0b1 e ha prodotto:) Tj ET
+BT /F4 8.8 Tf 60.0 140.0 Td (PASS: RigtorpMPMCQueue sequential correctness) Tj ET
+BT /F1 10.2 Tf 48.0 118.0 Td (La correttezza concorrente \350 controllata dal benchmark: ogni producer inserisce) Tj ET
+BT /F1 10.2 Tf 48.0 104.5 Td (un intervallo disgiunto di interi e l'ultimo producer inserisce un sentinel per) Tj ET
+BT /F1 10.2 Tf 48.0 91.0 Td (consumer. I consumer mantengono conteggio e checksum locali. Dopo il join si) Tj ET
+BT /F1 10.2 Tf 48.0 77.5 Td (verificano numero totale e somma N\(N-1\)/2. Tutti i campioni usati nel CSV) Tj ET
+BT /F1 10.2 Tf 48.0 64.0 Td (results_with_rigtorp.csv hanno restituito valid=True.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 4 di 8) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 4239 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (Questi test rilevano perdita, duplicazione e molte anomalie di concorrenza, ma) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (non sostituiscono una prova formale di linearizzabilit\340 n\351 un model checker.) Tj ET
+BT /F2 15 Tf 48.0 752.0 Td (Metodologia del benchmark) Tj ET
+BT /F1 10.2 Tf 48.0 726.0 Td (La campagna principale usa:) Tj ET
+BT /F1 10.2 Tf 60.0 712.5 Td (- topologie 1P-1C, 2P-2C, 4P-4C, 8P-8C, 1P-8C e 8P-1C;) Tj ET
+BT /F1 10.2 Tf 60.0 699.0 Td (- capacit\340 16, 1024 e 65536;) Tj ET
+BT /F1 10.2 Tf 60.0 685.5 Td (- 250000 messaggi per producer;) Tj ET
+BT /F1 10.2 Tf 60.0 672.0 Td (- 10 ripetizioni per configurazione;) Tj ET
+BT /F1 10.2 Tf 60.0 658.5 Td (- rotazione dell'ordine di esecuzione per ridurre il bias d'ordine;) Tj ET
+BT /F1 10.2 Tf 60.0 645.0 Td (- media, deviazione standard e intervallo di confidenza 95 percento con Student-t.) Tj ET
+BT /F1 10.2 Tf 48.0 626.5 Td (Ambiente rilevato: Intel Xeon Gold 5512U, 28 core e 56 thread hardware, un nodo) Tj ET
+BT /F1 10.2 Tf 48.0 613.0 Td (NUMA, Linux 5.15.0-168-generic, x86-64 e Mojo 1.0.0b1.) Tj ET
+BT /F2 15 Tf 48.0 584.5 Td (Risultati: confronto iniziale) Tj ET
+BT /F1 10.2 Tf 48.0 558.5 Td (La tabella usa milioni di messaggi al secondo. Best \350 il miglior valore medio) Tj ET
+BT /F1 10.2 Tf 48.0 545.0 Td (fra CAS, FAA, Rigtorp e Hybrid con soglie 1, 2, 4 e 8 nella campagna) Tj ET
+BT /F1 10.2 Tf 48.0 531.5 Td (results_with_rigtorp.csv.) Tj ET
+BT /F4 8.2 Tf 50.0 518.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 507.0 Td (Topologia  Capacit\340  CAS  FAA  Rigtorp  Best) Tj ET
+BT /F4 8.2 Tf 50.0 496.0 Td (1P-1C  16  3.58  5.23  5.11  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 485.0 Td (1P-1C  1024  4.45  6.63  4.86  Hybrid-2) Tj ET
+BT /F4 8.2 Tf 50.0 474.0 Td (1P-1C  65536  4.56  6.32  2.83  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 463.0 Td (2P-2C  16  4.47  6.58  7.21  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 452.0 Td (2P-2C  1024  5.88  9.67  8.77  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 441.0 Td (2P-2C  65536  5.86  10.32  11.17  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 430.0 Td (4P-4C  16  3.70  8.55  8.46  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 419.0 Td (4P-4C  1024  3.50  8.50  8.69  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 408.0 Td (4P-4C  65536  4.13  9.70  9.89  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 397.0 Td (8P-8C  16  2.67  9.93  8.49  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 386.0 Td (8P-8C  1024  2.76  8.87  8.45  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 375.0 Td (8P-8C  65536  2.90  9.08  8.53  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 364.0 Td (1P-8C  16  3.52  4.12  7.16  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 353.0 Td (1P-8C  1024  3.44  4.25  6.74  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 342.0 Td (1P-8C  65536  3.87  4.53  7.65  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 331.0 Td (8P-1C  16  3.75  5.32  7.63  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 320.0 Td (8P-1C  1024  3.76  5.20  7.10  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 309.0 Td (8P-1C  65536  3.94  5.63  7.42  Rigtorp) Tj ET
+BT /F1 10.2 Tf 48.0 288.0 Td (Rigtorp ha il valore medio pi\371 alto in 10 casi su 18, FAA in sette e Hybrid-2) Tj ET
+BT /F1 10.2 Tf 48.0 274.5 Td (in uno. Il conteggio delle vittorie \350 descrittivo: quando gli intervalli di) Tj ET
+BT /F1 10.2 Tf 48.0 261.0 Td (confidenza si sovrappongono, una differenza piccola non prova una superiorit\340) Tj ET
+BT /F1 10.2 Tf 48.0 247.5 Td (statistica.) Tj ET
+BT /F2 15 Tf 48.0 219.0 Td (Interpretazione per topologia) Tj ET
+BT /F2 12 Tf 48.0 192.0 Td (Workload sbilanciati) Tj ET
+BT /F1 10.2 Tf 48.0 169.0 Td (Rigtorp vince tutte le sei configurazioni sbilanciate. In 1P-8C raggiunge da) Tj ET
+BT /F1 10.2 Tf 48.0 155.5 Td (1.59 a 1.74 volte il throughput FAA; in 8P-1C raggiunge da 1.32 a 1.44 volte) Tj ET
+BT /F1 10.2 Tf 48.0 142.0 Td (FAA. L'isolamento dei turn e il percorso a ticket risultano particolarmente) Tj ET
+BT /F1 10.2 Tf 48.0 128.5 Td (efficaci quando la contesa si concentra su un solo lato della coda.) Tj ET
+BT /F1 10.2 Tf 48.0 110.0 Td (Il benchmark non separa il contributo del padding dal puro spin o dagli) Tj ET
+BT /F1 10.2 Tf 48.0 96.5 Td (ordinamenti; la spiegazione va quindi formulata come ipotesi coerente con i) Tj ET
+BT /F1 10.2 Tf 48.0 83.0 Td (dati, non come prova causale.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 5 di 8) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 4407 >>
+stream
+BT /F2 12 Tf 48.0 788.0 Td (Contesa bilanciata media) Tj ET
+BT /F1 10.2 Tf 48.0 765.0 Td (In 2P-2C e 4P-4C Rigtorp e FAA sono spesso vicine. Rigtorp prevale su FAA con) Tj ET
+BT /F1 10.2 Tf 48.0 751.5 Td (capacit\340 65536 e in due casi con capacit\340 1024 o 16. Per 2P-2C capacit\340 16 gli) Tj ET
+BT /F1 10.2 Tf 48.0 738.0 Td (intervalli 95 percento sono molto ampi e sovrapposti; la classifica media non \350) Tj ET
+BT /F1 10.2 Tf 48.0 724.5 Td (sufficiente per dichiarare un vincitore robusto.) Tj ET
+BT /F2 12 Tf 48.0 700.0 Td (Contesa bilanciata elevata) Tj ET
+BT /F1 10.2 Tf 48.0 677.0 Td (In 8P-8C FAA compatta vince tutte le capacit\340. Rigtorp raggiunge circa l'85,) Tj ET
+BT /F1 10.2 Tf 48.0 663.5 Td (95 e 94 percento del throughput FAA rispettivamente con capacit\340 16, 1024 e) Tj ET
+BT /F1 10.2 Tf 48.0 650.0 Td (65536. Il padding non compensa sempre modulo, divisione, seq_cst e footprint.) Tj ET
+BT /F2 12 Tf 48.0 625.5 Td (Un producer e un consumer) Tj ET
+BT /F1 10.2 Tf 48.0 602.5 Td (In 1P-1C Rigtorp non \350 la scelta migliore. Con capacit\340 65536 scende a 2.83) Tj ET
+BT /F1 10.2 Tf 48.0 589.0 Td (Mmsg/s contro 6.32 di FAA. In assenza di contesa MPMC, memoria aggiuntiva e) Tj ET
+BT /F1 10.2 Tf 48.0 575.5 Td (operazioni generali sono costi difficili da ammortizzare; una vera SPSC pu\362) Tj ET
+BT /F1 10.2 Tf 48.0 562.0 Td (eliminare del tutto FAA e CAS sui contatori posseduti da un solo thread.) Tj ET
+BT /F2 15 Tf 48.0 533.5 Td (Confronto con Padded-FAA) Tj ET
+BT /F1 10.2 Tf 48.0 507.5 Td (Una campagna successiva, salvata in results_padded_faa.csv, aggiunge) Tj ET
+BT /F1 10.2 Tf 48.0 494.0 Td (Padded-FAA: ticket FAA, slot isolati come Rigtorp, indice tramite mask,) Tj ET
+BT /F1 10.2 Tf 48.0 480.5 Td (contatori RELAXED e yield periodico. Non bisogna mescolare numericamente run) Tj ET
+BT /F1 10.2 Tf 48.0 467.0 Td (distinte, ma il risultato qualitativo cambia: Padded-FAA \350 prima in 13) Tj ET
+BT /F1 10.2 Tf 48.0 453.5 Td (configurazioni su 18 ed \350 la migliore scelta generale osservata.) Tj ET
+BT /F1 10.2 Tf 48.0 435.0 Td (Rigtorp conserva un vantaggio specifico in 1P-8C capacit\340 16, con 7.91 Mmsg/s) Tj ET
+BT /F1 10.2 Tf 48.0 421.5 Td (contro 7.62 di Padded-FAA. In 1P-8C capacit\340 1024 le due sono vicine, 7.78 e) Tj ET
+BT /F1 10.2 Tf 48.0 408.0 Td (7.98 Mmsg/s. Padded-FAA prevale nei workload bilanciati da 2P-2C in su e in) Tj ET
+BT /F1 10.2 Tf 48.0 394.5 Td (gran parte dei workload 8P-1C.) Tj ET
+BT /F1 10.2 Tf 48.0 376.0 Td (Rigtorp rimane quindi un'importante baseline e una scelta competitiva per) Tj ET
+BT /F1 10.2 Tf 48.0 362.5 Td (workload sbilanciati, ma non \350 migliore di tutte le code considerate dopo) Tj ET
+BT /F1 10.2 Tf 48.0 349.0 Td (l'introduzione di Padded-FAA.) Tj ET
+BT /F2 15 Tf 48.0 320.5 Td (Confronto qualitativo) Tj ET
+BT /F4 8.2 Tf 50.0 299.5 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 288.5 Td (Propriet\340  CAS-MPMC  FAA compatta  Hybrid  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 277.5 Td (Prenotazione bloccante  CAS  FAA  CAS poi FAA  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 266.5 Td (Slot padded  No  No  No  S\354) Tj ET
+BT /F4 8.2 Tf 50.0 255.5 Td (Indice  mask  mask  mask  modulo) Tj ET
+BT /F4 8.2 Tf 50.0 244.5 Td (Ticket ordering  RELAXED  RELAXED  RELAXED  SEQ_CST) Tj ET
+BT /F4 8.2 Tf 50.0 233.5 Td (Attesa  spin  spin/yield  spin/yield  puro spin) Tj ET
+BT /F4 8.2 Tf 50.0 222.5 Td (Capacit\340 arbitraria  No  No  No  S\354) Tj ET
+BT /F4 8.2 Tf 50.0 211.5 Td (Ticket irrevocabile  No  S\354  nel fallback  S\354) Tj ET
+BT /F4 8.2 Tf 50.0 200.5 Td (Memoria slot  compatta  compatta  compatta  >=64 byte) Tj ET
+BT /F1 10.2 Tf 48.0 179.5 Td (CAS-MPMC mantiene la possibilit\340 di attendere senza prenotare un ticket futuro,) Tj ET
+BT /F1 10.2 Tf 48.0 166.0 Td (ma soffre retry sotto contesa. FAA compatta riduce le collisioni e la memoria.) Tj ET
+BT /F1 10.2 Tf 48.0 152.5 Td (Hybrid prova a usare CAS come fast path e FAA dopo collisioni, pagando entrambi) Tj ET
+BT /F1 10.2 Tf 48.0 139.0 Td (i costi quando il fallback \350 frequente. Rigtorp privilegia isolamento e) Tj ET
+BT /F1 10.2 Tf 48.0 125.5 Td (throughput a costo di memoria e spinning.) Tj ET
+BT /F2 15 Tf 48.0 97.0 Td (Garanzie di progresso e head-of-line blocking) Tj ET
+BT /F1 10.2 Tf 48.0 71.0 Td (Il port non \350 wait-free. Dopo fetch_add un thread possiede un ticket) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 6 di 8) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 4919 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (irrevocabile. Se viene sospeso prima di pubblicare o liberare il proprio slot,) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (le operazioni associate a turn successivi possono rimanere bloccate anche se) Tj ET
+BT /F1 10.2 Tf 48.0 767.0 Td (altri core continuano a eseguire.) Tj ET
+BT /F4 8.8 Tf 60.0 753.5 Td (thread A riserva ticket t) Tj ET
+BT /F4 8.8 Tf 60.0 741.5 Td (thread A viene sospeso prima dello store del turn) Tj ET
+BT /F4 8.8 Tf 60.0 729.5 Td (thread B raggiunge un ticket successivo sullo stesso ordine logico) Tj ET
+BT /F4 8.8 Tf 60.0 717.5 Td (thread B non pu\362 scavalcare il turn mancante) Tj ET
+BT /F1 10.2 Tf 48.0 695.5 Td (Questo head-of-line blocking \350 lo stesso limite concettuale delle varianti FAA) Tj ET
+BT /F1 10.2 Tf 48.0 682.0 Td (bloccanti. L'ordine dei ticket offre un ordine di servizio logico, ma non) Tj ET
+BT /F1 10.2 Tf 48.0 668.5 Td (garantisce fairness temporale se lo scheduler ritarda un proprietario.) Tj ET
+BT /F1 10.2 Tf 48.0 650.0 Td (Il puro spin aggrava il rischio in oversubscription: i waiter possono occupare) Tj ET
+BT /F1 10.2 Tf 48.0 636.5 Td (i core necessari al thread che deve completare la pubblicazione. Non \350 stato) Tj ET
+BT /F1 10.2 Tf 48.0 623.0 Td (eseguito un esperimento mirato che sospenda un thread immediatamente dopo FAA;) Tj ET
+BT /F1 10.2 Tf 48.0 609.5 Td (questa rimane una validazione necessaria prima di usare la coda in componenti) Tj ET
+BT /F1 10.2 Tf 48.0 596.0 Td (sensibili al progresso, come alcune queue dello scheduler.) Tj ET
+BT /F2 15 Tf 48.0 567.5 Td (Altri limiti) Tj ET
+BT /F1 10.2 Tf 60.0 546.5 Td (- Il consumo di memoria \350 almeno una cache line per slot.) Tj ET
+BT /F1 10.2 Tf 60.0 533.0 Td (- Modulo e divisione possono costare pi\371 di una mask power-of-two.) Tj ET
+BT /F1 10.2 Tf 60.0 519.5 Td (- Puro spin aumenta consumo CPU ed energia durante le attese.) Tj ET
+BT /F1 10.2 Tf 60.0 506.0 Td (- try_push e try_pop tornano al CAS e non beneficiano direttamente del FAA.) Tj ET
+BT /F1 10.2 Tf 60.0 492.5 Td (- I contatori UInt64 hanno un wrap-around teorico non studiato nei test.) Tj ET
+BT /F1 10.2 Tf 60.0 479.0 Td (- Non sono state misurate latenza p50/p95/p99, fairness o energia.) Tj ET
+BT /F1 10.2 Tf 60.0 465.5 Td (- I risultati provengono da una singola macchina e una versione beta di Mojo.) Tj ET
+BT /F1 10.2 Tf 60.0 452.0 Td (- Il benchmark usa payload Int; payload grandi possono cambiare cache e memoria.) Tj ET
+BT /F1 10.2 Tf 60.0 438.5 Td (- Non \350 inclusa una prova formale del memory model o della linearizzabilit\340.) Tj ET
+BT /F2 15 Tf 48.0 410.0 Td (Indicazioni per MoStream) Tj ET
+BT /F1 10.2 Tf 48.0 384.0 Td (Rigtorp \350 adatta come implementazione opzionale dei Communicator quando la) Tj ET
+BT /F1 10.2 Tf 48.0 370.5 Td (topologia \350 fortemente sbilanciata e i worker dispongono di core sufficienti.) Tj ET
+BT /F1 10.2 Tf 48.0 357.0 Td (\310 meno indicata come default universale, perch\351 perde in 1P-1C, in 8P-8C e nel) Tj ET
+BT /F1 10.2 Tf 48.0 343.5 Td (confronto complessivo con Padded-FAA.) Tj ET
+BT /F1 10.2 Tf 48.0 325.0 Td (Scelta pratica derivata dai dati:) Tj ET
+BT /F1 10.2 Tf 60.0 311.5 Td (1. usare una SPSC dedicata per 1P-1C;) Tj ET
+BT /F1 10.2 Tf 60.0 298.0 Td (2. considerare Rigtorp o una SPMC/MPSC padded specializzata per 1P-NC e NP-1C;) Tj ET
+BT /F1 10.2 Tf 60.0 284.5 Td (3. preferire Padded-FAA come MPMC generale orientata al throughput;) Tj ET
+BT /F1 10.2 Tf 60.0 271.0 Td (4. mantenere CAS o Hybrid dove sospensione e ticket irrevocabili sono critici;) Tj ET
+BT /F1 10.2 Tf 60.0 257.5 Td (5. selezionare il tipo concreto alla costruzione, evitando un branch runtime per) Tj ET
+BT /F1 10.2 Tf 48.0 244.0 Td (ogni messaggio.) Tj ET
+BT /F2 15 Tf 48.0 215.5 Td (Esperimenti futuri) Tj ET
+BT /F1 10.2 Tf 60.0 194.5 Td (1. Ripetere su macchine isolate, architetture diverse e pi\371 nodi NUMA.) Tj ET
+BT /F1 10.2 Tf 60.0 181.0 Td (2. Misurare p50, p95, p99, fairness, utilizzo CPU ed energia.) Tj ET
+BT /F1 10.2 Tf 60.0 167.5 Td (3. Sospendere deliberatamente producer e consumer subito dopo fetch_add.) Tj ET
+BT /F1 10.2 Tf 60.0 154.0 Td (4. Confrontare puro spin, pause instruction, spin-then-yield e parking.) Tj ET
+BT /F1 10.2 Tf 60.0 140.5 Td (5. Separare sperimentalmente padding, modulo e memory ordering.) Tj ET
+BT /F1 10.2 Tf 60.0 127.0 Td (6. Provare capacit\340 non power-of-two, caratteristica specifica di Rigtorp.) Tj ET
+BT /F1 10.2 Tf 60.0 113.5 Td (7. Provare payload di dimensioni differenti e ring oltre la LLC.) Tj ET
+BT /F1 10.2 Tf 60.0 100.0 Td (8. Integrare la coda in pipeline MoStream reali, non solo microbenchmark.) Tj ET
+BT /F1 10.2 Tf 60.0 86.5 Td (9. Implementare SPMC e MPSC specializzate senza RMW sul lato a singolo thread.) Tj ET
+BT /F1 10.2 Tf 60.0 73.0 Td (10. Applicare model checking o test sistematici degli interleaving.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 7 di 8) Tj ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 19 0 R >>
+endobj
+21 0 obj
+<< /Length 2330 >>
+stream
+BT /F2 15 Tf 48.0 784.0 Td (Conclusione) Tj ET
+BT /F1 10.2 Tf 48.0 758.0 Td (Il port Rigtorp \350 una bounded MPMC ad alte prestazioni fondata su ticket FAA,) Tj ET
+BT /F1 10.2 Tf 48.0 744.5 Td (turn per generazione e isolamento delle cache line. Nel confronto iniziale \350 la) Tj ET
+BT /F1 10.2 Tf 48.0 731.0 Td (migliore media in 10 configurazioni su 18 e domina i workload sbilanciati. Il) Tj ET
+BT /F1 10.2 Tf 48.0 717.5 Td (risultato sostiene la sua applicabilit\340 a canali MoStream 1P-NC e NP-1C.) Tj ET
+BT /F1 10.2 Tf 48.0 699.0 Td (Non \350 per\362 una coda universalmente dominante. FAA compatta \350 migliore ad alta) Tj ET
+BT /F1 10.2 Tf 48.0 685.5 Td (contesa bilanciata, Padded-FAA ottiene il miglior risultato complessivo nella) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (campagna successiva e SPSC resta la direzione corretta per 1P-1C. Head-of-line) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (blocking, puro spin e memoria impediscono inoltre di dedurre la scelta soltanto) Tj ET
+BT /F1 10.2 Tf 48.0 645.0 Td (dal throughput.) Tj ET
+BT /F1 10.2 Tf 48.0 626.5 Td (Formulazione sintetica per la tesi: Rigtorp dimostra che l'isolamento degli slot) Tj ET
+BT /F1 10.2 Tf 48.0 613.0 Td (su cache line pu\362 migliorare fortemente i workload MPMC sbilanciati; il suo) Tj ET
+BT /F1 10.2 Tf 48.0 599.5 Td (vantaggio \350 tuttavia dipendente dalla topologia e deve essere valutato insieme) Tj ET
+BT /F1 10.2 Tf 48.0 586.0 Td (a progresso, latenza, CPU e footprint.) Tj ET
+BT /F2 15 Tf 48.0 557.5 Td (Artefatti e riferimenti) Tj ET
+BT /F1 10.2 Tf 60.0 536.5 Td (- MoStream/Rigtorp_queue.mojo, port Mojo analizzato.) Tj ET
+BT /F1 10.2 Tf 60.0 523.0 Td (- Tests/test_rigtorp_queue.mojo, test sequenziale.) Tj ET
+BT /F1 10.2 Tf 60.0 509.5 Td (- Benchmarks/QueueBenchmark/queue_benchmark.mojo, benchmark concorrente.) Tj ET
+BT /F1 10.2 Tf 60.0 496.0 Td (- Benchmarks/QueueBenchmark/run_suite.py, runner e statistica.) Tj ET
+BT /F1 10.2 Tf 60.0 482.5 Td (- Benchmarks/QueueBenchmark/results_with_rigtorp.csv, campagna principale.) Tj ET
+BT /F1 10.2 Tf 60.0 469.0 Td (- Benchmarks/QueueBenchmark/results_padded_faa.csv, confronto successivo.) Tj ET
+BT /F1 10.2 Tf 60.0 455.5 Td (- Erik Rigtorp, MPMCQueue, https://github.com/rigtorp/MPMCQueue, licenza MIT.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 8 di 8) Tj ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 21 0 R >>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000170 00000 n 
+0000000267 00000 n 
+0000000369 00000 n 
+0000000474 00000 n 
+0000000569 00000 n 
+0000004954 00000 n 
+0000005110 00000 n 
+0000009163 00000 n 
+0000009320 00000 n 
+0000013865 00000 n 
+0000014023 00000 n 
+0000018563 00000 n 
+0000018721 00000 n 
+0000023012 00000 n 
+0000023170 00000 n 
+0000027629 00000 n 
+0000027787 00000 n 
+0000032758 00000 n 
+0000032916 00000 n 
+0000035298 00000 n 
+trailer
+<< /Size 23 /Root 1 0 R >>
+startxref
+35456
+%%EOF

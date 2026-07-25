@@ -1,0 +1,452 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R] /Count 8 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 4454 >>
+stream
+BT /F2 20 Tf 48.0 766.0 Td (HybridMPMCQueue: progettazione e valutazione) Tj ET
+BT /F2 20 Tf 48.0 741.0 Td (sperimentale in MoStream) Tj ET
+BT /F3 11 Tf 48.0 704.0 Td (Documentazione tecnica per attivit\340 di tesi) Tj ET
+BT /F3 11 Tf 48.0 688.0 Td (Progetto MoStream - 22 luglio 2026) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (Questa relazione descrive HybridMPMCQueue, una coda bounded Multiple Producer,) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (Multiple Consumer che combina un fast path basato su Compare-And-Swap con un) Tj ET
+BT /F1 10.2 Tf 48.0 645.0 Td (fallback Fetch-And-Add attivato dopo un numero configurabile di collisioni.) Tj ET
+BT /F1 10.2 Tf 48.0 631.5 Td (L'obiettivo \350 conservare il comportamento CAS quando la contesa \350 bassa e) Tj ET
+BT /F1 10.2 Tf 48.0 618.0 Td (ridurre i retry sul contatore condiviso quando la contesa cresce. Sono) Tj ET
+BT /F1 10.2 Tf 48.0 604.5 Td (documentati algoritmo, memory ordering, API, correttezza osservata e confronto) Tj ET
+BT /F1 10.2 Tf 48.0 591.0 Td (sperimentale delle soglie 1, 2, 4 e 8. I risultati mostrano che una soglia bassa) Tj ET
+BT /F1 10.2 Tf 48.0 577.5 Td (\350 preferibile nei workload bilanciati e molto contesi, mentre alcuni workload) Tj ET
+BT /F1 10.2 Tf 48.0 564.0 Td (sbilanciati favoriscono la soglia 2. La soluzione ibrida pu\362 superare CAS e, in) Tj ET
+BT /F1 10.2 Tf 48.0 550.5 Td (alcuni casi asimmetrici, FAA pura; non domina per\362 FAA nei casi bilanciati ad) Tj ET
+BT /F1 10.2 Tf 48.0 537.0 Td (alta contesa e mantiene i rischi dei ticket irrevocabili quando usa il fallback.) Tj ET
+BT /F2 15 Tf 48.0 508.5 Td (Contesto e obiettivo) Tj ET
+BT /F1 10.2 Tf 48.0 482.5 Td (Le code esaminate nel progetto MoStream sono ring buffer bounded: la capacit\340 \350) Tj ET
+BT /F1 10.2 Tf 48.0 469.0 Td (fissata alla costruzione e non cresce durante l'esecuzione. MPMC indica che pi\371) Tj ET
+BT /F1 10.2 Tf 48.0 455.5 Td (producer e pi\371 consumer possono operare contemporaneamente. CAS e FAA non) Tj ET
+BT /F1 10.2 Tf 48.0 442.0 Td (definiscono la semantica della coda, ma il meccanismo usato per prenotare una) Tj ET
+BT /F1 10.2 Tf 48.0 428.5 Td (posizione nel ring.) Tj ET
+BT /F1 10.2 Tf 48.0 410.0 Td (La coda CAS originale evita di avanzare il contatore finch\351 la cella corrente) Tj ET
+BT /F1 10.2 Tf 48.0 396.5 Td (non \350 disponibile, ma pi\371 thread possono contendersi lo stesso valore e) Tj ET
+BT /F1 10.2 Tf 48.0 383.0 Td (fallire compare_exchange. La variante FAA assegna subito ticket distinti con) Tj ET
+BT /F1 10.2 Tf 48.0 369.5 Td (fetch_add, eliminando i retry CAS, ma il ticket non pu\362 essere annullato.) Tj ET
+BT /F1 10.2 Tf 48.0 356.0 Td (HybridMPMCQueue cerca un punto intermedio:) Tj ET
+BT /F1 10.2 Tf 60.0 342.5 Td (- CAS come percorso iniziale di push e pop bloccanti;) Tj ET
+BT /F1 10.2 Tf 60.0 329.0 Td (- conteggio locale delle sole collisioni CAS effettive;) Tj ET
+BT /F1 10.2 Tf 60.0 315.5 Td (- fallback FAA dopo una soglia compile-time;) Tj ET
+BT /F1 10.2 Tf 60.0 302.0 Td (- CAS sempre usato da try_push e try_pop;) Tj ET
+BT /F1 10.2 Tf 60.0 288.5 Td (- nessun cambio globale di modalit\340 e nessun contatore adattivo condiviso nel) Tj ET
+BT /F1 10.2 Tf 48.0 275.0 Td (percorso prestazionale.) Tj ET
+BT /F2 15 Tf 48.0 246.5 Td (Struttura della coda) Tj ET
+BT /F1 10.2 Tf 48.0 220.5 Td (L'implementazione si trova in MoStream/Hybrid_queue.mojo. Il tipo principale \350:) Tj ET
+BT /F4 8.8 Tf 60.0 207.0 Td (HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4]) Tj ET
+BT /F1 10.2 Tf 48.0 185.0 Td (I campi fondamentali sono:) Tj ET
+BT /F4 8.8 Tf 60.0 171.5 Td (buffer                 array bounded di Cell[T]) Tj ET
+BT /F4 8.8 Tf 60.0 159.5 Td (size                   capacit\340 del ring) Tj ET
+BT /F4 8.8 Tf 60.0 147.5 Td (mask                   size - 1) Tj ET
+BT /F4 8.8 Tf 60.0 135.5 Td (enqueue_pos            prossimo ticket producer) Tj ET
+BT /F4 8.8 Tf 60.0 123.5 Td (dequeue_pos            prossimo ticket consumer) Tj ET
+BT /F4 8.8 Tf 60.0 111.5 Td (enqueue_faa_fallbacks  contatore diagnostico opzionale) Tj ET
+BT /F4 8.8 Tf 60.0 99.5 Td (dequeue_faa_fallbacks  contatore diagnostico opzionale) Tj ET
+BT /F1 10.2 Tf 48.0 77.5 Td (La capacit\340 predefinita \350 1024. Ogni valore ammesso deve essere una potenza di) Tj ET
+BT /F1 10.2 Tf 48.0 64.0 Td (due e almeno pari a due. L'indice fisico \350 ticket & mask; una capacit\340 non) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 1 di 8) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 4699 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (valida produce un messaggio di errore e termina il processo.) Tj ET
+BT /F1 10.2 Tf 48.0 775.5 Td (enqueue_pos, dequeue_pos e i due contatori diagnostici sono racchiusi in) Tj ET
+BT /F1 10.2 Tf 48.0 762.0 Td (PaddedAtomicU64, la cui dimensione \350 portata a 64 byte. Lo spacing \350 pensato) Tj ET
+BT /F1 10.2 Tf 48.0 748.5 Td (per ridurre il false sharing fra contatori adiacenti. Il sorgente non impone per\362) Tj ET
+BT /F1 10.2 Tf 48.0 735.0 Td (esplicitamente un allineamento di 64 byte all'oggetto contenitore: la sola) Tj ET
+BT /F1 10.2 Tf 48.0 721.5 Td (dimensione non prova che ogni contatore inizi su una cache line. Layout e) Tj ET
+BT /F1 10.2 Tf 48.0 708.0 Td (allineamento effettivi devono quindi essere verificati sul compilatore usato.) Tj ET
+BT /F1 10.2 Tf 48.0 694.5 Td (Le celle del buffer sono compatte e non isolate singolarmente:) Tj ET
+BT /F1 10.2 Tf 48.0 681.0 Td (HybridMPMCQueue non deve essere confusa con PaddedFAAQueue.) Tj ET
+BT /F2 15 Tf 48.0 652.5 Td (Protocollo dei sequence number) Tj ET
+BT /F1 10.2 Tf 48.0 626.5 Td (Ogni Cell contiene un sequence number atomico e un Optional[T]. Il sequence) Tj ET
+BT /F1 10.2 Tf 48.0 613.0 Td (number rappresenta contemporaneamente stato e generazione della cella. Per un) Tj ET
+BT /F1 10.2 Tf 48.0 599.5 Td (producer con ticket p:) Tj ET
+BT /F1 10.2 Tf 60.0 586.0 Td (- sequence uguale a p indica che la cella \350 libera per quella generazione;) Tj ET
+BT /F1 10.2 Tf 60.0 572.5 Td (- dopo la scrittura del payload, sequence viene impostato a p+1.) Tj ET
+BT /F1 10.2 Tf 48.0 554.0 Td (Per un consumer con ticket c:) Tj ET
+BT /F1 10.2 Tf 60.0 540.5 Td (- sequence uguale a c+1 indica che il payload \350 pubblicato;) Tj ET
+BT /F1 10.2 Tf 60.0 527.0 Td (- dopo l'estrazione, sequence viene impostato a c+size, rendendo la cella libera) Tj ET
+BT /F1 10.2 Tf 48.0 513.5 Td (nel giro successivo del ring.) Tj ET
+BT /F1 10.2 Tf 48.0 495.0 Td (Questo protocollo distingue le generazioni che riusano lo stesso indice e) Tj ET
+BT /F1 10.2 Tf 48.0 481.5 Td (permette di riconoscere una cella piena, vuota o non ancora pubblicata senza un) Tj ET
+BT /F1 10.2 Tf 48.0 468.0 Td (flag globale aggiuntivo.) Tj ET
+BT /F2 15 Tf 48.0 439.5 Td (Push bloccante: CAS e fallback FAA) Tj ET
+BT /F1 10.2 Tf 48.0 413.5 Td (Ogni chiamata push mantiene un contatore locale cas_failures, inizializzato a) Tj ET
+BT /F1 10.2 Tf 48.0 400.0 Td (zero. Il percorso pu\362 essere riassunto cos\354:) Tj ET
+BT /F4 8.8 Tf 60.0 386.5 Td (1. carica enqueue_pos con ordering RELAXED;) Tj ET
+BT /F4 8.8 Tf 60.0 374.5 Td (2. individua la cella con ticket & mask;) Tj ET
+BT /F4 8.8 Tf 60.0 362.5 Td (3. attende sequence == ticket;) Tj ET
+BT /F4 8.8 Tf 60.0 350.5 Td (4. prova CAS\(ticket, ticket + 1\);) Tj ET
+BT /F4 8.8 Tf 60.0 338.5 Td (5. se il CAS riesce, pubblica il payload;) Tj ET
+BT /F4 8.8 Tf 60.0 326.5 Td (6. se il CAS perde una collisione, incrementa cas_failures;) Tj ET
+BT /F4 8.8 Tf 60.0 314.5 Td (7. raggiunta la soglia, usa fetch_add e attende la cella del nuovo ticket;) Tj ET
+BT /F4 8.8 Tf 60.0 302.5 Td (8. pubblica con store RELEASE sul sequence number.) Tj ET
+BT /F1 10.2 Tf 48.0 280.5 Td (Una cella non disponibile non incrementa cas_failures. Una queue piena, o una) Tj ET
+BT /F1 10.2 Tf 48.0 267.0 Td (posizione gi\340 prenotata ma non ancora pubblicata, \350 un problema di disponibilit\340) Tj ET
+BT /F1 10.2 Tf 48.0 253.5 Td (e non viene interpretata come contesa CAS. Il fallback si attiva soltanto quando) Tj ET
+BT /F1 10.2 Tf 48.0 240.0 Td (la cella osservata era pronta ma un altro producer ha modificato enqueue_pos) Tj ET
+BT /F1 10.2 Tf 48.0 226.5 Td (prima del compare_exchange.) Tj ET
+BT /F1 10.2 Tf 48.0 208.0 Td (CAS e FAA operano sullo stesso oggetto atomico. La loro serializzazione assegna) Tj ET
+BT /F1 10.2 Tf 48.0 194.5 Td (posizioni distinte: un CAS con valore expected ormai superato fallisce, mentre) Tj ET
+BT /F1 10.2 Tf 48.0 181.0 Td (fetch_add restituisce il valore che precedeva il proprio incremento. La) Tj ET
+BT /F1 10.2 Tf 48.0 167.5 Td (correttezza complessiva dipende anche dal protocollo per-cell sequence.) Tj ET
+BT /F2 15 Tf 48.0 139.0 Td (Pop bloccante) Tj ET
+BT /F1 10.2 Tf 48.0 113.0 Td (Il lato consumer \350 simmetrico. pop attende sequence == ticket+1, prova a) Tj ET
+BT /F1 10.2 Tf 48.0 99.5 Td (incrementare dequeue_pos mediante CAS e, dopo il numero configurato di) Tj ET
+BT /F1 10.2 Tf 48.0 86.0 Td (collisioni, prenota una posizione con fetch_add. Il payload viene estratto da) Tj ET
+BT /F1 10.2 Tf 48.0 72.5 Td (Optional e la cella viene liberata con una store RELEASE di ticket+size.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 2 di 8) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 4692 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (La soglia \350 unica per producer e consumer. L'implementazione corrente non) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (consente quindi di scegliere, per esempio, soglia enqueue 1 e soglia dequeue 2.) Tj ET
+BT /F1 10.2 Tf 48.0 767.0 Td (Questa estensione \350 interessante per topologie asimmetriche, ma richiede una) Tj ET
+BT /F1 10.2 Tf 48.0 753.5 Td (variante dell'interfaccia compile-time.) Tj ET
+BT /F2 15 Tf 48.0 725.0 Td (Significato delle soglie 1, 2, 4 e 8) Tj ET
+BT /F1 10.2 Tf 48.0 699.0 Td (Il parametro cas_failures_before_faa \350 almeno 1. Il fallback avviene dopo quel) Tj ET
+BT /F1 10.2 Tf 48.0 685.5 Td (numero di CAS falliti nella singola operazione bloccante:) Tj ET
+BT /F4 8.2 Tf 50.0 672.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 661.0 Td (Soglia  Comportamento  Compromesso atteso) Tj ET
+BT /F4 8.2 Tf 50.0 650.0 Td (1  FAA dopo la prima collisione  reazione rapida alla contesa) Tj ET
+BT /F4 8.2 Tf 50.0 639.0 Td (2  FAA dopo due collisioni  fast path CAS leggermente pi\371 persistente) Tj ET
+BT /F4 8.2 Tf 50.0 628.0 Td (4  valore predefinito corrente  politica conservativa) Tj ET
+BT /F4 8.2 Tf 50.0 617.0 Td (8  FAA dopo otto collisioni  costo elevato se la contesa persiste) Tj ET
+BT /F1 10.2 Tf 48.0 596.0 Td (Il conteggio \350 locale alla chiamata: non aggiunge RMW condivisi e non influenza) Tj ET
+BT /F1 10.2 Tf 48.0 582.5 Td (la chiamata successiva. La coda non apprende una modalit\340 globale e non cambia) Tj ET
+BT /F1 10.2 Tf 48.0 569.0 Td (algoritmo mentre esistono ticket pendenti. Di conseguenza, il termine ibrida) Tj ET
+BT /F1 10.2 Tf 48.0 555.5 Td (descrive il percorso della singola operazione, non un selettore runtime per) Tj ET
+BT /F1 10.2 Tf 48.0 542.0 Td (topologia.) Tj ET
+BT /F2 15 Tf 48.0 513.5 Td (Operazioni non bloccanti) Tj ET
+BT /F1 10.2 Tf 48.0 487.5 Td (try_push e try_pop usano sempre load, verifica del sequence number e un solo) Tj ET
+BT /F1 10.2 Tf 48.0 474.0 Td (compare_exchange. Se la cella non \350 pronta o il CAS viene perso, ritornano) Tj ET
+BT /F1 10.2 Tf 48.0 460.5 Td (immediatamente. Un fetch_add non sarebbe adatto: il fallimento immediato) Tj ET
+BT /F1 10.2 Tf 48.0 447.0 Td (lascerebbe un ticket non completato e quindi un buco nel flusso delle posizioni.) Tj ET
+BT /F1 10.2 Tf 48.0 428.5 Td (In questa API try_push restituisce Optional[T]: None indica inserimento riuscito,) Tj ET
+BT /F1 10.2 Tf 48.0 415.0 Td (mentre il payload restituito indica che l'elemento non \350 stato inserito.) Tj ET
+BT /F1 10.2 Tf 48.0 401.5 Td (try_pop restituisce None se non completa l'estrazione. Sotto contesa il ritorno) Tj ET
+BT /F1 10.2 Tf 48.0 388.0 Td (negativo pu\362 derivare anche dalla perdita della gara CAS, non soltanto da uno) Tj ET
+BT /F1 10.2 Tf 48.0 374.5 Td (stato pieno o vuoto rimasto stabile.) Tj ET
+BT /F2 15 Tf 48.0 346.0 Td (Memory ordering) Tj ET
+BT /F1 10.2 Tf 48.0 320.0 Td (Le operazioni sui contatori enqueue_pos e dequeue_pos usano Ordering.RELAXED.) Tj ET
+BT /F1 10.2 Tf 48.0 306.5 Td (La sincronizzazione del payload \350 demandata ai sequence number:) Tj ET
+BT /F1 10.2 Tf 60.0 293.0 Td (- il producer scrive data e pubblica sequence con RELEASE;) Tj ET
+BT /F1 10.2 Tf 60.0 279.5 Td (- il consumer osserva sequence con ACQUIRE prima di leggere data;) Tj ET
+BT /F1 10.2 Tf 60.0 266.0 Td (- il consumer libera la cella con RELEASE;) Tj ET
+BT /F1 10.2 Tf 60.0 252.5 Td (- il producer della generazione seguente osserva la liberazione con ACQUIRE.) Tj ET
+BT /F1 10.2 Tf 48.0 234.0 Td (Separare assegnazione del ticket e pubblicazione del dato consente ai contatori) Tj ET
+BT /F1 10.2 Tf 48.0 220.5 Td (di rimanere relaxed. Ridurre anche l'ordinamento dei sequence number romperebbe) Tj ET
+BT /F1 10.2 Tf 48.0 207.0 Td (invece la relazione happens-before necessaria alla visibilit\340 del payload.) Tj ET
+BT /F2 15 Tf 48.0 178.5 Td (Politica di attesa) Tj ET
+BT /F1 10.2 Tf 48.0 152.5 Td (push e pop sono operazioni bloccanti a spin: se la cella attesa non ha il) Tj ET
+BT /F1 10.2 Tf 48.0 139.0 Td (sequence previsto, il thread continua a controllarla. Ogni 1024 osservazioni) Tj ET
+BT /F1 10.2 Tf 48.0 125.5 Td (senza successo viene chiamato sleep\(0.0\), che offre allo scheduler un'occasione) Tj ET
+BT /F1 10.2 Tf 48.0 112.0 Td (di eseguire altri thread. Lo stesso meccanismo viene usato prima e dopo il) Tj ET
+BT /F1 10.2 Tf 48.0 98.5 Td (fallback FAA.) Tj ET
+BT /F1 10.2 Tf 48.0 80.0 Td (Questa politica cerca un compromesso tra latenza e consumo CPU, ma 1024 non \350) Tj ET
+BT /F1 10.2 Tf 48.0 66.5 Td (una costante universalmente ottimale. Core dedicati, oversubscription, durata) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 3 di 8) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 4287 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (degli stage e politica dello scheduler possono cambiare il risultato.) Tj ET
+BT /F2 15 Tf 48.0 765.5 Td (API Mojo) Tj ET
+BT /F1 10.2 Tf 48.0 739.5 Td (Esempi con soglia predefinita e soglia esplicita:) Tj ET
+BT /F4 8.8 Tf 60.0 726.0 Td (from MoStream.Hybrid_queue import HybridMPMCQueue) Tj ET
+BT /F4 8.8 Tf 60.0 709.0 Td (var default_queue = HybridMPMCQueue[Int]\(1024\)       # soglia 4) Tj ET
+BT /F4 8.8 Tf 60.0 697.0 Td (var quick_fallback = HybridMPMCQueue[Int, 1]\(1024\)  # soglia 1) Tj ET
+BT /F4 8.8 Tf 60.0 680.0 Td (quick_fallback.push\(42\)) Tj ET
+BT /F4 8.8 Tf 60.0 668.0 Td (var value = quick_fallback.pop\(\)) Tj ET
+BT /F1 10.2 Tf 48.0 646.0 Td (Metodi pubblici:) Tj ET
+BT /F1 10.2 Tf 60.0 632.5 Td (- push\(item\): inserimento bloccante CAS con possibile fallback FAA;) Tj ET
+BT /F1 10.2 Tf 60.0 619.0 Td (- pop\(\): estrazione bloccante CAS con possibile fallback FAA;) Tj ET
+BT /F1 10.2 Tf 60.0 605.5 Td (- try_push\(item\): tentativo CAS, con restituzione del payload non inserito;) Tj ET
+BT /F1 10.2 Tf 60.0 592.0 Td (- try_pop\(\): tentativo CAS, con risultato Optional[T];) Tj ET
+BT /F1 10.2 Tf 60.0 578.5 Td (- estimated_len\(\): stima relaxed, limitata all'intervallo 0..capacity;) Tj ET
+BT /F1 10.2 Tf 60.0 565.0 Td (- enqueue_fallback_count e dequeue_fallback_count: diagnostica opzionale.) Tj ET
+BT /F1 10.2 Tf 48.0 546.5 Td (estimated_len non \350 una misura linearizzabile. Letture concorrenti e ticket) Tj ET
+BT /F1 10.2 Tf 48.0 533.0 Td (prenotati ma non ancora pubblicati possono far divergere la stima dal numero di) Tj ET
+BT /F1 10.2 Tf 48.0 519.5 Td (payload immediatamente consumabili.) Tj ET
+BT /F2 15 Tf 48.0 491.0 Td (Diagnostica dei fallback) Tj ET
+BT /F1 10.2 Tf 48.0 465.0 Td (Il sorgente contiene ENABLE_FALLBACK_DIAGNOSTICS=False. Quando l'opzione \350) Tj ET
+BT /F1 10.2 Tf 48.0 451.5 Td (disattivata, i due contatori restano a zero anche se il percorso FAA viene) Tj ET
+BT /F1 10.2 Tf 48.0 438.0 Td (eseguito. Ci\362 evita una fetch_add condivisa aggiuntiva proprio nel ramo che si) Tj ET
+BT /F1 10.2 Tf 48.0 424.5 Td (vuole misurare. Pertanto un valore diagnostico zero nella build prestazionale) Tj ET
+BT /F1 10.2 Tf 48.0 411.0 Td (non dimostra l'assenza di fallback.) Tj ET
+BT /F1 10.2 Tf 48.0 392.5 Td (Per studiare la frequenza del ramo occorre una build diagnostica separata e) Tj ET
+BT /F1 10.2 Tf 48.0 379.0 Td (confrontabile, accettando che il conteggio perturbi il throughput. I risultati) Tj ET
+BT /F1 10.2 Tf 48.0 365.5 Td (prestazionali e quelli diagnostici non dovrebbero essere raccolti nella stessa) Tj ET
+BT /F1 10.2 Tf 48.0 352.0 Td (esecuzione.) Tj ET
+BT /F2 15 Tf 48.0 323.5 Td (Test di correttezza presenti) Tj ET
+BT /F2 12 Tf 48.0 296.5 Td (Test sequenziale) Tj ET
+BT /F1 10.2 Tf 48.0 273.5 Td (Tests/test_hybrid_queue.mojo crea una queue di capacit\340 8, la riempie con) Tj ET
+BT /F1 10.2 Tf 48.0 260.0 Td (try_push, verifica il rifiuto del nono elemento, controlla l'ordine FIFO,) Tj ET
+BT /F1 10.2 Tf 48.0 246.5 Td (verifica try_pop su queue vuota ed esegue 32 cicli push/pop per attraversare pi\371) Tj ET
+BT /F1 10.2 Tf 48.0 233.0 Td (volte il wrap-around del ring.) Tj ET
+BT /F2 12 Tf 48.0 213.5 Td (Test concorrente) Tj ET
+BT /F1 10.2 Tf 48.0 190.5 Td (Tests/test_hybrid_queue_concurrent.mojo usa 4 producer, 4 consumer e 250000) Tj ET
+BT /F1 10.2 Tf 48.0 177.0 Td (messaggi per producer, per un totale di un milione di valori. I producer) Tj ET
+BT /F1 10.2 Tf 48.0 163.5 Td (pubblicano intervalli disgiunti; l'ultimo inserisce un sentinel per consumer.) Tj ET
+BT /F1 10.2 Tf 48.0 150.0 Td (Ogni consumer mantiene conteggio e checksum locali. Dopo il join vengono) Tj ET
+BT /F1 10.2 Tf 48.0 136.5 Td (confrontati:) Tj ET
+BT /F4 8.8 Tf 60.0 123.0 Td (conteggio atteso = 1000000) Tj ET
+BT /F4 8.8 Tf 60.0 111.0 Td (checksum atteso  = N x \(N - 1\) / 2) Tj ET
+BT /F1 10.2 Tf 48.0 89.0 Td (Entrambi i test sono stati ricompilati ed eseguiti il 22 luglio 2026 e hanno) Tj ET
+BT /F1 10.2 Tf 48.0 75.5 Td (restituito PASS. Il test concorrente ha stampato contatori fallback pari a zero) Tj ET
+BT /F1 10.2 Tf 48.0 62.0 Td (perch\351 la diagnostica compile-time \350 disattivata. I test osservano perdita,) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 4 di 8) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 4808 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (duplicazione, FIFO sequenziale e wrap-around, ma non sostituiscono una prova) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (formale n\351 esplorano esaustivamente tutti gli interleaving.) Tj ET
+BT /F2 15 Tf 48.0 752.0 Td (Metodologia del benchmark delle soglie) Tj ET
+BT /F1 10.2 Tf 48.0 726.0 Td (La matrice in results_hybrid_thresholds.csv comprende le topologie 1P-1C,) Tj ET
+BT /F1 10.2 Tf 48.0 712.5 Td (2P-2C, 4P-4C, 8P-8C, 1P-8C e 8P-1C, ciascuna con capacit\340 16, 1024 e 65536.) Tj ET
+BT /F1 10.2 Tf 48.0 699.0 Td (Ogni producer invia 250000 interi e ogni configurazione viene ripetuta 10 volte.) Tj ET
+BT /F1 10.2 Tf 48.0 685.5 Td (Sono confrontate CAS, FAA e Hybrid con soglie 1, 2, 4 e 8.) Tj ET
+BT /F1 10.2 Tf 48.0 667.0 Td (Conteggio e checksum sono locali ai consumer durante la regione temporizzata.) Tj ET
+BT /F1 10.2 Tf 48.0 653.5 Td (Il runner cambia l'ordine delle implementazioni tra le ripetizioni per ridurre) Tj ET
+BT /F1 10.2 Tf 48.0 640.0 Td (il bias d'ordine. Ogni campione \350 accettato soltanto con valid=True. Per ogni) Tj ET
+BT /F1 10.2 Tf 48.0 626.5 Td (serie sono calcolati throughput medio, deviazione standard campionaria e) Tj ET
+BT /F1 10.2 Tf 48.0 613.0 Td (intervallo di confidenza bilaterale al 95% con Student-t.) Tj ET
+BT /F1 10.2 Tf 48.0 594.5 Td (La campagna comprende 18 configurazioni per 10 ripetizioni: 720 esecuzioni) Tj ET
+BT /F1 10.2 Tf 48.0 581.0 Td (Hybrid e 360 esecuzioni di riferimento CAS/FAA. Tutte hanno superato conteggio) Tj ET
+BT /F1 10.2 Tf 48.0 567.5 Td (e checksum. Il throughput \350 espresso in milioni di messaggi al secondo.) Tj ET
+BT /F2 15 Tf 48.0 539.0 Td (Ambiente sperimentale) Tj ET
+BT /F4 8.2 Tf 50.0 518.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 507.0 Td (Componente  Valore) Tj ET
+BT /F4 8.2 Tf 50.0 496.0 Td (CPU  Intel Xeon Gold 5512U) Tj ET
+BT /F4 8.2 Tf 50.0 485.0 Td (Topologia  1 socket, 28 core, 2 thread/core, 56 CPU logiche) Tj ET
+BT /F4 8.2 Tf 50.0 474.0 Td (Architettura  x86_64, 1 nodo NUMA) Tj ET
+BT /F4 8.2 Tf 50.0 463.0 Td (Sistema  Linux 5.15.0-168-generic) Tj ET
+BT /F4 8.2 Tf 50.0 452.0 Td (Mojo  1.0.0b1, revisione a9591de6) Tj ET
+BT /F4 8.2 Tf 50.0 441.0 Td (Payload  Int) Tj ET
+BT /F1 10.2 Tf 48.0 420.0 Td (I risultati appartengono a questa macchina e a questa versione del software.) Tj ET
+BT /F1 10.2 Tf 48.0 406.5 Td (Non sono automaticamente trasferibili ad altre microarchitetture, compilatori) Tj ET
+BT /F1 10.2 Tf 48.0 393.0 Td (o politiche di scheduling.) Tj ET
+BT /F2 15 Tf 48.0 364.5 Td (Risultati: topologie bilanciate) Tj ET
+BT /F1 10.2 Tf 48.0 338.5 Td (La tabella riporta il throughput medio. H1, H2, H4 e H8 indicano la soglia di) Tj ET
+BT /F1 10.2 Tf 48.0 325.0 Td (collisioni prima del fallback FAA.) Tj ET
+BT /F4 8.2 Tf 50.0 311.5 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 300.5 Td (Topologia  Capacit\340  CAS  FAA  H1  H2  H4  H8) Tj ET
+BT /F4 8.2 Tf 50.0 289.5 Td (1P-1C  16  4.039  5.080  4.448  4.767  4.783  4.761) Tj ET
+BT /F4 8.2 Tf 50.0 278.5 Td (1P-1C  1024  4.667  5.887  5.622  6.431  6.400  6.353) Tj ET
+BT /F4 8.2 Tf 50.0 267.5 Td (1P-1C  65536  3.931  6.044  4.065  4.550  4.488  4.561) Tj ET
+BT /F4 8.2 Tf 50.0 256.5 Td (2P-2C  16  3.949  5.939  5.083  4.171  3.818  3.611) Tj ET
+BT /F4 8.2 Tf 50.0 245.5 Td (2P-2C  1024  4.664  7.272  5.564  4.824  4.465  4.358) Tj ET
+BT /F4 8.2 Tf 50.0 234.5 Td (2P-2C  65536  5.433  9.433  7.480  6.239  5.665  5.458) Tj ET
+BT /F4 8.2 Tf 50.0 223.5 Td (4P-4C  16  3.510  8.336  6.821  4.873  3.958  3.631) Tj ET
+BT /F4 8.2 Tf 50.0 212.5 Td (4P-4C  1024  3.875  8.597  7.301  5.057  4.183  3.900) Tj ET
+BT /F4 8.2 Tf 50.0 201.5 Td (4P-4C  65536  3.556  8.998  6.780  4.843  3.944  3.619) Tj ET
+BT /F4 8.2 Tf 50.0 190.5 Td (8P-8C  16  2.645  9.520  7.287  4.507  3.262  2.753) Tj ET
+BT /F4 8.2 Tf 50.0 179.5 Td (8P-8C  1024  2.866  10.008  7.616  4.758  3.502  3.009) Tj ET
+BT /F4 8.2 Tf 50.0 168.5 Td (8P-8C  65536  2.715  8.526  7.140  4.411  3.176  2.784) Tj ET
+BT /F1 10.2 Tf 48.0 147.5 Td (Con almeno 2 producer e 2 consumer H1 \350 sempre la migliore soglia Hybrid.) Tj ET
+BT /F1 10.2 Tf 48.0 134.0 Td (Nelle configurazioni 4P-4C raggiunge circa 1.89-1.96x CAS e il 75-85% del) Tj ET
+BT /F1 10.2 Tf 48.0 120.5 Td (throughput FAA. In 8P-8C raggiunge circa 2.63-2.76x CAS e il 76-84% di FAA.) Tj ET
+BT /F1 10.2 Tf 48.0 107.0 Td (FAA pura rimane pi\371 veloce in tutti questi casi bilanciati.) Tj ET
+BT /F1 10.2 Tf 48.0 88.5 Td (Aumentare la soglia degrada quasi monotonicamente i casi contesi: il thread paga) Tj ET
+BT /F1 10.2 Tf 48.0 75.0 Td (pi\371 CAS falliti prima di eseguire comunque fetch_add. Con 8P-8C, H8 resta solo) Tj ET
+BT /F1 10.2 Tf 48.0 61.5 Td (circa 1.03-1.05x CAS e raggiunge circa il 29-33% di FAA.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 5 di 8) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 4961 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (Nel caso 1P-1C non esiste contesa fra producer sul contatore enqueue n\351 fra) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (consumer su dequeue. Le quattro soglie percorrono quindi normalmente lo stesso) Tj ET
+BT /F1 10.2 Tf 48.0 767.0 Td (fast path; le differenze fra H1, H2, H4 e H8 non devono essere attribuite al) Tj ET
+BT /F1 10.2 Tf 48.0 753.5 Td (fallback e possono riflettere rumore, ordine, scheduling o layout del codice.) Tj ET
+BT /F2 15 Tf 48.0 725.0 Td (Risultati: topologie sbilanciate) Tj ET
+BT /F4 8.2 Tf 50.0 704.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 693.0 Td (Topologia  Capacit\340  CAS  FAA  H1  H2  H4  H8) Tj ET
+BT /F4 8.2 Tf 50.0 682.0 Td (1P-8C  16  3.473  4.061  3.791  3.824  4.790  3.904) Tj ET
+BT /F4 8.2 Tf 50.0 671.0 Td (1P-8C  1024  3.695  4.370  4.678  6.778  4.848  4.067) Tj ET
+BT /F4 8.2 Tf 50.0 660.0 Td (1P-8C  65536  4.037  4.323  4.753  7.000  5.249  4.372) Tj ET
+BT /F4 8.2 Tf 50.0 649.0 Td (8P-1C  16  3.970  5.384  6.034  4.900  4.005  3.691) Tj ET
+BT /F4 8.2 Tf 50.0 638.0 Td (8P-1C  1024  3.952  5.156  5.323  5.746  4.442  4.099) Tj ET
+BT /F4 8.2 Tf 50.0 627.0 Td (8P-1C  65536  4.350  6.000  9.941  6.378  4.925  4.419) Tj ET
+BT /F1 10.2 Tf 48.0 606.0 Td (Nei casi 1P-8C con capacit\340 1024 e 65536, H2 ottiene rispettivamente 6.778 e) Tj ET
+BT /F1 10.2 Tf 48.0 592.5 Td (7.000 Mmsg/s, circa 1.55x e 1.62x FAA nei rapporti medi appaiati. Con capacit\340) Tj ET
+BT /F1 10.2 Tf 48.0 579.0 Td (16 il valore migliore \350 invece H4; questo singolo risultato non giustifica una) Tj ET
+BT /F1 10.2 Tf 48.0 565.5 Td (regola generale senza ulteriori repliche e analisi della latenza.) Tj ET
+BT /F1 10.2 Tf 48.0 547.0 Td (Con 8P-1C H1 \350 migliore per capacit\340 16 e 65536, mentre H2 prevale a 1024. H1) Tj ET
+BT /F1 10.2 Tf 48.0 533.5 Td (raggiunge 9.941 Mmsg/s a capacit\340 65536, circa 1.64x FAA e 2.26x CAS nei rapporti) Tj ET
+BT /F1 10.2 Tf 48.0 520.0 Td (medi appaiati. Questi risultati mostrano il potenziale del fast path CAS sul) Tj ET
+BT /F1 10.2 Tf 48.0 506.5 Td (lato non conteso e del fallback rapido sul lato con molti partecipanti.) Tj ET
+BT /F2 15 Tf 48.0 478.0 Td (Interpretazione delle soglie) Tj ET
+BT /F1 10.2 Tf 48.0 452.0 Td (La soglia 4 predefinita \350 conservativa ma non \350 quella con il miglior throughput) Tj ET
+BT /F1 10.2 Tf 48.0 438.5 Td (generale nei dati raccolti. Una politica iniziale basata sui risultati sarebbe:) Tj ET
+BT /F4 8.8 Tf 60.0 425.0 Td (2P-2C, 4P-4C, 8P-8C   soglia 1) Tj ET
+BT /F4 8.8 Tf 60.0 413.0 Td (molti producer, 1 C   soglia 1, da validare per capacit\340) Tj ET
+BT /F4 8.8 Tf 60.0 401.0 Td (1 producer, molti C   soglia 2, con eccezione osservata a capacit\340 16) Tj ET
+BT /F4 8.8 Tf 60.0 389.0 Td (1P-1C                  soglia non causale in assenza di collisioni) Tj ET
+BT /F1 10.2 Tf 48.0 367.0 Td (Questa regola non deve essere codificata come verit\340 universale: \350 derivata) Tj ET
+BT /F1 10.2 Tf 48.0 353.5 Td (dalla stessa matrice usata per valutarla e rischia overfitting. Per una tesi \350) Tj ET
+BT /F1 10.2 Tf 48.0 340.0 Td (opportuno definire la politica su una parte dei workload e validarla su nuove) Tj ET
+BT /F1 10.2 Tf 48.0 326.5 Td (topologie, payload, capacit\340 e macchine.) Tj ET
+BT /F2 15 Tf 48.0 298.0 Td (Garanzie di progresso e head-of-line blocking) Tj ET
+BT /F1 10.2 Tf 48.0 272.0 Td (push e pop possono attendere quando la queue \350 piena o vuota; la coda non \350) Tj ET
+BT /F1 10.2 Tf 48.0 258.5 Td (wait-free. Dopo il fallback, fetch_add assegna un ticket irrevocabile. Se un) Tj ET
+BT /F1 10.2 Tf 48.0 245.0 Td (thread viene sospeso dopo la prenotazione e prima della pubblicazione o del) Tj ET
+BT /F1 10.2 Tf 48.0 231.5 Td (rilascio della cella, altri partecipanti possono raggiungere una posizione che) Tj ET
+BT /F1 10.2 Tf 48.0 218.0 Td (dipende da quel ticket e restare in attesa: \350 head-of-line blocking.) Tj ET
+BT /F1 10.2 Tf 48.0 199.5 Td (Anche un percorso CAS che ha gi\340 riservato con successo una posizione dipende) Tj ET
+BT /F1 10.2 Tf 48.0 186.0 Td (dal completamento del thread proprietario. La differenza importante \350 che il) Tj ET
+BT /F1 10.2 Tf 48.0 172.5 Td (fallback FAA pu\362 prenotare la posizione corrente senza verificarne nuovamente) Tj ET
+BT /F1 10.2 Tf 48.0 159.0 Td (la disponibilit\340 e pu\362 quindi aspettare uno slot futuro. La coda ibrida limita) Tj ET
+BT /F1 10.2 Tf 48.0 145.5 Td (l'esposizione al ramo FAA alle operazioni che hanno osservato collisioni, ma) Tj ET
+BT /F1 10.2 Tf 48.0 132.0 Td (non elimina il problema.) Tj ET
+BT /F1 10.2 Tf 48.0 113.5 Td (Non sono stati ancora misurati thread deliberatamente sospesi, oversubscription,) Tj ET
+BT /F1 10.2 Tf 48.0 100.0 Td (fairness o starvation. Il throughput osservato quando tutti i worker progrediscono) Tj ET
+BT /F1 10.2 Tf 48.0 86.5 Td (non costituisce una garanzia di progresso in condizioni avverse.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 6 di 8) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 4656 >>
+stream
+BT /F2 15 Tf 48.0 784.0 Td (Limiti sperimentali) Tj ET
+BT /F1 10.2 Tf 60.0 763.0 Td (- Una sola macchina, un solo sistema operativo e una sola versione Mojo.) Tj ET
+BT /F1 10.2 Tf 60.0 749.5 Td (- Dieci ripetizioni non eliminano rumore sistematico, autocorrelazione o effetti) Tj ET
+BT /F1 10.2 Tf 48.0 736.0 Td (di frequenza e temperatura.) Tj ET
+BT /F1 10.2 Tf 60.0 722.5 Td (- \310 stato misurato throughput con payload Int, non latenza p50/p95/p99.) Tj ET
+BT /F1 10.2 Tf 60.0 709.0 Td (- Non sono inclusi consumo CPU, energia, traffico cache, miss TLB o CAS falliti) Tj ET
+BT /F1 10.2 Tf 48.0 695.5 Td (misurati da contatori hardware.) Tj ET
+BT /F1 10.2 Tf 60.0 682.0 Td (- Non sono stati provati payload grandi, capacit\340 non power-of-two o overflow dei) Tj ET
+BT /F1 10.2 Tf 48.0 668.5 Td (contatori UInt64.) Tj ET
+BT /F1 10.2 Tf 60.0 655.0 Td (- I test count/checksum rilevano perdita e duplicazione, ma non provano la) Tj ET
+BT /F1 10.2 Tf 48.0 641.5 Td (linearizzabilit\340 per ogni interleaving.) Tj ET
+BT /F1 10.2 Tf 60.0 628.0 Td (- I risultati sono microbenchmark e non misurano direttamente l'effetto end-to-end) Tj ET
+BT /F1 10.2 Tf 48.0 614.5 Td (sulle pipeline MoStream.) Tj ET
+BT /F2 15 Tf 48.0 586.0 Td (Integrazione in MoStream) Tj ET
+BT /F1 10.2 Tf 48.0 560.0 Td (HybridMPMCQueue \350 attualmente usata dai test e dal benchmark, ma non \350 importata) Tj ET
+BT /F1 10.2 Tf 48.0 546.5 Td (dal runtime MoStream. Per integrarla senza compromettere il confronto occorre:) Tj ET
+BT /F1 10.2 Tf 60.0 533.0 Td (1. rendere l'interfaccia compatibile con il punto di costruzione del Communicator;) Tj ET
+BT /F1 10.2 Tf 60.0 519.5 Td (2. selezionare la soglia come specializzazione compile-time, evitando branch per) Tj ET
+BT /F1 10.2 Tf 48.0 506.0 Td (ogni messaggio;) Tj ET
+BT /F1 10.2 Tf 60.0 492.5 Td (3. mantenere try_push e try_pop sul percorso CAS;) Tj ET
+BT /F1 10.2 Tf 60.0 479.0 Td (4. eseguire test end-to-end, shutdown, backpressure e sospensione dei worker;) Tj ET
+BT /F1 10.2 Tf 60.0 465.5 Td (5. misurare throughput e latenza su pipeline reali oltre al microbenchmark.) Tj ET
+BT /F1 10.2 Tf 48.0 447.0 Td (Se producer e consumer sono noti alla costruzione, una possibile evoluzione \350) Tj ET
+BT /F1 10.2 Tf 48.0 433.5 Td (usare soglie separate enqueue/dequeue. Una seconda evoluzione \350 selezionare una) Tj ET
+BT /F1 10.2 Tf 48.0 420.0 Td (queue specializzata per topologia fuori dal percorso caldo, invece di fare) Tj ET
+BT /F1 10.2 Tf 48.0 406.5 Td (dispatch runtime dentro push e pop.) Tj ET
+BT /F2 15 Tf 48.0 378.0 Td (Conclusioni) Tj ET
+BT /F1 10.2 Tf 48.0 352.0 Td (HybridMPMCQueue implementa correttamente, nei test osservati, un fast path CAS) Tj ET
+BT /F1 10.2 Tf 48.0 338.5 Td (con fallback FAA basato su collisioni reali. Il progetto evita di confondere) Tj ET
+BT /F1 10.2 Tf 48.0 325.0 Td (queue piena o vuota con contesa e conserva CAS per le operazioni try, nelle) Tj ET
+BT /F1 10.2 Tf 48.0 311.5 Td (quali un ticket deve poter essere abbandonato.) Tj ET
+BT /F1 10.2 Tf 48.0 293.0 Td (La soglia 1 \350 la scelta Hybrid pi\371 efficace nelle topologie bilanciate con almeno) Tj ET
+BT /F1 10.2 Tf 48.0 279.5 Td (2 producer e 2 consumer: si avvicina a FAA e supera nettamente CAS quando la) Tj ET
+BT /F1 10.2 Tf 48.0 266.0 Td (contesa cresce. Nei workload sbilanciati la soluzione ibrida pu\362 superare anche) Tj ET
+BT /F1 10.2 Tf 48.0 252.5 Td (FAA, con H2 particolarmente efficace in 1P-8C a capacit\340 medio-grande. La soglia) Tj ET
+BT /F1 10.2 Tf 48.0 239.0 Td (4 predefinita non \350 sostenuta come valore prestazionale generale dalla matrice) Tj ET
+BT /F1 10.2 Tf 48.0 225.5 Td (attuale.) Tj ET
+BT /F1 10.2 Tf 48.0 207.0 Td (La conclusione prudente per la tesi \350 che l'ibridazione \350 utile quando il carico) Tj ET
+BT /F1 10.2 Tf 48.0 193.5 Td (\350 variabile o asimmetrico, ma non produce un algoritmo universalmente dominante.) Tj ET
+BT /F1 10.2 Tf 48.0 180.0 Td (FAA pura resta superiore nei casi bilanciati pi\371 contesi; inoltre il fallback) Tj ET
+BT /F1 10.2 Tf 48.0 166.5 Td (mantiene ticket irrevocabili e head-of-line blocking. Prima dell'adozione nel) Tj ET
+BT /F1 10.2 Tf 48.0 153.0 Td (runtime sono necessari test di latenza, progresso avverso e integrazione reale.) Tj ET
+BT /F2 15 Tf 48.0 124.5 Td (File riproducibili) Tj ET
+BT /F4 8.8 Tf 60.0 103.5 Td (MoStream/Hybrid_queue.mojo) Tj ET
+BT /F4 8.8 Tf 60.0 91.5 Td (Tests/test_hybrid_queue.mojo) Tj ET
+BT /F4 8.8 Tf 60.0 79.5 Td (Tests/test_hybrid_queue_concurrent.mojo) Tj ET
+BT /F4 8.8 Tf 60.0 67.5 Td (Benchmarks/QueueBenchmark/queue_benchmark.mojo) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 7 di 8) Tj ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 19 0 R >>
+endobj
+21 0 obj
+<< /Length 245 >>
+stream
+BT /F4 8.8 Tf 60.0 794.0 Td (Benchmarks/QueueBenchmark/run_suite.py) Tj ET
+BT /F4 8.8 Tf 60.0 782.0 Td (Benchmarks/QueueBenchmark/results_hybrid_thresholds.csv) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 8 di 8) Tj ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 21 0 R >>
+endobj
+xref
+0 23
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000170 00000 n 
+0000000267 00000 n 
+0000000369 00000 n 
+0000000474 00000 n 
+0000000569 00000 n 
+0000005074 00000 n 
+0000005230 00000 n 
+0000009980 00000 n 
+0000010137 00000 n 
+0000014881 00000 n 
+0000015039 00000 n 
+0000019378 00000 n 
+0000019536 00000 n 
+0000024396 00000 n 
+0000024554 00000 n 
+0000029567 00000 n 
+0000029725 00000 n 
+0000034433 00000 n 
+0000034591 00000 n 
+0000034887 00000 n 
+trailer
+<< /Size 23 /Root 1 0 R >>
+startxref
+35045
+%%EOF

@@ -1,0 +1,354 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R] /Count 6 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 4264 >>
+stream
+BT /F2 20 Tf 48.0 766.0 Td (Padded-FAA Queue: progettazione e valutazione) Tj ET
+BT /F2 20 Tf 48.0 741.0 Td (sperimentale in MoStream) Tj ET
+BT /F3 11 Tf 48.0 704.0 Td (Documentazione tecnica per attivit\340 di tesi) Tj ET
+BT /F3 11 Tf 48.0 688.0 Td (Progetto MoStream - 22 luglio 2026) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (Questa relazione descrive PaddedFAAQueue, una coda bounded Multiple Producer,) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (Multiple Consumer progettata combinando allocazione dei ticket mediante) Tj ET
+BT /F1 10.2 Tf 48.0 645.0 Td (Fetch-And-Add, sequence number per slot, indicizzazione power-of-two e) Tj ET
+BT /F1 10.2 Tf 48.0 631.5 Td (isolamento delle celle su cache line. L'obiettivo \350 ridurre sia le collisioni) Tj ET
+BT /F1 10.2 Tf 48.0 618.0 Td (CAS sui contatori globali sia il false sharing fra slot adiacenti. Nella) Tj ET
+BT /F1 10.2 Tf 48.0 604.5 Td (campagna sperimentale eseguita su 18 configurazioni Padded-FAA ha ottenuto il) Tj ET
+BT /F1 10.2 Tf 48.0 591.0 Td (miglior throughput in 13 casi, risultando la migliore scelta generale fra le) Tj ET
+BT /F1 10.2 Tf 48.0 577.5 Td (implementazioni analizzate. La coda conserva tuttavia ticket irrevocabili,) Tj ET
+BT /F1 10.2 Tf 48.0 564.0 Td (head-of-line blocking e un consumo di memoria superiore alle varianti compatte.) Tj ET
+BT /F2 15 Tf 48.0 535.5 Td (Contesto e obiettivo) Tj ET
+BT /F1 10.2 Tf 48.0 509.5 Td (MoStream utilizza code bounded MPMC per trasferire messaggi fra gli stage delle) Tj ET
+BT /F1 10.2 Tf 48.0 496.0 Td (pipeline e, nel runtime cooperativo, per gestire ready queue e wait queue. La) Tj ET
+BT /F1 10.2 Tf 48.0 482.5 Td (coda originale usa il ring buffer a sequence number attribuito a Dmitry Vyukov) Tj ET
+BT /F1 10.2 Tf 48.0 469.0 Td (e prenota le posizioni mediante Compare-And-Swap. Gli esperimenti precedenti) Tj ET
+BT /F1 10.2 Tf 48.0 455.5 Td (hanno mostrato che Fetch-And-Add scala meglio sotto contesa, mentre la coda di) Tj ET
+BT /F1 10.2 Tf 48.0 442.0 Td (Erik Rigtorp beneficia dell'isolamento degli slot su cache line.) Tj ET
+BT /F1 10.2 Tf 48.0 423.5 Td (Padded-FAA nasce dall'unione delle caratteristiche risultate pi\371 promettenti:) Tj ET
+BT /F1 10.2 Tf 60.0 410.0 Td (- ticket FAA per push e pop bloccanti;) Tj ET
+BT /F1 10.2 Tf 60.0 396.5 Td (- contatori enqueue e dequeue separati su cache line;) Tj ET
+BT /F1 10.2 Tf 60.0 383.0 Td (- slot padded e allocati con allineamento di 64 byte;) Tj ET
+BT /F1 10.2 Tf 60.0 369.5 Td (- sequence number per generazione, con sincronizzazione ACQUIRE/RELEASE;) Tj ET
+BT /F1 10.2 Tf 60.0 356.0 Td (- capacit\340 power-of-two e indice calcolato con una mask;) Tj ET
+BT /F1 10.2 Tf 60.0 342.5 Td (- CAS per le operazioni non bloccanti, nelle quali il ticket deve poter essere) Tj ET
+BT /F1 10.2 Tf 48.0 329.0 Td (abbandonato;) Tj ET
+BT /F1 10.2 Tf 60.0 315.5 Td (- spin limitato e yield periodico durante le attese lunghe.) Tj ET
+BT /F2 15 Tf 48.0 287.0 Td (Struttura dati) Tj ET
+BT /F1 10.2 Tf 48.0 261.0 Td (La coda \350 un ring buffer di capacit\340 fissa. La capacit\340 deve essere una potenza) Tj ET
+BT /F1 10.2 Tf 48.0 247.5 Td (di due e almeno pari a due. I campi principali sono:) Tj ET
+BT /F4 8.8 Tf 60.0 234.0 Td (slots          array di PaddedFAASlot[T]) Tj ET
+BT /F4 8.8 Tf 60.0 222.0 Td (size           capacit\340 del ring) Tj ET
+BT /F4 8.8 Tf 60.0 210.0 Td (mask           size - 1) Tj ET
+BT /F4 8.8 Tf 60.0 198.0 Td (enqueue_pos    prossimo ticket producer) Tj ET
+BT /F4 8.8 Tf 60.0 186.0 Td (dequeue_pos    prossimo ticket consumer) Tj ET
+BT /F1 10.2 Tf 48.0 164.0 Td (Ogni slot contiene:) Tj ET
+BT /F4 8.8 Tf 60.0 150.5 Td (sequence       stato e generazione atomica della cella) Tj ET
+BT /F4 8.8 Tf 60.0 138.5 Td (data           payload Optional[T]) Tj ET
+BT /F4 8.8 Tf 60.0 126.5 Td (padding        byte necessari a raggiungere un multiplo di 64 byte) Tj ET
+BT /F1 10.2 Tf 48.0 104.5 Td (L'array \350 richiesto all'allocatore Mojo con alignment=64. In questo modo il) Tj ET
+BT /F1 10.2 Tf 48.0 91.0 Td (primo slot inizia su una cache line e, poich\351 la dimensione di ogni slot \350 un) Tj ET
+BT /F1 10.2 Tf 48.0 77.5 Td (multiplo di 64 byte, anche tutti gli slot successivi risultano isolati.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 1 di 6) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 3768 >>
+stream
+BT /F2 15 Tf 48.0 784.0 Td (Protocollo dei sequence number) Tj ET
+BT /F1 10.2 Tf 48.0 758.0 Td (Per un producer con ticket p:) Tj ET
+BT /F1 10.2 Tf 60.0 744.5 Td (- sequence uguale a p: la cella \350 disponibile;) Tj ET
+BT /F1 10.2 Tf 60.0 731.0 Td (- sequence uguale a p+1: il messaggio \350 stato pubblicato.) Tj ET
+BT /F1 10.2 Tf 48.0 712.5 Td (Per un consumer con ticket c:) Tj ET
+BT /F1 10.2 Tf 60.0 699.0 Td (- sequence uguale a c+1: il messaggio \350 consumabile;) Tj ET
+BT /F1 10.2 Tf 60.0 685.5 Td (- dopo il consumo sequence viene impostato a c+size, preparando la cella per il) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (giro successivo del ring.) Tj ET
+BT /F1 10.2 Tf 48.0 653.5 Td (Il sequence number evita l'ambiguit\340 tra queue piena e vuota e distingue le) Tj ET
+BT /F1 10.2 Tf 48.0 640.0 Td (diverse generazioni che attraversano la stessa posizione fisica.) Tj ET
+BT /F2 15 Tf 48.0 611.5 Td (Operazione push bloccante) Tj ET
+BT /F1 10.2 Tf 48.0 585.5 Td (Il producer ottiene una posizione unica con un singolo fetch_add RELAXED:) Tj ET
+BT /F4 8.8 Tf 60.0 572.0 Td (ticket = enqueue_pos.fetch_add\(1\)) Tj ET
+BT /F4 8.8 Tf 60.0 560.0 Td (slot = slots[ticket & mask]) Tj ET
+BT /F4 8.8 Tf 60.0 548.0 Td (attendi finch\351 slot.sequence == ticket) Tj ET
+BT /F4 8.8 Tf 60.0 536.0 Td (scrivi il payload) Tj ET
+BT /F4 8.8 Tf 60.0 524.0 Td (slot.sequence.store\(ticket + 1, RELEASE\)) Tj ET
+BT /F1 10.2 Tf 48.0 502.0 Td (FAA impedisce che pi\371 producer competano ripetutamente sullo stesso valore del) Tj ET
+BT /F1 10.2 Tf 48.0 488.5 Td (contatore, eliminando i retry CAS osservati nella MPMC originale. Il ticket \350) Tj ET
+BT /F1 10.2 Tf 48.0 475.0 Td (irrevocabile: una volta incrementato enqueue_pos, il producer deve completare) Tj ET
+BT /F1 10.2 Tf 48.0 461.5 Td (la pubblicazione.) Tj ET
+BT /F2 15 Tf 48.0 433.0 Td (Operazione pop bloccante) Tj ET
+BT /F1 10.2 Tf 48.0 407.0 Td (Il consumer segue il protocollo simmetrico:) Tj ET
+BT /F4 8.8 Tf 60.0 393.5 Td (ticket = dequeue_pos.fetch_add\(1\)) Tj ET
+BT /F4 8.8 Tf 60.0 381.5 Td (slot = slots[ticket & mask]) Tj ET
+BT /F4 8.8 Tf 60.0 369.5 Td (attendi finch\351 slot.sequence == ticket + 1) Tj ET
+BT /F4 8.8 Tf 60.0 357.5 Td (estrai il payload) Tj ET
+BT /F4 8.8 Tf 60.0 345.5 Td (slot.sequence.store\(ticket + size, RELEASE\)) Tj ET
+BT /F1 10.2 Tf 48.0 323.5 Td (La lettura ACQUIRE del sequence osserva il payload scritto prima della store) Tj ET
+BT /F1 10.2 Tf 48.0 310.0 Td (RELEASE del producer. La store RELEASE del consumer rende visibile la) Tj ET
+BT /F1 10.2 Tf 48.0 296.5 Td (liberazione dello slot al producer della generazione seguente.) Tj ET
+BT /F2 15 Tf 48.0 268.0 Td (Operazioni try_push e try_pop) Tj ET
+BT /F1 10.2 Tf 48.0 242.0 Td (Le operazioni non bloccanti non possono usare direttamente FAA. Se una) Tj ET
+BT /F1 10.2 Tf 48.0 228.5 Td (operazione ottenesse un ticket e scoprisse di non poter completare, non potrebbe) Tj ET
+BT /F1 10.2 Tf 48.0 215.0 Td (annullare in sicurezza l'incremento senza creare un buco permanente.) Tj ET
+BT /F1 10.2 Tf 48.0 196.5 Td (Padded-FAA usa quindi:) Tj ET
+BT /F1 10.2 Tf 60.0 183.0 Td (1. load della posizione corrente;) Tj ET
+BT /F1 10.2 Tf 60.0 169.5 Td (2. verifica della sequence prevista;) Tj ET
+BT /F1 10.2 Tf 60.0 156.0 Td (3. compare_exchange per riservare la posizione;) Tj ET
+BT /F1 10.2 Tf 60.0 142.5 Td (4. ritorno immediato in caso di cella non pronta o collisione CAS.) Tj ET
+BT /F1 10.2 Tf 48.0 124.0 Td (Il vantaggio FAA riguarda dunque principalmente push e pop bloccanti.) Tj ET
+BT /F2 15 Tf 48.0 95.5 Td (Padding e false sharing) Tj ET
+BT /F1 10.2 Tf 48.0 69.5 Td (Nelle code compatte pi\371 sequence number possono risiedere nella stessa cache) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 2 di 6) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 4199 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (line. Producer e consumer che lavorano su slot distinti invalidano comunque la) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (linea condivisa, generando traffico di coerenza non necessario. Padded-FAA) Tj ET
+BT /F1 10.2 Tf 48.0 767.0 Td (assegna almeno una cache line a ogni cella.) Tj ET
+BT /F1 10.2 Tf 48.0 748.5 Td (Il beneficio cresce quando molti thread accedono contemporaneamente a slot) Tj ET
+BT /F1 10.2 Tf 48.0 735.0 Td (adiacenti. Il costo \350 un aumento della memoria. Con slot minimi da 64 byte:) Tj ET
+BT /F4 8.2 Tf 50.0 721.5 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 710.5 Td (Capacit\340  Memoria slot minima  Note) Tj ET
+BT /F4 8.2 Tf 50.0 699.5 Td (16  1 KiB  trascurabile) Tj ET
+BT /F4 8.2 Tf 50.0 688.5 Td (1024  64 KiB  tipicamente compatibile con le cache) Tj ET
+BT /F4 8.2 Tf 50.0 677.5 Td (65536  4 MiB  possibile pressione su cache e TLB) Tj ET
+BT /F1 10.2 Tf 48.0 656.5 Td (Payload superiori a una cache line portano la dimensione dello slot al) Tj ET
+BT /F1 10.2 Tf 48.0 643.0 Td (successivo multiplo di 64 byte.) Tj ET
+BT /F2 15 Tf 48.0 614.5 Td (Indicizzazione e memory ordering) Tj ET
+BT /F1 10.2 Tf 48.0 588.5 Td (La capacit\340 power-of-two permette di calcolare l'indice con ticket & mask.) Tj ET
+BT /F1 10.2 Tf 48.0 575.0 Td (Questo evita modulo e divisione usati nella coda Rigtorp per supportare capacit\340) Tj ET
+BT /F1 10.2 Tf 48.0 561.5 Td (arbitrarie. I contatori di ticket usano Ordering.RELAXED perch\351 l'ordine dei) Tj ET
+BT /F1 10.2 Tf 48.0 548.0 Td (dati \350 stabilito dai sequence number ACQUIRE/RELEASE. enqueue_pos e dequeue_pos) Tj ET
+BT /F1 10.2 Tf 48.0 534.5 Td (sono inoltre collocati in oggetti padded separati.) Tj ET
+BT /F1 10.2 Tf 48.0 516.0 Td (Questa scelta deve essere mantenuta con attenzione: rilassare le operazioni) Tj ET
+BT /F1 10.2 Tf 48.0 502.5 Td (sul sequence number invaliderebbe il protocollo di pubblicazione del payload.) Tj ET
+BT /F2 15 Tf 48.0 474.0 Td (Politica di attesa) Tj ET
+BT /F1 10.2 Tf 48.0 448.0 Td (Durante l'attesa dello slot il thread esegue spin. Dopo 1024 osservazioni senza) Tj ET
+BT /F1 10.2 Tf 48.0 434.5 Td (successo viene invocato sleep\(0.0\), cedendo occasionalmente la CPU allo) Tj ET
+BT /F1 10.2 Tf 48.0 421.0 Td (scheduler. La politica cerca un compromesso fra bassa latenza e consumo CPU.) Tj ET
+BT /F1 10.2 Tf 48.0 402.5 Td (Rigtorp usa puro spin, che pu\362 aumentare il throughput su core dedicati ma) Tj ET
+BT /F1 10.2 Tf 48.0 389.0 Td (risulta pi\371 aggressivo in oversubscription. La soglia di 1024 deve essere) Tj ET
+BT /F1 10.2 Tf 48.0 375.5 Td (considerata un parametro sperimentale, non un valore universalmente ottimale.) Tj ET
+BT /F2 15 Tf 48.0 347.0 Td (API Mojo) Tj ET
+BT /F1 10.2 Tf 48.0 321.0 Td (La coda \350 definita in MoStream/Padded_FAA_queue.mojo e richiede un payload) Tj ET
+BT /F1 10.2 Tf 48.0 307.5 Td (Copyable. Esempio:) Tj ET
+BT /F4 8.8 Tf 60.0 294.0 Td (from MoStream.Padded_FAA_queue import PaddedFAAQueue) Tj ET
+BT /F4 8.8 Tf 60.0 277.0 Td (var queue = PaddedFAAQueue[Int]\(1024\)) Tj ET
+BT /F4 8.8 Tf 60.0 265.0 Td (queue.push\(42\)) Tj ET
+BT /F4 8.8 Tf 60.0 253.0 Td (var value = queue.pop\(\)) Tj ET
+BT /F1 10.2 Tf 48.0 231.0 Td (Metodi disponibili:) Tj ET
+BT /F1 10.2 Tf 60.0 217.5 Td (- push\(item\): inserimento bloccante;) Tj ET
+BT /F1 10.2 Tf 60.0 204.0 Td (- pop\(\): estrazione bloccante;) Tj ET
+BT /F1 10.2 Tf 60.0 190.5 Td (- try_push\(item\): restituisce il payload se non inserito;) Tj ET
+BT /F1 10.2 Tf 60.0 177.0 Td (- try_pop\(\): restituisce Optional[T];) Tj ET
+BT /F1 10.2 Tf 60.0 163.5 Td (- estimated_len\(\): snapshot approssimativo della lunghezza.) Tj ET
+BT /F2 15 Tf 48.0 135.0 Td (Metodologia sperimentale) Tj ET
+BT /F1 10.2 Tf 48.0 109.0 Td (Ogni producer inserisce un intervallo disgiunto di interi. L'ultimo producer) Tj ET
+BT /F1 10.2 Tf 48.0 95.5 Td (pubblica un sentinel per consumer. I consumer accumulano conteggio e checksum) Tj ET
+BT /F1 10.2 Tf 48.0 82.0 Td (in variabili locali, evitando un contatore atomico condiviso nel percorso) Tj ET
+BT /F1 10.2 Tf 48.0 68.5 Td (temporizzato. Dopo il join vengono verificati:) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 3 di 6) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 4424 >>
+stream
+BT /F4 8.8 Tf 60.0 794.0 Td (conteggio = numero totale di messaggi) Tj ET
+BT /F4 8.8 Tf 60.0 782.0 Td (checksum  = N x \(N - 1\) / 2) Tj ET
+BT /F1 10.2 Tf 48.0 760.0 Td (Sono state provate le topologie 1P-1C, 2P-2C, 4P-4C, 8P-8C, 1P-8C e 8P-1C;) Tj ET
+BT /F1 10.2 Tf 48.0 746.5 Td (le capacit\340 16, 1024 e 65536; 250000 messaggi per producer; 10 ripetizioni per) Tj ET
+BT /F1 10.2 Tf 48.0 733.0 Td (configurazione. Tutte le esecuzioni Padded-FAA hanno superato il controllo di) Tj ET
+BT /F1 10.2 Tf 48.0 719.5 Td (correttezza.) Tj ET
+BT /F1 10.2 Tf 48.0 701.0 Td (Ambiente: Intel Xeon Gold 5512U, 28 core e 56 thread hardware, x86-64, un nodo) Tj ET
+BT /F1 10.2 Tf 48.0 687.5 Td (NUMA, Linux 5.15.0-168-generic e Mojo 1.0.0b1.) Tj ET
+BT /F2 15 Tf 48.0 659.0 Td (Risultati principali) Tj ET
+BT /F1 10.2 Tf 48.0 633.0 Td (La tabella riporta milioni di messaggi al secondo. Best indica il vincitore) Tj ET
+BT /F1 10.2 Tf 48.0 619.5 Td (della configurazione fra CAS, FAA, Hybrid, Rigtorp e Padded-FAA.) Tj ET
+BT /F4 8.2 Tf 50.0 606.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 595.0 Td (Topologia  Capacit\340  FAA  Rigtorp  Padded-FAA  Best) Tj ET
+BT /F4 8.2 Tf 50.0 584.0 Td (1P-1C  16  5.47  3.74  3.87  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 573.0 Td (1P-1C  1024  5.97  3.73  4.16  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 562.0 Td (1P-1C  65536  6.24  2.75  15.54  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 551.0 Td (2P-2C  16  6.84  7.49  8.21  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 540.0 Td (2P-2C  1024  8.02  9.36  10.01  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 529.0 Td (2P-2C  65536  11.22  11.89  12.11  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 518.0 Td (4P-4C  16  8.34  8.24  10.61  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 507.0 Td (4P-4C  1024  8.81  9.41  11.86  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 496.0 Td (4P-4C  65536  10.81  10.16  11.92  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 485.0 Td (8P-8C  16  9.50  8.40  9.56  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 474.0 Td (8P-8C  1024  8.65  8.45  10.42  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 463.0 Td (8P-8C  65536  9.39  9.69  10.35  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 452.0 Td (1P-8C  16  4.60  7.91  7.62  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 441.0 Td (1P-8C  1024  4.51  7.78  7.98  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 430.0 Td (1P-8C  65536  4.31  6.62  6.72  Hybrid-2) Tj ET
+BT /F4 8.2 Tf 50.0 419.0 Td (8P-1C  16  5.56  7.94  9.30  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 408.0 Td (8P-1C  1024  5.37  7.34  9.44  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 397.0 Td (8P-1C  65536  5.77  7.53  9.37  Hybrid-1) Tj ET
+BT /F1 10.2 Tf 48.0 376.0 Td (Padded-FAA \350 risultata prima in 13 configurazioni su 18. Ha vinto tutte le) Tj ET
+BT /F1 10.2 Tf 48.0 362.5 Td (configurazioni bilanciate da 2P-2C a 8P-8C e due delle tre configurazioni) Tj ET
+BT /F1 10.2 Tf 48.0 349.0 Td (8P-1C. Il vantaggio su FAA e Rigtorp \350 particolarmente evidente in 4P-4C con) Tj ET
+BT /F1 10.2 Tf 48.0 335.5 Td (capacit\340 1024, dove raggiunge 11.86 Mmsg/s contro 8.81 e 9.41.) Tj ET
+BT /F2 15 Tf 48.0 307.0 Td (Interpretazione dei risultati) Tj ET
+BT /F2 12 Tf 48.0 280.0 Td (Workload bilanciati) Tj ET
+BT /F1 10.2 Tf 48.0 257.0 Td (La combinazione di ticket distinti e slot isolati riduce due fonti diverse di) Tj ET
+BT /F1 10.2 Tf 48.0 243.5 Td (contesa: collisioni sul contatore e invalidazioni fra sequence adiacenti.) Tj ET
+BT /F1 10.2 Tf 48.0 230.0 Td (Padded-FAA domina quindi le topologie bilanciate con almeno due producer e due) Tj ET
+BT /F1 10.2 Tf 48.0 216.5 Td (consumer.) Tj ET
+BT /F2 12 Tf 48.0 197.0 Td (Workload sbilanciati) Tj ET
+BT /F1 10.2 Tf 48.0 174.0 Td (Padded-FAA \350 molto competitiva ma non sempre prima in 1P-8C. Una coda SPMC) Tj ET
+BT /F1 10.2 Tf 48.0 160.5 Td (specializzata potrebbe rimuovere completamente l'RMW atomico dal producer e) Tj ET
+BT /F1 10.2 Tf 48.0 147.0 Td (mantenere FAA soltanto sul lato consumer. Analogamente una MPSC specializzata) Tj ET
+BT /F1 10.2 Tf 48.0 133.5 Td (pu\362 semplificare il lato consumer.) Tj ET
+BT /F2 12 Tf 48.0 114.0 Td (1P-1C) Tj ET
+BT /F1 10.2 Tf 48.0 91.0 Td (Con capacit\340 piccole FAA compatta evita il footprint degli slot padded e) Tj ET
+BT /F1 10.2 Tf 48.0 77.5 Td (risulta superiore. Per questo Padded-FAA non sostituisce una vera SPSC, che pu\362) Tj ET
+BT /F1 10.2 Tf 48.0 64.0 Td (evitare del tutto FAA e CAS sui contatori posseduti da un solo thread.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 4 di 6) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 4324 >>
+stream
+BT /F2 12 Tf 48.0 788.0 Td (Capacit\340 elevata) Tj ET
+BT /F1 10.2 Tf 48.0 765.0 Td (Il risultato 1P-1C con capacit\340 65536 \350 molto elevato e deve essere replicato) Tj ET
+BT /F1 10.2 Tf 48.0 751.5 Td (su macchina isolata prima di formulare conclusioni causali. Pi\371 in generale,) Tj ET
+BT /F1 10.2 Tf 48.0 738.0 Td (cache residency, prefetching e TLB possono cambiare l'effetto del padding.) Tj ET
+BT /F2 15 Tf 48.0 709.5 Td (Confronto qualitativo) Tj ET
+BT /F4 8.2 Tf 50.0 688.5 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 677.5 Td (Propriet\340  CAS-MPMC  FAA  Rigtorp  Padded-FAA) Tj ET
+BT /F4 8.2 Tf 50.0 666.5 Td (Ticket bloccanti  CAS  FAA  FAA  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 655.5 Td (Slot padded  No  No  S\354  S\354) Tj ET
+BT /F4 8.2 Tf 50.0 644.5 Td (Indice  mask  mask  modulo  mask) Tj ET
+BT /F4 8.2 Tf 50.0 633.5 Td (Ticket ordering  RELAXED  RELAXED  SEQ_CST  RELAXED) Tj ET
+BT /F4 8.2 Tf 50.0 622.5 Td (Attesa  spin  spin/yield  spin  spin/yield) Tj ET
+BT /F4 8.2 Tf 50.0 611.5 Td (Capacit\340 arbitraria  No  No  S\354  No) Tj ET
+BT /F4 8.2 Tf 50.0 600.5 Td (Memoria per slot  compatta  compatta  >=64 B  >=64 B) Tj ET
+BT /F2 15 Tf 48.0 569.5 Td (Garanzie e limiti) Tj ET
+BT /F1 10.2 Tf 48.0 543.5 Td (Padded-FAA non \350 wait-free. Dopo fetch_add un thread possiede un ticket che non) Tj ET
+BT /F1 10.2 Tf 48.0 530.0 Td (pu\362 essere annullato. Se il thread viene sospeso prima di pubblicare o liberare) Tj ET
+BT /F1 10.2 Tf 48.0 516.5 Td (lo slot, le operazioni successive possono subire head-of-line blocking.) Tj ET
+BT /F1 10.2 Tf 48.0 498.0 Td (Altri limiti:) Tj ET
+BT /F1 10.2 Tf 60.0 484.5 Td (- maggiore uso di memoria rispetto alla FAA compatta;) Tj ET
+BT /F1 10.2 Tf 60.0 471.0 Td (- possibile pressione su cache e TLB con capacit\340 grandi;) Tj ET
+BT /F1 10.2 Tf 60.0 457.5 Td (- try_push e try_pop non beneficiano del percorso FAA;) Tj ET
+BT /F1 10.2 Tf 60.0 444.0 Td (- nessuna prova formale di linearizzabilit\340 inclusa nello studio;) Tj ET
+BT /F1 10.2 Tf 60.0 430.5 Td (- nessun test mirato con thread sospeso dopo la prenotazione;) Tj ET
+BT /F1 10.2 Tf 60.0 417.0 Td (- misurato throughput, non latenza p95/p99, energia o fairness;) Tj ET
+BT /F1 10.2 Tf 60.0 403.5 Td (- risultati ottenuti su una sola macchina e una sola versione di Mojo.) Tj ET
+BT /F2 15 Tf 48.0 375.0 Td (Integrazione consigliata in MoStream) Tj ET
+BT /F1 10.2 Tf 48.0 349.0 Td (Padded-FAA \350 la migliore candidata come coda generale per communicator con) Tj ET
+BT /F1 10.2 Tf 48.0 335.5 Td (push/pop bloccanti e contesa medio-alta. L'integrazione dovrebbe essere) Tj ET
+BT /F1 10.2 Tf 48.0 322.0 Td (inizialmente opzionale, mantenendo FAA compatta e CAS come baseline.) Tj ET
+BT /F1 10.2 Tf 48.0 303.5 Td (Per ottenere il massimo senza un branch per messaggio, la selezione deve) Tj ET
+BT /F1 10.2 Tf 48.0 290.0 Td (avvenire durante la costruzione del tipo concreto di Communicator. Un wrapper) Tj ET
+BT /F1 10.2 Tf 48.0 276.5 Td (runtime AdaptiveMPMCQueue \350 stato prototipato, ma il dispatch nel percorso caldo) Tj ET
+BT /F1 10.2 Tf 48.0 263.0 Td (ha perso circa il 28 percento rispetto alla Padded-FAA diretta nel test 4P-4C.) Tj ET
+BT /F1 10.2 Tf 48.0 244.5 Td (Strategia proposta:) Tj ET
+BT /F1 10.2 Tf 60.0 231.0 Td (1. Padded-FAA come default MPMC per topologie con almeno due thread concorrenti;) Tj ET
+BT /F1 10.2 Tf 60.0 217.5 Td (2. SPSC dedicata per 1P-1C;) Tj ET
+BT /F1 10.2 Tf 60.0 204.0 Td (3. SPMC padded specializzata per 1P-NC;) Tj ET
+BT /F1 10.2 Tf 60.0 190.5 Td (4. MPSC padded specializzata per NP-1C;) Tj ET
+BT /F1 10.2 Tf 60.0 177.0 Td (5. CAS o Hybrid dove le garanzie di progresso sono pi\371 importanti del throughput.) Tj ET
+BT /F2 15 Tf 48.0 148.5 Td (Lavoro futuro) Tj ET
+BT /F1 10.2 Tf 60.0 127.5 Td (1. Implementare PaddedSPMCQueue eliminando l'atomica dal producer singolo.) Tj ET
+BT /F1 10.2 Tf 60.0 114.0 Td (2. Implementare PaddedMPSCQueue eliminando l'atomica dal consumer singolo.) Tj ET
+BT /F1 10.2 Tf 60.0 100.5 Td (3. Confrontare slot da 64, 128 byte e layout compatto selezionabile.) Tj ET
+BT /F1 10.2 Tf 60.0 87.0 Td (4. Misurare cache miss, invalidazioni, context switch e consumo CPU con perf.) Tj ET
+BT /F1 10.2 Tf 60.0 73.5 Td (5. Misurare p50, p95, p99 e latenza massima.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 5 di 6) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 2683 >>
+stream
+BT /F1 10.2 Tf 60.0 794.0 Td (6. Eseguire stress test con sospensione del proprietario di un ticket.) Tj ET
+BT /F1 10.2 Tf 60.0 780.5 Td (7. Ripetere con almeno 30 campioni, core isolati e pinning controllato.) Tj ET
+BT /F1 10.2 Tf 60.0 767.0 Td (8. Valutare payload di dimensioni differenti e pipeline MoStream end-to-end.) Tj ET
+BT /F2 15 Tf 48.0 738.5 Td (Conclusione) Tj ET
+BT /F1 10.2 Tf 48.0 712.5 Td (Padded-FAA \350 la migliore implementazione generale fra quelle analizzate in) Tj ET
+BT /F1 10.2 Tf 48.0 699.0 Td (termini di throughput. La combinazione di FAA, slot allineati, sequence number,) Tj ET
+BT /F1 10.2 Tf 48.0 685.5 Td (mask e memory ordering rilassato ha ottenuto il primo posto in 13 scenari su) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (18. Il risultato mostra che il false sharing degli slot era una componente) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (rilevante oltre alla contesa sui contatori globali.) Tj ET
+BT /F1 10.2 Tf 48.0 640.0 Td (La coda non \350 universalmente dominante: FAA compatta resta preferibile in) Tj ET
+BT /F1 10.2 Tf 48.0 626.5 Td (alcuni casi 1P-1C, mentre Rigtorp e Hybrid possono vincere specifici workload) Tj ET
+BT /F1 10.2 Tf 48.0 613.0 Td (SPMC. Inoltre padding, ticket irrevocabili e head-of-line blocking introducono) Tj ET
+BT /F1 10.2 Tf 48.0 599.5 Td (compromessi di memoria e progresso. La formulazione corretta per la tesi \350 che) Tj ET
+BT /F1 10.2 Tf 48.0 586.0 Td (Padded-FAA rappresenta il miglior compromesso di throughput osservato e la) Tj ET
+BT /F1 10.2 Tf 48.0 572.5 Td (baseline pi\371 promettente per successive specializzazioni SPSC, SPMC e MPSC.) Tj ET
+BT /F2 15 Tf 48.0 544.0 Td (File riproducibili) Tj ET
+BT /F1 10.2 Tf 60.0 523.0 Td (- MoStream/Padded_FAA_queue.mojo: implementazione;) Tj ET
+BT /F1 10.2 Tf 60.0 509.5 Td (- Tests/test_padded_faa_queue.mojo: test funzionale;) Tj ET
+BT /F1 10.2 Tf 60.0 496.0 Td (- Benchmarks/QueueBenchmark/queue_benchmark.mojo: benchmark concorrente;) Tj ET
+BT /F1 10.2 Tf 60.0 482.5 Td (- Benchmarks/QueueBenchmark/run_suite.py: matrice e statistiche;) Tj ET
+BT /F1 10.2 Tf 60.0 469.0 Td (- Benchmarks/QueueBenchmark/results_padded_faa.csv: risultati completi.) Tj ET
+BT /F2 15 Tf 48.0 440.5 Td (Riferimenti) Tj ET
+BT /F1 10.2 Tf 60.0 419.5 Td (- Dmitry Vyukov, Bounded MPMC queue, 1024cores.net.) Tj ET
+BT /F1 10.2 Tf 60.0 406.0 Td (- Erik Rigtorp, MPMCQueue, https://github.com/rigtorp/MPMCQueue.) Tj ET
+BT /F1 10.2 Tf 60.0 392.5 Td (- Mojo standard library, alloc con allineamento esplicito,) Tj ET
+BT /F1 10.2 Tf 48.0 379.0 Td (https://docs.modular.com/mojo/std/memory/unsafe_pointer/alloc/.) Tj ET
+BT /F1 8 Tf 170 25 Td (Studio FAA-MPMC vs CAS-MPMC   -   pagina 6 di 6) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 17 0 R >>
+endobj
+xref
+0 19
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000156 00000 n 
+0000000253 00000 n 
+0000000355 00000 n 
+0000000460 00000 n 
+0000000555 00000 n 
+0000004870 00000 n 
+0000005026 00000 n 
+0000008845 00000 n 
+0000009002 00000 n 
+0000013253 00000 n 
+0000013411 00000 n 
+0000017887 00000 n 
+0000018045 00000 n 
+0000022421 00000 n 
+0000022579 00000 n 
+0000025314 00000 n 
+trailer
+<< /Size 19 /Root 1 0 R >>
+startxref
+25472
+%%EOF

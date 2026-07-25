@@ -1,0 +1,533 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [8 0 R 10 0 R 12 0 R 14 0 R 16 0 R 18 0 R 20 0 R 22 0 R 24 0 R] /Count 9 >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>
+endobj
+6 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>
+endobj
+7 0 obj
+<< /Length 4409 >>
+stream
+BT /F2 20 Tf 48.0 766.0 Td (wCQ bounded: implementazione, validazione e prestazioni) Tj ET
+BT /F2 20 Tf 48.0 741.0 Td (in MoStream) Tj ET
+BT /F3 11 Tf 48.0 704.0 Td (Documentazione tecnica per attivit\340 di tesi) Tj ET
+BT /F3 11 Tf 48.0 688.0 Td (Progetto MoStream - 22 luglio 2026) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (Questa relazione studia wCQ, la coda FIFO MPMC wait-free e a memoria bounded) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (proposta da Ruslan Nikolaev e Binoy Ravindran. Il nucleo ufficiale \350 stato) Tj ET
+BT /F1 10.2 Tf 48.0 645.0 Td (integrato in MoStream tramite un bridge C x86-64 e un wrapper Mojo. Per) Tj ET
+BT /F1 10.2 Tf 48.0 631.5 Td (trasportare valori UInt64 con capacit\340 pubblica esatta, l'adattatore usa due) Tj ET
+BT /F1 10.2 Tf 48.0 618.0 Td (ring wCQ, un array di payload e due contatori padded di admission. La suite di) Tj ET
+BT /F1 10.2 Tf 48.0 604.5 Td (correttezza ha superato test full/empty, wrap, exact-once, bounded fill e) Tj ET
+BT /F1 10.2 Tf 48.0 591.0 Td (topologie fino a 8 producer e 8 consumer, incluse capacit\340 16, 1024 e 65536.) Tj ET
+BT /F1 10.2 Tf 48.0 577.5 Td (Nella campagna prestazionale di 18 configurazioni e 10 ripetizioni wCQ scala) Tj ET
+BT /F1 10.2 Tf 48.0 564.0 Td (con la contesa e, a 8P-8C con capacit\340 1024, \350 2.48 volte pi\371 veloce della CAS) Tj ET
+BT /F1 10.2 Tf 48.0 550.5 Td (originale. Non supera per\362 FAA, Rigtorp o Padded-FAA: raggiunge rispettivamente) Tj ET
+BT /F1 10.2 Tf 48.0 537.0 Td (il 61.1, 57.5 e 49.5 percento del loro throughput in media geometrica. La) Tj ET
+BT /F1 10.2 Tf 48.0 523.5 Td (conclusione riguarda l'adattatore applicativo misurato, non dimostra che il) Tj ET
+BT /F1 10.2 Tf 48.0 510.0 Td (ring wCQ puro sia intrinsecamente pi\371 lento. La prova wait-free pubblicata per) Tj ET
+BT /F1 10.2 Tf 48.0 496.5 Td (il nucleo non viene attribuita automaticamente alla composizione bounded e) Tj ET
+BT /F1 10.2 Tf 48.0 483.0 Td (alle operazioni blocking introdotte in MoStream.) Tj ET
+BT /F2 15 Tf 48.0 454.5 Td (Obiettivo dello studio) Tj ET
+BT /F1 10.2 Tf 48.0 428.5 Td (MoStream usa code bounded per trasferire messaggi fra stage concorrenti. Gli) Tj ET
+BT /F1 10.2 Tf 48.0 415.0 Td (esperimenti precedenti hanno confrontato una MPMC basata su CAS, varianti FAA,) Tj ET
+BT /F1 10.2 Tf 48.0 401.5 Td (Hybrid, Rigtorp, Padded-FAA e un adattamento bounded ispirato a LPRQ. wCQ \350) Tj ET
+BT /F1 10.2 Tf 48.0 388.0 Td (stata aggiunta per rispondere a due domande distinte:) Tj ET
+BT /F1 10.2 Tf 60.0 374.5 Td (1. il nucleo wait-free pu\362 essere adattato alla semantica bounded richiesta dal) Tj ET
+BT /F1 10.2 Tf 48.0 361.0 Td (progetto senza perdita o duplicazione dei messaggi?) Tj ET
+BT /F1 10.2 Tf 60.0 347.5 Td (2. l'uso di FAA e helping consente di superare le code gi\340 analizzate quando la) Tj ET
+BT /F1 10.2 Tf 48.0 334.0 Td (contesa cresce?) Tj ET
+BT /F1 10.2 Tf 48.0 315.5 Td (Le due domande non devono essere confuse. La correttezza del ring upstream non) Tj ET
+BT /F1 10.2 Tf 48.0 302.0 Td (dimostra automaticamente quella dell'adattatore; allo stesso modo, il costo) Tj ET
+BT /F1 10.2 Tf 48.0 288.5 Td (del bridge e dell'indirezione non misura isolatamente l'algoritmo pubblicato.) Tj ET
+BT /F2 15 Tf 48.0 260.0 Td (Provenienza e riproducibilit\340 del nucleo) Tj ET
+BT /F1 10.2 Tf 48.0 234.0 Td (Il sorgente \350 una copia non modificata di wfring_cas2.h e delle dipendenze) Tj ET
+BT /F1 10.2 Tf 48.0 220.5 Td (lf/ provenienti dal repository ufficiale rusnikola/lfqueue, commit:) Tj ET
+BT /F4 8.8 Tf 60.0 207.0 Td (708c0052872950dcb15b487fa7a5dd77ce2a2746) Tj ET
+BT /F1 10.2 Tf 48.0 185.0 Td (Il commit include la correzione del 25 novembre 2023 relativa al valore atteso) Tj ET
+BT /F1 10.2 Tf 48.0 171.5 Td (del CAS nel protocollo slow increment. Le licenze BSD-2-Clause e MIT e gli) Tj ET
+BT /F1 10.2 Tf 48.0 158.0 Td (avvisi di copyright upstream sono conservati nei file vendorizzati. Il file) Tj ET
+BT /F1 10.2 Tf 48.0 144.5 Td (MoStream/lib/wcq_vendor/UPSTREAM.md registra provenienza e checksum SHA-256.) Tj ET
+BT /F1 10.2 Tf 48.0 126.0 Td (La pubblicazione di riferimento \350 wCQ: A Fast Wait-Free Queue with Bounded) Tj ET
+BT /F1 10.2 Tf 48.0 112.5 Td (Memory Usage, SPAA 2022. La versione consultabile \350 disponibile su arXiv con) Tj ET
+BT /F1 10.2 Tf 48.0 99.0 Td (identificatore 2201.02179.) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 1 di 9) Tj ET
+endstream
+endobj
+8 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 7 0 R >>
+endobj
+9 0 obj
+<< /Length 4742 >>
+stream
+BT /F2 15 Tf 48.0 784.0 Td (Propriet\340 dichiarate dal lavoro originale) Tj ET
+BT /F1 10.2 Tf 48.0 758.0 Td (wCQ \350 una FIFO Multiple Producer, Multiple Consumer a capacit\340 fissa. Il) Tj ET
+BT /F1 10.2 Tf 48.0 744.5 Td (lavoro la presenta come wait-free: ogni operazione del ring completa in un) Tj ET
+BT /F1 10.2 Tf 48.0 731.0 Td (numero finito di passi sotto le assunzioni del modello. La memoria \350 bounded:) Tj ET
+BT /F1 10.2 Tf 48.0 717.5 Td (non vengono concatenati segmenti allocati dinamicamente per superare un ring) Tj ET
+BT /F1 10.2 Tf 48.0 704.0 Td (in stallo.) Tj ET
+BT /F1 10.2 Tf 48.0 685.5 Td (Le assunzioni rilevanti sono:) Tj ET
+BT /F1 10.2 Tf 60.0 672.0 Td (- capacit\340 logica n potenza di due;) Tj ET
+BT /F1 10.2 Tf 60.0 658.5 Td (- numero k di thread partecipanti non superiore a n;) Tj ET
+BT /F1 10.2 Tf 60.0 645.0 Td (- Fetch-And-Add e atomic OR implementati dall'hardware;) Tj ET
+BT /F1 10.2 Tf 60.0 631.5 Td (- CAS a doppia parola, CAS2, per coppie contatore-descrittore ed entry-note;) Tj ET
+BT /F1 10.2 Tf 60.0 618.0 Td (- record per-thread collegati in una lista usata dal protocollo di helping;) Tj ET
+BT /F1 10.2 Tf 60.0 604.5 Td (- indici interni nell'intervallo previsto dal ring, non payload arbitrari.) Tj ET
+BT /F1 10.2 Tf 48.0 586.0 Td (Su x86-64 il CAS2 corrisponde a CMPXCHG16B e richiede allineamento a 16 byte.) Tj ET
+BT /F1 10.2 Tf 48.0 572.5 Td (Il bridge controlla a runtime la presenza della feature CPU CX16. Il port) Tj ET
+BT /F1 10.2 Tf 48.0 559.0 Td (corrente non \350 offerto su architetture diverse da x86-64.) Tj ET
+BT /F2 15 Tf 48.0 530.5 Td (Da SCQ a wCQ) Tj ET
+BT /F1 10.2 Tf 48.0 504.5 Td (wCQ deriva da SCQ, una coda lock-free basata su ring. Head e Tail sono avanzati) Tj ET
+BT /F1 10.2 Tf 48.0 491.0 Td (principalmente con FAA, evitando il ciclo CAS sul contatore globale tipico di) Tj ET
+BT /F1 10.2 Tf 48.0 477.5 Td (molte MPMC. Ogni posizione logica \350 associata a una entry fisica e a un ciclo,) Tj ET
+BT /F1 10.2 Tf 48.0 464.0 Td (cos\354 lo stesso spazio pu\362 essere riutilizzato senza confondere generazioni.) Tj ET
+BT /F1 10.2 Tf 48.0 445.5 Td (Per una capacit\340 logica n il ring mantiene 2n entry fisiche, ma contiene al) Tj ET
+BT /F1 10.2 Tf 48.0 432.0 Td (massimo n indici. Il raddoppio offre margine fra producer e consumer che) Tj ET
+BT /F1 10.2 Tf 48.0 418.5 Td (raggiungono posizioni in momenti diversi. Un threshold limita le scansioni a) Tj ET
+BT /F1 10.2 Tf 48.0 405.0 Td (vuoto e contribuisce al progresso del ring.) Tj ET
+BT /F1 10.2 Tf 48.0 386.5 Td (SCQ \350 lock-free: almeno un thread progredisce, ma un singolo thread pu\362 essere) Tj ET
+BT /F1 10.2 Tf 48.0 373.0 Td (ritardato indefinitamente. wCQ aggiunge un percorso lento cooperativo per) Tj ET
+BT /F1 10.2 Tf 48.0 359.5 Td (rafforzare la garanzia a wait-free.) Tj ET
+BT /F2 15 Tf 48.0 331.0 Td (Fast path e slow path) Tj ET
+BT /F1 10.2 Tf 48.0 305.0 Td (Il fast path conserva l'idea SCQ. Enqueue e dequeue prenotano posizioni con) Tj ET
+BT /F1 10.2 Tf 48.0 291.5 Td (FAA e tentano di aggiornare la entry corrispondente. Nel sorgente vendorizzato) Tj ET
+BT /F1 10.2 Tf 48.0 278.0 Td (la patience \350 limitata a 16 tentativi per enqueue e 64 per dequeue.) Tj ET
+BT /F1 10.2 Tf 48.0 259.5 Td (Quando il fast path non completa entro il limite, l'operazione pubblica una) Tj ET
+BT /F1 10.2 Tf 48.0 246.0 Td (richiesta nel proprio record per-thread. La richiesta contiene sequenze per) Tj ET
+BT /F1 10.2 Tf 48.0 232.5 Td (leggere uno snapshot coerente, head o tail locale, posizione iniziale e tipo di) Tj ET
+BT /F1 10.2 Tf 48.0 219.0 Td (operazione. Gli altri thread controllano periodicamente i record; il delay) Tj ET
+BT /F1 10.2 Tf 48.0 205.5 Td (upstream \350 16 operazioni.) Tj ET
+BT /F1 10.2 Tf 48.0 187.0 Td (Il protocollo slow increment coordina gli helper affinch\351 convergano sulla) Tj ET
+BT /F1 10.2 Tf 48.0 173.5 Td (stessa posizione globale. La coppia atomica contiene il contatore e il) Tj ET
+BT /F1 10.2 Tf 48.0 160.0 Td (riferimento alla fase di helping. Entry e note usano anch'esse aggiornamenti a) Tj ET
+BT /F1 10.2 Tf 48.0 146.5 Td (doppia parola. Il bit FIN termina gli helper quando il risultato \350 stato) Tj ET
+BT /F1 10.2 Tf 48.0 133.0 Td (prodotto; un bit Enq impedisce al consumer di osservare un inserimento non) Tj ET
+BT /F1 10.2 Tf 48.0 119.5 Td (ancora finalizzato.) Tj ET
+BT /F1 10.2 Tf 48.0 101.0 Td (Il punto essenziale non \350 che il percorso lento sia pi\371 veloce. Esso limita il) Tj ET
+BT /F1 10.2 Tf 48.0 87.5 Td (numero di tentativi individuali e permette agli altri thread di completare) Tj ET
+BT /F1 10.2 Tf 48.0 74.0 Td (l'operazione del thread in difficolt\340.) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 2 di 9) Tj ET
+endstream
+endobj
+10 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 9 0 R >>
+endobj
+11 0 obj
+<< /Length 4668 >>
+stream
+BT /F2 15 Tf 48.0 784.0 Td (Perch\351 \350 stato usato un bridge C nativo) Tj ET
+BT /F1 10.2 Tf 48.0 758.0 Td (Una prima trascrizione diretta in Mojo ha superato i test sequenziali e parte) Tj ET
+BT /F1 10.2 Tf 48.0 744.5 Td (dei test concorrenti, ma ha mostrato hang e perdita intermittente a elevata) Tj ET
+BT /F1 10.2 Tf 48.0 731.0 Td (contesa quando veniva attivato il percorso lento. L'algoritmo upstream accede) Tj ET
+BT /F1 10.2 Tf 48.0 717.5 Td (intenzionalmente alla met\340 alta di oggetti atomici a 128 bit con operazioni a) Tj ET
+BT /F1 10.2 Tf 48.0 704.0 Td (64 bit, combinandole con CMPXCHG16B sulla coppia completa.) Tj ET
+BT /F1 10.2 Tf 48.0 685.5 Td (L'API atomica Mojo usata nel progetto non fornisce una garanzia esplicita per) Tj ET
+BT /F1 10.2 Tf 48.0 672.0 Td (accessi atomici sovrapposti di larghezza diversa. Conservare quel port avrebbe) Tj ET
+BT /F1 10.2 Tf 48.0 658.5 Td (reso impossibile distinguere un difetto algoritmico da una traduzione non) Tj ET
+BT /F1 10.2 Tf 48.0 645.0 Td (fedele al memory model.) Tj ET
+BT /F1 10.2 Tf 48.0 626.5 Td (La versione finale richiama quindi il sorgente C ufficiale tramite FFI. Questa) Tj ET
+BT /F1 10.2 Tf 48.0 613.0 Td (scelta privilegia la fedelt\340 e la correttezza sperimentale, ma introduce un) Tj ET
+BT /F1 10.2 Tf 48.0 599.5 Td (costo per chiamata e rende il confronto non completamente indipendente dal) Tj ET
+BT /F1 10.2 Tf 48.0 586.0 Td (linguaggio di implementazione.) Tj ET
+BT /F2 15 Tf 48.0 557.5 Td (Adattamento di indici a payload UInt64) Tj ET
+BT /F1 10.2 Tf 48.0 531.5 Td (Il ring wCQ trasporta indici bounded. Per esporre una coda di valori si applica) Tj ET
+BT /F1 10.2 Tf 48.0 518.0 Td (lo schema di indirezione descritto nel paper:) Tj ET
+BT /F4 8.8 Tf 60.0 504.5 Td (aq             ring inizialmente vuoto degli indici pubblicati) Tj ET
+BT /F4 8.8 Tf 60.0 492.5 Td (fq             ring inizialmente pieno degli indici liberi) Tj ET
+BT /F4 8.8 Tf 60.0 480.5 Td (values[n]      array fisso dei payload UInt64) Tj ET
+BT /F4 8.8 Tf 60.0 468.5 Td (item_count     indici gi\340 visibili in aq) Tj ET
+BT /F4 8.8 Tf 60.0 456.5 Td (free_count     indici gi\340 visibili in fq) Tj ET
+BT /F1 10.2 Tf 48.0 434.5 Td (Enqueue preleva un indice da fq, scrive values[index] e pubblica l'indice in) Tj ET
+BT /F1 10.2 Tf 48.0 421.0 Td (aq. Dequeue preleva da aq, legge values[index] e restituisce l'indice a fq.) Tj ET
+BT /F1 10.2 Tf 48.0 407.5 Td (Poich\351 circolano esattamente n indici, nessuno dei due ring pu\362 contenere pi\371) Tj ET
+BT /F1 10.2 Tf 48.0 394.0 Td (della capacit\340 logica. La memoria non cresce dopo la costruzione.) Tj ET
+BT /F1 10.2 Tf 48.0 375.5 Td (L'API corrente conserva ogni bit di UInt64, incluso UINT64_MAX. Non \350 ancora) Tj ET
+BT /F1 10.2 Tf 48.0 362.0 Td (un adattatore generico per un T Mojo arbitrario; payload pi\371 grandi) Tj ET
+BT /F1 10.2 Tf 48.0 348.5 Td (richiederebbero una tabella Mojo o un ABI esplicito.) Tj ET
+BT /F2 15 Tf 48.0 320.0 Td (Problema osservato con il retry a vuoto) Tj ET
+BT /F1 10.2 Tf 48.0 294.0 Td (La prima composizione nativa usava dequeue con controllo empty e ripeteva) Tj ET
+BT /F1 10.2 Tf 48.0 280.5 Td (immediatamente l'operazione quando aq o fq risultavano vuoti. Ogni risposta) Tj ET
+BT /F1 10.2 Tf 48.0 267.0 Td (empty \350 ammessa dal ring, ma una successione aggressiva di tentativi pu\362 far) Tj ET
+BT /F1 10.2 Tf 48.0 253.5 Td (avanzare Head molto pi\371 rapidamente delle nuove pubblicazioni.) Tj ET
+BT /F1 10.2 Tf 48.0 235.0 Td (Nei test applicativi questo comportamento ha prodotto non terminazione) Tj ET
+BT /F1 10.2 Tf 48.0 221.5 Td (intermittente: i consumer attendevano messaggi gi\340 prodotti o i producer) Tj ET
+BT /F1 10.2 Tf 48.0 208.0 Td (attendevano indici che non riuscivano pi\371 a intercettare. La prova senza) Tj ET
+BT /F1 10.2 Tf 48.0 194.5 Td (sentinel, basata su bitmap exact-once e contatore consumed, ha riprodotto lo) Tj ET
+BT /F1 10.2 Tf 48.0 181.0 Td (stesso problema; il sentinel non era quindi la causa.) Tj ET
+BT /F1 10.2 Tf 48.0 162.5 Td (Questa osservazione non dimostra un errore del ring wCQ. Mostra un problema di) Tj ET
+BT /F1 10.2 Tf 48.0 149.0 Td (composizione fra operazioni singole che possono restituire empty e un wrapper) Tj ET
+BT /F1 10.2 Tf 48.0 135.5 Td (blocking che le richiama in un ciclo caldo.) Tj ET
+BT /F2 15 Tf 48.0 107.0 Td (Contatori di admission) Tj ET
+BT /F1 10.2 Tf 48.0 81.0 Td (La soluzione finale evita di interrogare un ring quando non esiste un token) Tj ET
+BT /F1 10.2 Tf 48.0 67.5 Td (pubblicato. item_count parte da zero e free_count da n; ciascuno \350 isolato su) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 3 di 9) Tj ET
+endstream
+endobj
+12 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 11 0 R >>
+endobj
+13 0 obj
+<< /Length 4458 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (una cache line da 128 byte, coerente con LF_CACHE_BYTES dell'artifact.) Tj ET
+BT /F1 10.2 Tf 48.0 775.5 Td (try_enqueue esegue:) Tj ET
+BT /F4 8.8 Tf 60.0 762.0 Td (1. load di free_count; se zero ritorna WOULD_BLOCK) Tj ET
+BT /F4 8.8 Tf 60.0 750.0 Td (2. un solo strong CAS free_count da c a c-1) Tj ET
+BT /F4 8.8 Tf 60.0 738.0 Td (3. fq.dequeue\(nonempty=true\)) Tj ET
+BT /F4 8.8 Tf 60.0 726.0 Td (4. values[index] = value) Tj ET
+BT /F4 8.8 Tf 60.0 714.0 Td (5. aq.enqueue\(index, nonempty=false\)) Tj ET
+BT /F4 8.8 Tf 60.0 702.0 Td (6. item_count.fetch_add\(1, RELEASE\)) Tj ET
+BT /F1 10.2 Tf 48.0 680.0 Td (try_dequeue \350 simmetrica:) Tj ET
+BT /F4 8.8 Tf 60.0 666.5 Td (1. load di item_count; se zero ritorna WOULD_BLOCK) Tj ET
+BT /F4 8.8 Tf 60.0 654.5 Td (2. un solo strong CAS item_count da c a c-1) Tj ET
+BT /F4 8.8 Tf 60.0 642.5 Td (3. aq.dequeue\(nonempty=true\)) Tj ET
+BT /F4 8.8 Tf 60.0 630.5 Td (4. value = values[index]) Tj ET
+BT /F4 8.8 Tf 60.0 618.5 Td (5. fq.enqueue\(index, nonempty=true\)) Tj ET
+BT /F4 8.8 Tf 60.0 606.5 Td (6. free_count.fetch_add\(1, RELEASE\)) Tj ET
+BT /F1 10.2 Tf 48.0 584.5 Td (Un CAS perso restituisce WOULD_BLOCK anche se, astrattamente, esiste ancora) Tj ET
+BT /F1 10.2 Tf 48.0 571.0 Td (spazio o un elemento. Il fallimento \350 quindi debole e transitorio. push e pop) Tj ET
+BT /F1 10.2 Tf 48.0 557.5 Td (richiamano i tentativi con pause e yield periodico.) Tj ET
+BT /F1 10.2 Tf 48.0 539.0 Td (I contatori eliminano il runaway dell'Head osservato nei test, ma reintroducono) Tj ET
+BT /F1 10.2 Tf 48.0 525.5 Td (un hot spot CAS sul percorso applicativo. Questo costo \350 una delle spiegazioni) Tj ET
+BT /F1 10.2 Tf 48.0 512.0 Td (plausibili delle prestazioni inferiori a Padded-FAA; i dati non isolano per\362) Tj ET
+BT /F1 10.2 Tf 48.0 498.5 Td (causalmente CAS, FFI, doppio ring e indirezione.) Tj ET
+BT /F2 15 Tf 48.0 470.0 Td (API esposta a Mojo) Tj ET
+BT /F1 10.2 Tf 48.0 444.0 Td (Il wrapper \350 definito in MoStream/WCQ_queue.mojo:) Tj ET
+BT /F4 8.8 Tf 60.0 430.5 Td (from MoStream.WCQ_queue import WCQQueue) Tj ET
+BT /F4 8.8 Tf 60.0 413.5 Td (var queue = WCQQueue\(1024, max_threads=8\)) Tj ET
+BT /F4 8.8 Tf 60.0 401.5 Td (queue.push\(thread_id=0, item=UInt64\(42\)\)) Tj ET
+BT /F4 8.8 Tf 60.0 389.5 Td (var value = queue.pop\(thread_id=1\)) Tj ET
+BT /F1 10.2 Tf 48.0 367.5 Td (Metodi disponibili:) Tj ET
+BT /F1 10.2 Tf 60.0 354.0 Td (- try_push\(thread_id, item\): None al successo, Some\(item\) su WOULD_BLOCK;) Tj ET
+BT /F1 10.2 Tf 60.0 340.5 Td (- try_pop\(thread_id\): Some\(value\) al successo, None su WOULD_BLOCK;) Tj ET
+BT /F1 10.2 Tf 60.0 327.0 Td (- push\(thread_id, item\): inserimento blocking con spin/retry;) Tj ET
+BT /F1 10.2 Tf 60.0 313.5 Td (- pop\(thread_id\): estrazione blocking con spin/retry.) Tj ET
+BT /F1 10.2 Tf 48.0 295.0 Td (La capacit\340 deve essere una potenza di due almeno pari a otto. Ogni chiamante) Tj ET
+BT /F1 10.2 Tf 48.0 281.5 Td (concorrente deve usare un thread_id distinto e denso nell'intervallo) Tj ET
+BT /F1 10.2 Tf 48.0 268.0 Td ([0,max_threads\). Lo stesso id pu\362 essere riutilizzato dopo la conclusione) Tj ET
+BT /F1 10.2 Tf 48.0 254.5 Td (della chiamata precedente. La coda pu\362 essere mossa o distrutta soltanto dopo) Tj ET
+BT /F1 10.2 Tf 48.0 241.0 Td (la quiescenza di tutti i worker.) Tj ET
+BT /F2 15 Tf 48.0 212.5 Td (Boundedness e footprint) Tj ET
+BT /F1 10.2 Tf 48.0 186.5 Td (La capacit\340 pubblica \350 esatta: al massimo n payload sono accettati prima che) Tj ET
+BT /F1 10.2 Tf 48.0 173.0 Td (try_push restituisca l'elemento. Il bridge alloca due ring, ognuno con 2n entry) Tj ET
+BT /F1 10.2 Tf 48.0 159.5 Td (fisiche da 128 bit, un array di n UInt64 e due array di max_threads record) Tj ET
+BT /F1 10.2 Tf 48.0 146.0 Td (per-thread. I record upstream occupano 128 byte su x86-64.) Tj ET
+BT /F1 10.2 Tf 48.0 127.5 Td (Trascurando header e arrotondamenti, i soli array dei ring richiedono circa) Tj ET
+BT /F1 10.2 Tf 48.0 114.0 Td (64n byte complessivi, perch\351 ciascun ring contiene 2n coppie da 16 byte. I) Tj ET
+BT /F1 10.2 Tf 48.0 100.5 Td (payload aggiungono 8n byte; i descrittori aggiungono circa) Tj ET
+BT /F1 10.2 Tf 48.0 87.0 Td (256 x max_threads byte per i due ring.) Tj ET
+BT /F4 8.2 Tf 50.0 73.5 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 62.5 Td (Capacit\340 n  Ring + payload, stima  Descrittori con 16 thread) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 4 di 9) Tj ET
+endstream
+endobj
+14 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 13 0 R >>
+endobj
+15 0 obj
+<< /Length 4511 >>
+stream
+BT /F4 8.2 Tf 50.0 794.0 Td (16  circa 1.1 KiB  circa 4 KiB) Tj ET
+BT /F4 8.2 Tf 50.0 783.0 Td (1024  circa 72 KiB  circa 4 KiB) Tj ET
+BT /F4 8.2 Tf 50.0 772.0 Td (65536  circa 4.5 MiB  circa 4 KiB) Tj ET
+BT /F1 10.2 Tf 48.0 751.0 Td (La stima non include strutture, allineamento, allocator metadata e contatori.) Tj ET
+BT /F1 10.2 Tf 48.0 737.5 Td (Rispetto a una FAA compatta, il footprint \350 maggiore; rispetto a strutture) Tj ET
+BT /F1 10.2 Tf 48.0 724.0 Td (unbounded non cresce durante l'esecuzione.) Tj ET
+BT /F2 15 Tf 48.0 695.5 Td (Garanzie di progresso: distinzione necessaria) Tj ET
+BT /F1 10.2 Tf 48.0 669.5 Td (Il ring upstream viene presentato e dimostrato wait-free sotto le assunzioni) Tj ET
+BT /F1 10.2 Tf 48.0 656.0 Td (del paper. La formulazione corretta per il codice MoStream \350 pi\371 limitata.) Tj ET
+BT /F1 10.2 Tf 48.0 637.5 Td (Ogni try dell'adattatore esegue un solo CAS di admission e poi un'operazione) Tj ET
+BT /F1 10.2 Tf 48.0 624.0 Td (wCQ. Non contiene un loop CAS applicativo, ma la composizione a due ring e) Tj ET
+BT /F1 10.2 Tf 48.0 610.5 Td (contatori non \350 accompagnata in questo progetto da una prova formale separata) Tj ET
+BT /F1 10.2 Tf 48.0 597.0 Td (di linearizzabilit\340 o wait-freedom.) Tj ET
+BT /F1 10.2 Tf 48.0 578.5 Td (Un thread sospeso dopo aver decrementato un contatore possiede temporaneamente) Tj ET
+BT /F1 10.2 Tf 48.0 565.0 Td (un token. Altri try possono osservare WOULD_BLOCK; push e pop possono attendere) Tj ET
+BT /F1 10.2 Tf 48.0 551.5 Td (indefinitamente se la coda resta piena o vuota, se il proprietario non riparte) Tj ET
+BT /F1 10.2 Tf 48.0 538.0 Td (o se continuano a perdere l'admission. Le operazioni blocking non sono quindi) Tj ET
+BT /F1 10.2 Tf 48.0 524.5 Td (wait-free.) Tj ET
+BT /F1 10.2 Tf 48.0 506.0 Td (Gli stress test aumentano la fiducia nell'implementazione, ma non sostituiscono) Tj ET
+BT /F1 10.2 Tf 48.0 492.5 Td (una dimostrazione rispetto a tutti gli interleaving e al memory model.) Tj ET
+BT /F2 15 Tf 48.0 464.0 Td (Validazione funzionale) Tj ET
+BT /F1 10.2 Tf 48.0 438.0 Td (La suite Tests/test_wcq_native.c verifica:) Tj ET
+BT /F1 10.2 Tf 60.0 424.5 Td (- argomenti invalidi, capacit\340 e metadati;) Tj ET
+BT /F1 10.2 Tf 60.0 411.0 Td (- full ed empty esatti e preservazione dell'output su empty;) Tj ET
+BT /F1 10.2 Tf 60.0 397.5 Td (- 25000 wrap completi a capacit\340 otto e 128 a capacit\340 1024;) Tj ET
+BT /F1 10.2 Tf 60.0 384.0 Td (- supporto di tutti i bit UInt64, incluso UINT64_MAX;) Tj ET
+BT /F1 10.2 Tf 60.0 370.5 Td (- bounded fill concorrente con 1, 2, 4 e 8 producer;) Tj ET
+BT /F1 10.2 Tf 60.0 357.0 Td (- exact-once tramite bitmap atomica, senza affidarsi al solo checksum;) Tj ET
+BT /F1 10.2 Tf 60.0 343.5 Td (- ordine crescente per producer osservato da ciascun consumer;) Tj ET
+BT /F1 10.2 Tf 60.0 330.0 Td (- matrice 1P-1C, 2P-2C, 4P-4C e 8P-8C;) Tj ET
+BT /F1 10.2 Tf 60.0 316.5 Td (- workload 8P-1C e 1P-8C;) Tj ET
+BT /F1 10.2 Tf 60.0 303.0 Td (- capacit\340 16, 1024 e 65536 e drain finale vuoto;) Tj ET
+BT /F1 10.2 Tf 60.0 289.5 Td (- watchdog per distinguere un hang da un test semplicemente lento.) Tj ET
+BT /F1 10.2 Tf 48.0 271.0 Td (Cinque suite in processi isolati sono terminate senza failure o timeout. Le) Tj ET
+BT /F1 10.2 Tf 48.0 257.5 Td (build ASan e UBSan non hanno segnalato errori; anche TSan non ha prodotto race) Tj ET
+BT /F1 10.2 Tf 48.0 244.0 Td (report. L'assembly inline CAS2 vendorizzato non \350 necessariamente osservabile) Tj ET
+BT /F1 10.2 Tf 48.0 230.5 Td (integralmente da TSan, quindi questo esito non equivale a una prova.) Tj ET
+BT /F1 10.2 Tf 48.0 212.0 Td (I tre test Mojo verificano inoltre bounded FIFO sequenziale, exact-once) Tj ET
+BT /F1 10.2 Tf 48.0 198.5 Td (blocking concorrente e API try concorrente fino a 8P-8C.) Tj ET
+BT /F2 15 Tf 48.0 170.0 Td (Metodologia prestazionale) Tj ET
+BT /F1 10.2 Tf 48.0 144.0 Td (Il benchmark comune costruisce la coda prima del timer. Ogni producer inserisce) Tj ET
+BT /F1 10.2 Tf 48.0 130.5 Td (un intervallo disgiunto di interi; l'ultimo producer inserisce un sentinel per) Tj ET
+BT /F1 10.2 Tf 48.0 117.0 Td (consumer. I consumer mantengono count e checksum locali, evitando un RMW) Tj ET
+BT /F1 10.2 Tf 48.0 103.5 Td (condiviso per messaggio. Dopo il join ogni campione \350 accettato soltanto se:) Tj ET
+BT /F4 8.8 Tf 60.0 90.0 Td (count    = numero totale atteso) Tj ET
+BT /F4 8.8 Tf 60.0 78.0 Td (checksum = N x \(N - 1\) / 2) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 5 di 9) Tj ET
+endstream
+endobj
+16 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 15 0 R >>
+endobj
+17 0 obj
+<< /Length 4854 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (Parametri della campagna results_wcq.csv:) Tj ET
+BT /F1 10.2 Tf 60.0 780.5 Td (- 100000 messaggi per producer;) Tj ET
+BT /F1 10.2 Tf 60.0 767.0 Td (- 10 ripetizioni per configurazione con ordine delle code ruotato;) Tj ET
+BT /F1 10.2 Tf 60.0 753.5 Td (- topologie 1P-1C, 2P-2C, 4P-4C, 8P-8C, 1P-8C e 8P-1C;) Tj ET
+BT /F1 10.2 Tf 60.0 740.0 Td (- capacit\340 16, 1024 e 65536;) Tj ET
+BT /F1 10.2 Tf 60.0 726.5 Td (- media, deviazione standard e intervallo di confidenza 95 percento Student-t;) Tj ET
+BT /F1 10.2 Tf 60.0 713.0 Td (- rapporti wCQ/Padded-FAA e wCQ/Rigtorp paired per ripetizione.) Tj ET
+BT /F1 10.2 Tf 48.0 694.5 Td (Tutti i 180 campioni di configurazione sono risultati validi. L'ambiente \350 un) Tj ET
+BT /F1 10.2 Tf 48.0 681.0 Td (Intel Xeon Gold 5512U, 28 core e 56 thread hardware, un socket e un nodo NUMA,) Tj ET
+BT /F1 10.2 Tf 48.0 667.5 Td (Linux 5.15, GCC 11.4.0, Mojo 1.0.0b1 e ottimizzazione O3.) Tj ET
+BT /F1 10.2 Tf 48.0 649.0 Td (Non sono stati applicati pinning esplicito, isolamento dei core o controllo) Tj ET
+BT /F1 10.2 Tf 48.0 635.5 Td (della frequenza. I test pi\371 brevi, in particolare 1P-1C capacit\340 65536, hanno) Tj ET
+BT /F1 10.2 Tf 48.0 622.0 Td (intervalli ampi e non devono sostenere da soli una conclusione causale.) Tj ET
+BT /F2 15 Tf 48.0 593.5 Td (Risultati completi di throughput) Tj ET
+BT /F1 10.2 Tf 48.0 567.5 Td (Valori in milioni di messaggi al secondo. Best considera tutte le dieci code) Tj ET
+BT /F1 10.2 Tf 48.0 554.0 Td (del runner; H1 indica Hybrid con soglia uno.) Tj ET
+BT /F4 8.2 Tf 50.0 540.5 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 529.5 Td (Topologia  Capacit\340  CAS  FAA  Rigtorp  Padded  wCQ  Best) Tj ET
+BT /F4 8.2 Tf 50.0 518.5 Td (1P-1C  16  3.854  5.389  3.831  4.494  2.146  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 507.5 Td (1P-1C  1024  4.973  6.726  3.413  4.856  2.181  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 496.5 Td (1P-1C  65536  12.407  13.955  9.884  20.293  4.048  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 485.5 Td (2P-2C  16  3.503  5.438  5.708  6.283  2.795  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 474.5 Td (2P-2C  1024  3.609  5.677  4.851  5.556  2.852  FAA) Tj ET
+BT /F4 8.2 Tf 50.0 463.5 Td (2P-2C  65536  3.363  5.569  5.735  6.175  2.672  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 452.5 Td (4P-4C  16  2.460  5.874  6.570  7.346  4.199  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 441.5 Td (4P-4C  1024  3.298  7.895  8.340  9.420  5.377  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 430.5 Td (4P-4C  65536  3.420  8.616  8.459  9.823  5.757  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 419.5 Td (8P-8C  16  2.386  8.887  9.320  9.797  5.956  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 408.5 Td (8P-8C  1024  2.665  9.709  8.693  11.130  6.598  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 397.5 Td (8P-8C  65536  2.870  9.072  8.760  10.179  6.920  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 386.5 Td (1P-8C  16  3.479  4.691  8.071  8.036  3.933  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 375.5 Td (1P-8C  1024  3.406  4.283  7.293  7.451  3.891  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 364.5 Td (1P-8C  65536  3.781  4.362  6.785  6.507  3.316  Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 353.5 Td (8P-1C  16  3.234  4.932  7.346  8.094  3.898  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 342.5 Td (8P-1C  1024  4.095  5.343  7.389  8.222  4.239  Padded) Tj ET
+BT /F4 8.2 Tf 50.0 331.5 Td (8P-1C  65536  4.305  5.855  7.511  8.681  4.393  H1) Tj ET
+BT /F2 15 Tf 48.0 300.5 Td (Scalabilit\340 bilanciata a capacit\340 1024) Tj ET
+BT /F1 10.2 Tf 48.0 274.5 Td (La tabella successiva riporta media wCQ, IC 95 percento e rapporti paired.) Tj ET
+BT /F4 8.2 Tf 50.0 261.0 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 250.0 Td (Topologia  wCQ Mmsg/s  IC 95%  wCQ/Padded  wCQ/Rigtorp) Tj ET
+BT /F4 8.2 Tf 50.0 239.0 Td (1P-1C  2.181  +/-0.059  0.450x  0.643x) Tj ET
+BT /F4 8.2 Tf 50.0 228.0 Td (2P-2C  2.852  +/-0.530  0.539x  0.638x) Tj ET
+BT /F4 8.2 Tf 50.0 217.0 Td (4P-4C  5.377  +/-0.107  0.572x  0.645x) Tj ET
+BT /F4 8.2 Tf 50.0 206.0 Td (8P-8C  6.598  +/-0.101  0.593x  0.759x) Tj ET
+BT /F1 10.2 Tf 48.0 185.0 Td (wCQ cresce da 2.181 a 6.598 Mmsg/s passando da 1P-1C a 8P-8C. Nello stesso) Tj ET
+BT /F1 10.2 Tf 48.0 171.5 Td (scenario a 8P-8C, CAS scende a 2.665 Mmsg/s: wCQ \350 quindi 2.48 volte pi\371) Tj ET
+BT /F1 10.2 Tf 48.0 158.0 Td (veloce. Il risultato \350 coerente con l'obiettivo di ridurre i retry CAS sul) Tj ET
+BT /F1 10.2 Tf 48.0 144.5 Td (nucleo conteso.) Tj ET
+BT /F1 10.2 Tf 48.0 126.0 Td (Il miglioramento di scalabilit\340 non basta a vincere. Padded-FAA raggiunge) Tj ET
+BT /F1 10.2 Tf 48.0 112.5 Td (11.130 Mmsg/s ed \350 circa 1.69 volte pi\371 veloce; Rigtorp raggiunge 8.693 ed \350) Tj ET
+BT /F1 10.2 Tf 48.0 99.0 Td (circa 1.32 volte pi\371 veloce. Gli IC 95 percento dei rapporti paired restano) Tj ET
+BT /F1 10.2 Tf 48.0 85.5 Td (interamente sotto uno.) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 6 di 9) Tj ET
+endstream
+endobj
+18 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 17 0 R >>
+endobj
+19 0 obj
+<< /Length 4195 >>
+stream
+BT /F2 15 Tf 48.0 784.0 Td (Risultato aggregato) Tj ET
+BT /F1 10.2 Tf 48.0 758.0 Td (Sulle 18 combinazioni topologia-capacit\340:) Tj ET
+BT /F1 10.2 Tf 60.0 744.5 Td (- Padded-FAA \350 prima in 12 casi e ha media geometrica 7.953 Mmsg/s;) Tj ET
+BT /F1 10.2 Tf 60.0 731.0 Td (- FAA vince tre casi, Rigtorp due e Hybrid-1 uno;) Tj ET
+BT /F1 10.2 Tf 60.0 717.5 Td (- wCQ non vince alcun caso e ha media geometrica 3.941 Mmsg/s;) Tj ET
+BT /F1 10.2 Tf 60.0 704.0 Td (- il rapporto geometrico wCQ/Padded-FAA \350 0.495x;) Tj ET
+BT /F1 10.2 Tf 60.0 690.5 Td (- il rapporto geometrico wCQ/Rigtorp \350 0.575x;) Tj ET
+BT /F1 10.2 Tf 60.0 677.0 Td (- il rapporto geometrico wCQ/FAA \350 0.611x;) Tj ET
+BT /F1 10.2 Tf 60.0 663.5 Td (- wCQ supera CAS in 11 casi su 18 e bounded-LPRQ in 16 su 18.) Tj ET
+BT /F1 10.2 Tf 48.0 645.0 Td (La media geometrica assegna uguale peso relativo alle configurazioni e riduce) Tj ET
+BT /F1 10.2 Tf 48.0 631.5 Td (l'influenza dei valori assoluti pi\371 elevati. Non sostituisce l'analisi per) Tj ET
+BT /F1 10.2 Tf 48.0 618.0 Td (topologia, ma fornisce una sintesi pi\371 corretta della sola media aritmetica.) Tj ET
+BT /F2 15 Tf 48.0 589.5 Td (Interpretazione per carico) Tj ET
+BT /F2 12 Tf 48.0 562.5 Td (Bassa contesa) Tj ET
+BT /F1 10.2 Tf 48.0 539.5 Td (Con 1P-1C i due ring, il payload indiretto, l'admission e la FFI sono costi non) Tj ET
+BT /F1 10.2 Tf 48.0 526.0 Td (ammortizzati. A capacit\340 1024 wCQ raggiunge il 45.0 percento di Padded-FAA e il) Tj ET
+BT /F1 10.2 Tf 48.0 512.5 Td (64.3 percento di Rigtorp. Una SPSC dedicata resta la soluzione corretta quando) Tj ET
+BT /F1 10.2 Tf 48.0 499.0 Td (esiste un solo producer e un solo consumer.) Tj ET
+BT /F2 12 Tf 48.0 479.5 Td (Contesa bilanciata elevata) Tj ET
+BT /F1 10.2 Tf 48.0 456.5 Td (Da 4P-4C wCQ supera CAS e bounded-LPRQ e riduce il divario da Rigtorp. Il) Tj ET
+BT /F1 10.2 Tf 48.0 443.0 Td (rapporto wCQ/Rigtorp cresce fino a 0.759 a 8P-8C capacit\340 1024 e 0.790 a) Tj ET
+BT /F1 10.2 Tf 48.0 429.5 Td (capacit\340 65536. Il nucleo FAA e il minor numero di retry rispetto a CAS) Tj ET
+BT /F1 10.2 Tf 48.0 416.0 Td (contribuiscono plausibilmente, ma il benchmark non isola le singole cause.) Tj ET
+BT /F2 12 Tf 48.0 396.5 Td (Workload sbilanciati) Tj ET
+BT /F1 10.2 Tf 48.0 373.5 Td (In 1P-8C e 8P-1C wCQ non supera Rigtorp o Padded-FAA. L'admission globale \350) Tj ET
+BT /F1 10.2 Tf 48.0 360.0 Td (contesa da molti thread sul lato multiplo, mentre una coda SPMC o MPSC) Tj ET
+BT /F1 10.2 Tf 48.0 346.5 Td (specializzata potrebbe rimuovere l'RMW dal lato a singolo proprietario.) Tj ET
+BT /F2 12 Tf 48.0 327.0 Td (Capacit\340) Tj ET
+BT /F1 10.2 Tf 48.0 304.0 Td (Il comportamento di wCQ varia meno di alcune code padded, ma il footprint di) Tj ET
+BT /F1 10.2 Tf 48.0 290.5 Td (due ring cresce linearmente. I risultati 1P-1C capacit\340 65536 sono rumorosi per) Tj ET
+BT /F1 10.2 Tf 48.0 277.0 Td (tutte le code e non autorizzano conclusioni sulla sola cache locality.) Tj ET
+BT /F2 15 Tf 48.0 248.5 Td (Confronto qualitativo) Tj ET
+BT /F4 8.2 Tf 50.0 227.5 Td (tab\(  \),box;) Tj ET
+BT /F4 8.2 Tf 50.0 216.5 Td (Propriet\340  CAS-MPMC  FAA compatta  Rigtorp  wCQ adapter) Tj ET
+BT /F4 8.2 Tf 50.0 205.5 Td (Prenotazione hot  CAS loop  FAA  FAA  FAA ring + CAS admission) Tj ET
+BT /F4 8.2 Tf 50.0 194.5 Td (Slot padded  No  No  S\354  entry 128-bit remapped) Tj ET
+BT /F4 8.2 Tf 50.0 183.5 Td (Payload  diretto  diretto  diretto  indiretto UInt64) Tj ET
+BT /F4 8.2 Tf 50.0 172.5 Td (Memoria  bounded  bounded  bounded  bounded, due ring) Tj ET
+BT /F4 8.2 Tf 50.0 161.5 Td (Progresso blocking  lock-free core  ticket blocking  ticket blocking  spin/retry) Tj ET
+BT /F4 8.2 Tf 50.0 150.5 Td (Helping  No  No  No  S\354, nel ring upstream) Tj ET
+BT /F4 8.2 Tf 50.0 139.5 Td (CAS2 richiesto  No  No  No  S\354) Tj ET
+BT /F4 8.2 Tf 50.0 128.5 Td (Architettura port  x86-64  x86-64  x86-64  x86-64 CX16) Tj ET
+BT /F1 10.2 Tf 48.0 107.5 Td (La riga sul progresso descrive l'API applicativa misurata. Non deve essere) Tj ET
+BT /F1 10.2 Tf 48.0 94.0 Td (letta come negazione della propriet\340 wait-free del ring wCQ pubblicato.) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 7 di 9) Tj ET
+endstream
+endobj
+20 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 19 0 R >>
+endobj
+21 0 obj
+<< /Length 4836 >>
+stream
+BT /F2 15 Tf 48.0 784.0 Td (Applicabilit\340 a MoStream) Tj ET
+BT /F1 10.2 Tf 48.0 758.0 Td (Per il percorso dati corrente, Padded-FAA resta la scelta generale orientata) Tj ET
+BT /F1 10.2 Tf 48.0 744.5 Td (al throughput. Rigtorp \350 una baseline robusta e particolarmente competitiva in) Tj ET
+BT /F1 10.2 Tf 48.0 731.0 Td (alcuni carichi sbilanciati. wCQ \350 applicabile e corretta nei test, ma non \350 una) Tj ET
+BT /F1 10.2 Tf 48.0 717.5 Td (sostituzione prestazionale conveniente nella forma attuale.) Tj ET
+BT /F1 10.2 Tf 48.0 699.0 Td (wCQ pu\362 diventare interessante quando:) Tj ET
+BT /F1 10.2 Tf 60.0 685.5 Td (1. la garanzia di progresso del nucleo \350 pi\371 importante del throughput medio;) Tj ET
+BT /F1 10.2 Tf 60.0 672.0 Td (2. l'applicazione trasporta direttamente indici unici e pu\362 evitare values e fq;) Tj ET
+BT /F1 10.2 Tf 60.0 658.5 Td (3. la topologia garantisce quando un ring \350 nonempty senza un contatore CAS;) Tj ET
+BT /F1 10.2 Tf 60.0 645.0 Td (4. si implementa una admission sharded o basata su FAA con semantica dimostrata;) Tj ET
+BT /F1 10.2 Tf 60.0 631.5 Td (5. si vuole studiare l'effetto di preemption e helping rispetto ai ticket) Tj ET
+BT /F1 10.2 Tf 48.0 618.0 Td (irrevocabili di FAA e Rigtorp.) Tj ET
+BT /F1 10.2 Tf 48.0 599.5 Td (Una selezione runtime per messaggio aggiungerebbe un ulteriore branch caldo.) Tj ET
+BT /F1 10.2 Tf 48.0 586.0 Td (L'eventuale adozione dovrebbe scegliere il tipo concreto alla costruzione del) Tj ET
+BT /F1 10.2 Tf 48.0 572.5 Td (Communicator.) Tj ET
+BT /F2 15 Tf 48.0 544.0 Td (Limiti dello studio) Tj ET
+BT /F1 10.2 Tf 60.0 523.0 Td (- Una sola macchina, un solo sistema operativo e una versione beta di Mojo.) Tj ET
+BT /F1 10.2 Tf 60.0 509.5 Td (- Nessun pinning o isolamento dei core nella campagna principale.) Tj ET
+BT /F1 10.2 Tf 60.0 496.0 Td (- Solo throughput medio; non sono misurate p50, p95, p99, fairness o energia.) Tj ET
+BT /F1 10.2 Tf 60.0 482.5 Td (- Payload UInt64, non oggetti Mojo di dimensione variabile.) Tj ET
+BT /F1 10.2 Tf 60.0 469.0 Td (- Confronto fra code Mojo e un nucleo C chiamato via FFI.) Tj ET
+BT /F1 10.2 Tf 60.0 455.5 Td (- I sanitizer non osservano necessariamente ogni effetto dell'assembly CAS2.) Tj ET
+BT /F1 10.2 Tf 60.0 442.0 Td (- Nessuna prova formale della composizione due-ring pi\371 admission.) Tj ET
+BT /F1 10.2 Tf 60.0 428.5 Td (- Un CAS perso da try produce un fallimento debole anche quando la coda potrebbe) Tj ET
+BT /F1 10.2 Tf 48.0 415.0 Td (astrattamente avere spazio o dati.) Tj ET
+BT /F1 10.2 Tf 60.0 401.5 Td (- Le operazioni blocking possono consumare CPU durante attese prolungate.) Tj ET
+BT /F2 15 Tf 48.0 373.0 Td (Lavoro futuro) Tj ET
+BT /F1 10.2 Tf 60.0 352.0 Td (1. Misurare separatamente ring wCQ diretto e adattatore a due ring.) Tj ET
+BT /F1 10.2 Tf 60.0 338.5 Td (2. Creare benchmark nativi equivalenti per tutte le code, eliminando il fattore) Tj ET
+BT /F1 10.2 Tf 48.0 325.0 Td (linguaggio e FFI.) Tj ET
+BT /F1 10.2 Tf 60.0 311.5 Td (3. Provare admission per-thread o sharded e confrontarla col CAS globale.) Tj ET
+BT /F1 10.2 Tf 60.0 298.0 Td (4. Integrare payload Mojo generici con storage preallocato e ownership verificata.) Tj ET
+BT /F1 10.2 Tf 60.0 284.5 Td (5. Eseguire model checking o una prova della composizione e del memory ordering.) Tj ET
+BT /F1 10.2 Tf 60.0 271.0 Td (6. Sospendere deliberatamente un thread nel fast path, slow path e dopo admission.) Tj ET
+BT /F1 10.2 Tf 60.0 257.5 Td (7. Misurare latenza massima e distribuzione per verificare il beneficio del) Tj ET
+BT /F1 10.2 Tf 48.0 244.0 Td (helping, non soltanto il throughput.) Tj ET
+BT /F1 10.2 Tf 60.0 230.5 Td (8. Ripetere con core isolati, pinning, almeno 30 campioni e frequenza controllata.) Tj ET
+BT /F1 10.2 Tf 60.0 217.0 Td (9. Usare perf per cache miss, invalidazioni, CAS falliti, context switch e TLB.) Tj ET
+BT /F1 10.2 Tf 60.0 203.5 Td (10. Valutare pipeline MoStream end-to-end con topologie SPSC, SPMC, MPSC e MPMC.) Tj ET
+BT /F2 15 Tf 48.0 175.0 Td (Conclusione) Tj ET
+BT /F1 10.2 Tf 48.0 149.0 Td (L'esperimento dimostra che \350 possibile integrare il nucleo wCQ ufficiale in) Tj ET
+BT /F1 10.2 Tf 48.0 135.5 Td (una coda bounded MoStream che supera una validazione concorrente ampia. La) Tj ET
+BT /F1 10.2 Tf 48.0 122.0 Td (prima composizione a retry vuoto non era adatta a un wrapper blocking; i) Tj ET
+BT /F1 10.2 Tf 48.0 108.5 Td (contatori di admission hanno eliminato la non terminazione osservata e reso) Tj ET
+BT /F1 10.2 Tf 48.0 95.0 Td (la capacit\340 pubblica esatta.) Tj ET
+BT /F1 10.2 Tf 48.0 76.5 Td (wCQ scala meglio della coda CAS sotto contesa: a 8P-8C capacit\340 1024 raggiunge) Tj ET
+BT /F1 10.2 Tf 48.0 63.0 Td (6.598 Mmsg/s contro 2.665. Tuttavia l'adattatore non supera FAA, Rigtorp o) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 8 di 9) Tj ET
+endstream
+endobj
+22 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 21 0 R >>
+endobj
+23 0 obj
+<< /Length 2816 >>
+stream
+BT /F1 10.2 Tf 48.0 794.0 Td (Padded-FAA in nessuna delle 18 configurazioni. Padded-FAA conserva quindi il) Tj ET
+BT /F1 10.2 Tf 48.0 780.5 Td (ruolo di default orientato al throughput.) Tj ET
+BT /F1 10.2 Tf 48.0 762.0 Td (La formulazione corretta per la tesi \350: wCQ \350 una soluzione promettente per il) Tj ET
+BT /F1 10.2 Tf 48.0 748.5 Td (progresso wait-free del ring e per scenari a indici diretti; nell'adattatore) Tj ET
+BT /F1 10.2 Tf 48.0 735.0 Td (bounded UInt64 di MoStream, doppio ring, FFI e CAS di admission riducono il) Tj ET
+BT /F1 10.2 Tf 48.0 721.5 Td (vantaggio prestazionale. Correttezza sperimentale e propriet\340 formali della) Tj ET
+BT /F1 10.2 Tf 48.0 708.0 Td (composizione devono rimanere esplicitamente distinte.) Tj ET
+BT /F2 15 Tf 48.0 679.5 Td (Artefatti riproducibili) Tj ET
+BT /F1 10.2 Tf 60.0 658.5 Td (- MoStream/WCQ_queue.mojo: wrapper Mojo;) Tj ET
+BT /F1 10.2 Tf 60.0 645.0 Td (- MoStream/lib/wcq_native.c e wcq_native.h: bridge bounded UInt64;) Tj ET
+BT /F1 10.2 Tf 60.0 631.5 Td (- MoStream/lib/wcq_vendor: sorgente upstream, licenze e provenienza;) Tj ET
+BT /F1 10.2 Tf 60.0 618.0 Td (- Tests/test_wcq_native.c: suite nativa estesa;) Tj ET
+BT /F1 10.2 Tf 60.0 604.5 Td (- Tests/test_wcq_queue.mojo, test_wcq_concurrent.mojo e) Tj ET
+BT /F1 10.2 Tf 48.0 591.0 Td (test_wcq_try_concurrent.mojo: test Mojo;) Tj ET
+BT /F1 10.2 Tf 60.0 577.5 Td (- Benchmarks/QueueBenchmark/queue_benchmark.mojo: benchmark;) Tj ET
+BT /F1 10.2 Tf 60.0 564.0 Td (- Benchmarks/QueueBenchmark/run_suite.py: runner statistico;) Tj ET
+BT /F1 10.2 Tf 60.0 550.5 Td (- Benchmarks/QueueBenchmark/results_wcq.csv: risultati completi;) Tj ET
+BT /F1 10.2 Tf 60.0 537.0 Td (- Benchmarks/QueueBenchmark/analyze_wcq_results.py: analisi aggregata.) Tj ET
+BT /F2 15 Tf 48.0 508.5 Td (Riferimenti) Tj ET
+BT /F1 10.2 Tf 60.0 487.5 Td (1. R. Nikolaev e B. Ravindran, wCQ: A Fast Wait-Free Queue with Bounded Memory) Tj ET
+BT /F1 10.2 Tf 48.0 474.0 Td (Usage, SPAA 2022, pp. 307-319, DOI) Tj ET
+BT /F1 10.2 Tf 48.0 460.5 Td (https://doi.org/10.1145/3490148.3538572, preprint) Tj ET
+BT /F1 10.2 Tf 48.0 447.0 Td (https://arxiv.org/abs/2201.02179.) Tj ET
+BT /F1 10.2 Tf 60.0 433.5 Td (2. R. Nikolaev, lfqueue repository e implementazione wfring_cas2.h,) Tj ET
+BT /F1 10.2 Tf 48.0 420.0 Td (https://github.com/rusnikola/lfqueue, commit 708c005.) Tj ET
+BT /F1 10.2 Tf 60.0 406.5 Td (3. R. Nikolaev, A Scalable, Portable, and Memory-Efficient Lock-Free FIFO Queue,) Tj ET
+BT /F1 10.2 Tf 48.0 393.0 Td (DISC 2019, https://rusnikola.github.io/files/ringpaper-disc.pdf.) Tj ET
+BT /F1 10.2 Tf 60.0 379.5 Td (4. MoStream, risultati locali Benchmarks/QueueBenchmark/results_wcq.csv,) Tj ET
+BT /F1 10.2 Tf 48.0 366.0 Td (campagna del 22 luglio 2026.) Tj ET
+BT /F1 8 Tf 170 25 Td (wCQ bounded - MoStream   -   pagina 9 di 9) Tj ET
+endstream
+endobj
+24 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R /F4 6 0 R >> >> /Contents 23 0 R >>
+endobj
+xref
+0 25
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000177 00000 n 
+0000000274 00000 n 
+0000000376 00000 n 
+0000000481 00000 n 
+0000000576 00000 n 
+0000005036 00000 n 
+0000005192 00000 n 
+0000009985 00000 n 
+0000010142 00000 n 
+0000014862 00000 n 
+0000015020 00000 n 
+0000019530 00000 n 
+0000019688 00000 n 
+0000024251 00000 n 
+0000024409 00000 n 
+0000029315 00000 n 
+0000029473 00000 n 
+0000033720 00000 n 
+0000033878 00000 n 
+0000038766 00000 n 
+0000038924 00000 n 
+0000041792 00000 n 
+trailer
+<< /Size 25 /Root 1 0 R >>
+startxref
+41950
+%%EOF

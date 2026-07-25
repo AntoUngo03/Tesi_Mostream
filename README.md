@@ -265,9 +265,11 @@ not supported with the cooperative runtime.
 
 ### Queue Size
 
-MoStream currently adopts just one communicator type. This uses bounded MPMC queues
-between stages. The default queue size is `1024`. Queue sizes must be powers of two
-and at least `2`.
+MoStream uses bounded MPMC queues between stages. The default backend is the
+original CAS queue; a build can select the experimental Padded-FAA backend for
+the inter-stage communicators with `-DMOSTREAM_PADDED_FAA=1`. The cooperative
+scheduler's internal ready/wait queues remain CAS-based. The default queue size
+is `1024`. Queue sizes must be powers of two and at least `2`.
 
 ```mojo
 pipeline.setQueueSize(2048)

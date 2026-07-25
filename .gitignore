@@ -1,2 +1,6 @@
 # .DS_Store are banished
 .DS_Store
+
+# Compiled files
+*.o
+*.so

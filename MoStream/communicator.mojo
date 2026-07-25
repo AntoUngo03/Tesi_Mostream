@@ -13,7 +13,7 @@
 #  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # ===------------------------------------------------------------------------=== #
 
-from MoStream.MPMC_queue import MPMCQueue
+from MoStream.pipeline_queue import PipelineQueue
 from std.collections import Optional
 from std.sys.info import size_of
 from std.atomic import Atomic, Ordering
@@ -40,7 +40,7 @@ struct MessageWrapper[T: MessageTrait](Copyable):
 
 # Communicator that uses a lock-free MPMC queue to send messages between threads
 struct Communicator[T: MessageTrait](Movable):
-    var queue: UnsafePointer[MPMCQueue[MessageWrapper[Self.T]], MutExternalOrigin]
+    var queue: PipelineQueue[MessageWrapper[Self.T]]
     var prodNum: Int # number of producers
     var consNum: Int # number of consumers
     var destroyCount: UnsafePointer[Atomic[DType.int64], MutExternalOrigin]
@@ -49,8 +49,7 @@ struct Communicator[T: MessageTrait](Movable):
 
     # constructor
     def __init__(out self, pN: Int, cN: Int, queue_size: Int) raises:
-        self.queue = alloc[MPMCQueue[MessageWrapper[Self.T]]](1)
-        self.queue.init_pointee_move(MPMCQueue[MessageWrapper[Self.T]](size=queue_size))
+        self.queue = PipelineQueue[MessageWrapper[Self.T]](size=queue_size)
         self.prodNum = pN
         self.consNum = cN
         self.destroyCount = alloc[Atomic[DType.int64]](1)
@@ -65,7 +64,7 @@ struct Communicator[T: MessageTrait](Movable):
 
     # move constructor
     def __init__(out self, *, deinit take: Self):
-        self.queue = take.queue
+        self.queue = take.queue^
         self.prodNum = take.prodNum
         self.consNum = take.consNum
         self.destroyCount = take.destroyCount
@@ -74,8 +73,6 @@ struct Communicator[T: MessageTrait](Movable):
 
     # destructor
     def __del__(deinit self):
-        self.queue.destroy_pointee()
-        self.queue.free()
         self.destroyCount.destroy_pointee()
         self.destroyCount.free()
         self.remainingProducers.destroy_pointee()
@@ -100,11 +97,11 @@ struct Communicator[T: MessageTrait](Movable):
 
     # push (continuous retry until a message has been successfully pushed)
     def push(mut self, var msg: MessageWrapper[Self.T]):
-        _ = self.queue[].push(msg^)
+        _ = self.queue.push(msg^)
 
     # try_push (returns None if the message has been successfully pushed, or the message itself if the queue is currently full)
     def try_push(mut self, var msg: MessageWrapper[Self.T]) -> Optional[MessageWrapper[Self.T]]:
-        return self.queue[].try_push(msg^)
+        return self.queue.try_push(msg^)
 
     # pop (continuous retry until a message is available)
     def pop(mut self) -> MessageWrapper[Self.T]:
@@ -116,14 +113,14 @@ struct Communicator[T: MessageTrait](Movable):
     # try_pop (returns None when no message is currently available)
     def try_pop(mut self) -> Optional[MessageWrapper[Self.T]]:
         # first try_pop
-        var maybe_msg = self.queue[].try_pop()
+        var maybe_msg = self.queue.try_pop()
         if maybe_msg:
             return maybe_msg^
         # if the queue looked empty, check whether producers are finished
         if not self.is_closed():
             return None
         # critical recheck
-        maybe_msg = self.queue[].try_pop()
+        maybe_msg = self.queue.try_pop()
         if maybe_msg:
             return maybe_msg^
         # closed and still empty after the synchronized recheck
@@ -131,4 +128,4 @@ struct Communicator[T: MessageTrait](Movable):
 
     # get the estimated number of messages currently in the communicator
     def estimated_len(self) -> Int:
-        return self.queue[].estimated_len()
+        return self.queue.estimated_len()

@@ -156,8 +156,8 @@ struct MPMCQueue[T: Copyable](Movable):
 
     # returns an estimate of the current number of items in the queue
     def estimated_len(self) -> Int:
-        var enq = self.enqueue_pos.load[ordering=Ordering.RELAXED]()
-        var deq = self.dequeue_pos.load[ordering=Ordering.RELAXED]()
+        var enq = self.enqueue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
+        var deq = self.dequeue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
         if enq <= deq:
             return 0
         var diff = enq - deq
