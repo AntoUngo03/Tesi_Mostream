@@ -59,6 +59,7 @@ struct PaddedFAAQueue[T: Copyable](Movable):
 
 
     def __init__(out self, size: Int = 1024):
+        # deve essere una potenza di due per far ottenere l'indice tramite ticket & self.mask
         if not ((size >= 2) and ((size & (size - 1)) == 0)):
             print_red_color(
                 "{MoStream} Error: padded FAA queue size must be "
@@ -93,36 +94,60 @@ struct PaddedFAAQueue[T: Copyable](Movable):
 
 
     @always_inline
+    # Gestiamo l'attesa attiva
     def wait_or_yield(self, spins: Int) -> Int:
-        var next = spins + 1  # incrementa il contatore di spin
-        if next >= Self.SPINS_BEFORE_YIELD:
+        var next = spins + 1  # incrementa il contatore di spin (numero di tentativi)
+        if next >= Self.SPINS_BEFORE_YIELD: # dopo 1024 tentativi
             sleep(0.0)  # cede la CPU se ha spinto troppo a lungo
+            # non dorme immediatamente perché bloccare e risvegliare un thread costa, però fare busy waiting,
+            # spreca troppa CPU, quindi usiamo una strategia ibrida dove: prima spin, dopo molti spin, yield e poi ricomincia
             return 0  # resetta il contatore di spin
         return next  # continua a spinare
 
+    # ---- INFO GENERALI GESTIONE SCRITTURA LETTURA ----
+    # pronto per scrittura: ticket
+    # pronto per lettura:   ticket + 1
+    # pronto giro seguente: ticket + size
 
     def push(mut self, var item: Self.T):
+        # fetch_add(1) fa atomicamente due operazioni:
+        # restituise il vecchio valore e incrementa il contatore di uno
+        # cosi che due producer non possono ricevere lo stesso ticket
         var ticket = self.enqueue_pos.value.fetch_add[
             ordering=Ordering.RELAXED
         ](1)  # ottiene un ticket univoco per l'operazione di enqueue
+
         var slot = self.slots + Int(ticket & self.mask)  # calcola l'indice dello slot corrispondente
         var spins = 0  # inizializza il contatore di spin
+
+        # il producer può scrivere solo quando slot.sequence == ticket
+        # Quindi se il producer possiede ticket 4 e deve usare lo slot 0, aspetta finchè:
+        # slot 0 sequence == 4
         while slot[].sequence.load[
             ordering=Ordering.ACQUIRE
         ]() != ticket:
             spins = self.wait_or_yield(spins)  # attende finché lo slot non è pronto per l'enqueue
         slot[].data = Optional(item^)  # scrive il dato nello slot
+        
+        # Dopo aver scritto il dato il producer imposta, sequence = ticket + 1, che ci dice che il dato è pronto
         Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
             UnsafePointer(to=slot[].sequence.value), ticket + 1
         )  # aggiorna la sequenza per segnalare che lo slot è pieno
 
 
     def try_push(mut self, var item: Self.T) -> Optional[Self.T]:
+        # non uso subito fetch_add, perché evito di prenotare definitivamente una posizione qunado
+        # non è possibile procedere immediatamente
         var ticket = self.enqueue_pos.value.load[ordering=Ordering.RELAXED]()  # legge la posizione corrente di enqueue senza avanzarla
         var slot = self.slots + Int(ticket & self.mask)  # trova lo slot target per questo ticket
+        
+        # se la sequence non corrisponde al ticket, lo slot non è pronto per la scrittura
         if slot[].sequence.load[ordering=Ordering.ACQUIRE]() != ticket:
-            return Optional(item^)  # se lo slot non è pronto, restituisce l'item all'esterno
+            return Optional(item^)  # se lo slot non è pronto, restituisce l'item all'est<erno
         var expected = ticket  # imposta il valore atteso per il confronto atomico
+        
+        # se enqueue_pos è ancora uguale a ticket, imposto ticket = ticket +1 e quindi ho successo,
+        # altrimenti ho fallito. Serve perché la prima load e il CAS un altro producer potrebbe aver preso il ticket
         if not self.enqueue_pos.value.compare_exchange[
             success_ordering=Ordering.RELAXED,
             failure_ordering=Ordering.RELAXED,
@@ -143,33 +168,48 @@ struct PaddedFAAQueue[T: Copyable](Movable):
         var slot = self.slots + Int(ticket & self.mask)  # calcola lo slot corrispondente al ticket
         var expected_sequence = ticket + 1  # sequenza attesa per leggere un elemento valido
         var spins = 0  # inizializza il contatore di spin
+
+        # finche la sequence non è quella attesa, il dato non è pronto. Questa attesa si verifica quando
+        # la coda è vuota, il producer ha preso il ticket ma non ha ancora termianto la scrittura e se lo slot
+        # appartiene ancora a un giro precedente
         while slot[].sequence.load[
             ordering=Ordering.ACQUIRE
         ]() != expected_sequence:
             spins = self.wait_or_yield(spins)  # aspetta finché lo slot non contiene un elemento valido
-        var item = slot[].data.take()  # prende il dato dallo slot
+        var item = slot[].data.take()  # estrae il contenuto dall' Optional, quindi trasferisce il valore
+        
+        # Dopo aver rimosso il dato il consumer imposta sequence = ticket + size, questo prepara lo slot per il giro successivo
         Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
             UnsafePointer(to=slot[].sequence.value), ticket + self.size
         )  # aggiorna la sequenza per indicare che lo slot è libero
         return item^  # restituisce l'elemento letto
 
 
+
     def try_pop(mut self) -> Optional[Self.T]:
+        # è necessario perché un consumer può perdere una competizione con un altro consumer
         while True:
             var ticket = self.dequeue_pos.value.load[
                 ordering=Ordering.RELAXED
             ]()  # legge la posizione corrente di dequeue senza avanzarla
             var slot = self.slots + Int(ticket & self.mask)  # calcola lo slot target
+            
+            # se la sequence non è ticket + 1, lo slot non contiene ancora il dato atteso
             if slot[].sequence.load[
                 ordering=Ordering.ACQUIRE
-            ]() != ticket + 1:
+            ]() != ticket + 1: 
                 # se non c'è ancora un elemento valido nello slot
+                # se un altro consumer ha avanazato dequeue il ticket letto non è piu attuale, quindi continuiamo;
+                # se nessun'altro consumer ha preso quel ticket e il dato non è disponibile allora la funzione 
+                # restituisce Optional[Self.T](None)
                 if self.dequeue_pos.value.load[
                     ordering=Ordering.RELAXED
                 ]() != ticket:
                     continue  # se qualcun altro ha avanzato, riprova
                 return Optional[Self.T](None)  # indica coda vuota al momento
             var expected = ticket  # imposta il valore atteso per il confronto atomico
+            # solo un consumer può trasformare ticket = ticket +1, quindi se fallisce signifcia, che 
+            # un altro consumer è arrivato prima, quindi riprova
             if not self.dequeue_pos.value.compare_exchange[
                 success_ordering=Ordering.RELAXED,
                 failure_ordering=Ordering.RELAXED,
@@ -181,7 +221,8 @@ struct PaddedFAAQueue[T: Copyable](Movable):
             )  # segna lo slot come disponibile nuovamente
             return Optional(item^)  # restituisce l'elemento preso
 
-
+    # Fornisce una stima del numero di elementi
+    # Legge dequeue e enqueue e calcola enqueue - dequeue
     def estimated_len(self) -> Int:
         var enqueue = self.enqueue_pos.value.load[ordering=Ordering.RELAXED]()  # legge il contatore enqueue
         var dequeue = self.dequeue_pos.value.load[ordering=Ordering.RELAXED]()  # legge il contatore dequeue
