@@ -6,7 +6,7 @@ from std.sys import argv
 from std.time import perf_counter_ns
 
 from MoStream import Emitter, Pipeline, StageKind, StageTrait, seq
-from MoStream.pipeline_queue import USE_PADDED_FAA
+from MoStream.pipeline_queue import USE_PADDED_FAA, USE_SCQ
 
 
 struct FirstStage(StageTrait):
@@ -128,7 +128,9 @@ def run_once(elements: Int) raises:
         actual_count == expected_count and actual_checksum == expected_sum
     )
     var backend = String("MPMC")
-    comptime if USE_PADDED_FAA:
+    comptime if USE_SCQ:
+        backend = String("SCQ")
+    elif USE_PADDED_FAA:
         backend = String("PADDEDFAA")
     var elapsed_ms = Float64(elapsed_ns) / 1_000_000.0
     # N messages cross the first edge and 2N cross the second.

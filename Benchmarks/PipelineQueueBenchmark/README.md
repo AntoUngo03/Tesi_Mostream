@@ -19,7 +19,14 @@ La coda di `Communicator` si seleziona in compilazione:
 ```text
 default                         -> MPMC CAS originale
 -DMOSTREAM_PADDED_FAA=1         -> Padded-FAA
+-DMOSTREAM_SCQ=1                -> SCQ con indirection e due code di indici
 ```
+
+Il backend SCQ implementa l'indirection del paper: una coda degli indici liberi,
+una degli indici allocati e un array separato dei payload. Ogni coda usa un ring
+da `2n`, stato packed `Cycle/IsSafe/Index`, FAA, threshold e catch-up. Poiché
+Mojo 1.0 non espone atomic OR intero, il consumo usa un CAS single-word
+equivalente per impostare `Index` a bottom preservando gli altri campi.
 
 La capacità è sempre 1024 e il pinning resta disabilitato, come nei test
 originali. Nel caso cooperativo cambiano soltanto le tre code dati tra gli
@@ -40,6 +47,48 @@ python3 Benchmarks/PipelineQueueBenchmark/run_benchmarks.py \
   --elements 250000 --warmups 3 --repetitions 30 \
   --workers 1,2,4,8
 ```
+
+### Pipeline standard realmente MPMC
+
+`pipe_mpmc_standard_benchmark.mojo` contiene due soli stage leggeri con `P`
+repliche sorgente e `P` repliche sink collegate dallo stesso comunicatore. In
+questo modo la coda inter-stage è realmente usata da 4P/4C oppure 8P/8C:
+
+```bash
+mojo build -O3 -I. \
+  Benchmarks/PipelineQueueBenchmark/pipe_mpmc_standard_benchmark.mojo \
+  -o /tmp/pipe_standard_mpmc
+mojo build -O3 -I. -DMOSTREAM_SCQ=1 \
+  Benchmarks/PipelineQueueBenchmark/pipe_mpmc_standard_benchmark.mojo \
+  -o /tmp/pipe_standard_scq
+
+/tmp/pipe_standard_mpmc 50000 4 1024 160
+/tmp/pipe_standard_scq 50000 4 1024 160
+```
+
+Gli argomenti sono `elementi_per_sorgente grado capacità [work_iterations]`.
+Ogni iterazione opzionale aggiunge tre xorshift dipendenti nel sink e il
+risultato entra nel checksum, impedendo al compilatore di eliminare il lavoro.
+Il benchmark misura `pipeline.run()` e controlla conteggio e checksum dopo ogni
+esecuzione. Il costo puro del kernel può essere calibrato sulla macchina con
+`message_work_calibration.mojo`.
+
+### Pipeline cooperativa MPMC
+
+La variante `pipe_mpmc_cooperative_benchmark.mojo` mantiene separati numero di
+attori e worker dello scheduler. Anche qui esiste un solo comunicatore dati
+condiviso; le code interne ready/wait dello scheduler restano MPMC in entrambe
+le build.
+
+```bash
+mojo build -O3 -I. -DMOSTREAM_SCQ=1 \
+  Benchmarks/PipelineQueueBenchmark/pipe_mpmc_cooperative_benchmark.mojo \
+  -o /tmp/pipe_coop_scq
+/tmp/pipe_coop_scq 10000 8 4 1024 0
+```
+
+Gli argomenti sono `elementi_per_sorgente grado worker capacità
+[work_iterations]`; il grado vale sia per i producer sia per i consumer.
 
 Per una prova esplorativa più rapida si possono usare 10 ripetizioni. Il runner
 compila sei binari `-O3`, rimescola i casi in blocchi con seed registrato,

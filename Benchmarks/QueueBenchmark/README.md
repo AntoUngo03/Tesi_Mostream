@@ -1,5 +1,20 @@
 # Queue benchmark
 
+## SCQ vs MPMC isolato
+
+`scq_vs_mpmc.mojo` confronta soltanto la MPMC originale e SCQ, senza pipeline
+o scheduler. Il carico usa producer con intervalli disgiunti, consumer con
+accumulatori locali e un sentinel per consumer; conteggio e checksum vengono
+validati per ogni esecuzione.
+
+```bash
+mojo build -O3 -I. Benchmarks/QueueBenchmark/scq_vs_mpmc.mojo \
+  -o /tmp/scq_vs_mpmc
+/tmp/scq_vs_mpmc 50000 4 4 1024
+```
+
+Gli argomenti sono `messaggi_per_producer producer consumer capacità`.
+
 This benchmark compares the CAS, FAA, Hybrid, Rigtorp, Padded-FAA,
 bounded-LPRQ-inspired, and wCQ queues under the same concurrent workload.
 Every run also checks the number and checksum of consumed messages.
