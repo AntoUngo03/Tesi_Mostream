@@ -1,4 +1,5 @@
-from std.algorithm import parallelize
+from std.memory.alloc import unsafe_alloc
+from std.runtime.asyncrt import TaskGroup
 from std.atomic import Atomic, Ordering
 from std.sys.terminate import exit
 from MoStream.WCQ_queue import WCQQueue
@@ -11,15 +12,15 @@ def run_case[
     var queue = WCQQueue(capacity, producers + consumers)
     var finished_producers = Atomic[DType.uint64](0)
     var invalid_values = Atomic[DType.uint64](0)
-    var seen = alloc[UInt64](total_messages)
-    var counts = alloc[UInt64](consumers)
+    var seen = unsafe_alloc[UInt64](total_messages)
+    var counts = unsafe_alloc[UInt64](consumers)
     for i in range(total_messages):
-        seen[i] = 0
+        seen[unsafe_offset=i] = 0
     for i in range(consumers):
-        counts[i] = 0
+        counts[unsafe_offset=i] = 0
 
     @parameter
-    def worker(thread_id: Int):
+    async def worker(thread_id: Int):
         if thread_id < producers:
             var base = thread_id * messages_per_producer
             for i in range(messages_per_producer):
@@ -37,7 +38,7 @@ def run_case[
             while True:
                 var value = queue.pop(thread_id)
                 if value == UInt64.MAX:
-                    counts[consumer_id] = local_count
+                    counts[unsafe_offset=consumer_id] = local_count
                     return
                 if value >= UInt64(total_messages):
                     _ = invalid_values.fetch_add[
@@ -46,19 +47,23 @@ def run_case[
                 else:
                     _ = Atomic[DType.uint64].fetch_add[
                         ordering=Ordering.RELAXED
-                    ](seen + Int(value), 1)
+                    ](seen.unsafe_offset(Int(value)), 1)
                 local_count += 1
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
 
     var actual_count: UInt64 = 0
     for i in range(consumers):
-        actual_count += counts[i]
+        actual_count += counts[unsafe_offset=i]
     var first_bad = -1
     for i in range(total_messages):
         if Atomic[DType.uint64].load[
             ordering=Ordering.RELAXED
-        ](seen + i) != 1:
+        ](seen.unsafe_offset(i)) != 1:
             first_bad = i
             break
     var invalid = invalid_values.load[ordering=Ordering.RELAXED]()
@@ -81,8 +86,8 @@ def run_case[
     if queue.try_pop(0):
         boundary_ok = False
 
-    seen.free()
-    counts.free()
+    seen.unsafe_free()
+    counts.unsafe_free()
     var valid = (
         actual_count == UInt64(total_messages)
         and invalid == 0

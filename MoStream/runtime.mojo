@@ -25,15 +25,14 @@ from std.ffi import OwnedDLHandle, c_int
 
 # Executor_task: the function that will be run by each task of the pipeline,
 #   executing the logic of a stage and communicates with the other stages through the Communicators
-async
-def executor_task[NodeT: NodeTrait,
+async def executor_task[NodeT: NodeTrait,
                  In: MessageTrait,
                  Out: MessageTrait, //,
                  idx: Int,
                  len: Int]
                  (mut node: NodeT,
-                 inComm: UnsafePointer[mut=True, Communicator[In], _],
-                 outComm: UnsafePointer[mut=True, Communicator[Out], _],
+                 inComm: Pointer[mut=True, Communicator[In], _],
+                 outComm: Pointer[mut=True, Communicator[Out], _],
                  core_id: Int,
                  mut pinning_handler: Pinning):
     try:
@@ -61,11 +60,11 @@ def execute_source[Stage: StageTrait,
                   In: MessageTrait,
                   Out: MessageTrait]
                   (mut s: Stage,
-                  inComm: UnsafePointer[mut=True, Communicator[In], _],
-                  outComm: UnsafePointer[mut=True, Communicator[Out], _]) raises:
+                  inComm: Pointer[mut=True, Communicator[In], _],
+                  outComm: Pointer[mut=True, Communicator[Out], _]) raises:
     var end_of_stream = False
     while (not end_of_stream):
-        output = s.next_element()
+        var output = s.next_element()
         if output == None:
             end_of_stream = True
             outComm[].producer_finished()
@@ -78,11 +77,11 @@ def execute_sink[Stage: StageTrait,
                 In: MessageTrait,
                 Out: MessageTrait]
                 (mut s: Stage,
-                inComm: UnsafePointer[mut=True, Communicator[In], _],
-                outComm: UnsafePointer[mut=True, Communicator[Out], _]) raises:
+                inComm: Pointer[mut=True, Communicator[In], _],
+                outComm: Pointer[mut=True, Communicator[Out], _]) raises:
     var end_of_stream = False
     while (not end_of_stream):
-        input = inComm[].pop()
+        var input = inComm[].pop()
         if input.eos:
             end_of_stream = True
             s.received_eos()
@@ -90,50 +89,51 @@ def execute_sink[Stage: StageTrait,
             s.consume_element(rebind[MessageWrapper[Stage.InType]](input).data.take())
     # try to destroy the input communicator
     if (inComm[].check_isDestroyable()):
-        inComm.destroy_pointee()
-        inComm.free()
+        inComm.unsafe_deinit_pointee()
+        inComm.unsafe_free()
 
 # Execute_transform: the function that will be run by the task of a TRANSFORM stage of the pipeline
 def execute_transform[Stage: StageTrait,
                      In: MessageTrait,
                      Out: MessageTrait]
                      (mut s: Stage,
-                     inComm: UnsafePointer[mut=True, Communicator[In], _],
-                     outComm: UnsafePointer[mut=True, Communicator[Out], _]) raises:
+                     inComm: Pointer[mut=True, Communicator[In], _],
+                     outComm: Pointer[mut=True, Communicator[Out], _]) raises:
     var end_of_stream = False
     while (not end_of_stream):
-        input = inComm[].pop()
+        var input = inComm[].pop()
         if input.eos:
             end_of_stream = True
             outComm[].producer_finished()
             s.received_eos()
         else:
-            output = s.compute(rebind[MessageWrapper[Stage.InType]](input).data.take())
+            var output = s.compute(rebind[MessageWrapper[Stage.InType]](input).data.take())
             if (output != None):
                 outComm[].push(MessageWrapper[Out](data = rebind[Optional[Out]](output).take(), eos = False))
     # try to destroy the input communicator
     if (inComm[].check_isDestroyable()):
-        inComm.destroy_pointee()
-        inComm.free()
+        inComm.unsafe_deinit_pointee()
+        inComm.unsafe_free()
 
 # Execute_transform_many: the function that will be run by the task of a TRANSFORM_MANY stage of the pipeline
 def execute_transform_many[Stage: StageTrait,
                           In: MessageTrait,
                           Out: MessageTrait]
                           (mut s: Stage,
-                          inComm: UnsafePointer[mut=True, Communicator[In], _],
-                          outComm: UnsafePointer[mut=True, Communicator[Out], _]) raises:
+                          inComm: Pointer[mut=True, Communicator[In], _],
+                          outComm: Pointer[mut=True, Communicator[Out], _]) raises:
     var end_of_stream = False
-    var e = Emitter(outComm) # False because runtime is the standard one here
+    # Pipeline owns this heap allocation until the downstream consumers see EOS.
+    var e = Emitter(outComm.unsafe_origin_cast[MutUntrackedOrigin]())
     while (not end_of_stream):
-        input = inComm[].pop()
+        var input = inComm[].pop()
         if input.eos:
             end_of_stream = True
             outComm[].producer_finished()
             s.received_eos()
         else:
-            output = s.compute_many(rebind[MessageWrapper[Stage.InType]](input).data.take(), rebind[Emitter[Stage.OutType]](e))
+            var output = s.compute_many(rebind[MessageWrapper[Stage.InType]](input).data.take(), rebind[Emitter[Stage.OutType]](e))
     # try to destroy the input communicator
     if (inComm[].check_isDestroyable()):
-        inComm.destroy_pointee()
-        inComm.free()
+        inComm.unsafe_deinit_pointee()
+        inComm.unsafe_free()

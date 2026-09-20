@@ -13,6 +13,7 @@
 #  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # ===------------------------------------------------------------------------=== #
 
+from std.memory.alloc import unsafe_alloc
 from MoStream import StageKind, StageTrait, Emitter
 from ppm_image import PPMImage
 from std.time import perf_counter_ns
@@ -25,7 +26,7 @@ struct TimedImageSource[ImgW: Int, ImgH: Int, DurationSec: Int = 60](StageTrait)
     comptime name = "TimedImageSource"
     var count: Int
     var pool: PPMImage
-    var start_ns: UInt
+    var start_ns: Int
     var started: Bool
 
     # constructor
@@ -40,7 +41,7 @@ struct TimedImageSource[ImgW: Int, ImgH: Int, DurationSec: Int = 60](StageTrait)
         if not self.started:
             self.start_ns = perf_counter_ns()
             self.started = True
-        if perf_counter_ns() - self.start_ns >= UInt(Self.DurationSec) * 1_000_000_000:
+        if perf_counter_ns() - self.start_ns >= Int(Self.DurationSec) * 1_000_000_000:
             return None
         self.count += 1
         return self.pool.copy()
@@ -55,7 +56,7 @@ struct Grayscale(StageTrait):
     comptime InType = PPMImage
     comptime OutType = PPMImage
     comptime name = "Grayscale"
-    var compute_time_ns: UInt
+    var compute_time_ns: Int
     var count: Int
 
     # constructor
@@ -74,20 +75,21 @@ struct Grayscale(StageTrait):
         var i = 0
         while i + CHUNK <= n:
             # single vector load per channel — vmovdqu + vpmovsxbw
-            var rv = (in_r + i).load[width=CHUNK]().cast[DType.uint16]()
-            var gv = (in_g + i).load[width=CHUNK]().cast[DType.uint16]()
-            var bv = (in_b + i).load[width=CHUNK]().cast[DType.uint16]()
+            var rv = (in_r.unsafe_offset(i)).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+            var gv = (in_g.unsafe_offset(i)).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+            var bv = (in_b.unsafe_offset(i)).unsafe_load[width=CHUNK]().cast[DType.uint16]()
             var gray8 = ((rv * 77 + gv * 150 + bv * 29) >> 8).cast[DType.uint8]()
-            (out_r + i).store(gray8)
-            (out_g + i).store(gray8)
-            (out_b + i).store(gray8)
+            (out_r.unsafe_offset(i)).unsafe_store(gray8)
+            (out_g.unsafe_offset(i)).unsafe_store(gray8)
+            (out_b.unsafe_offset(i)).unsafe_store(gray8)
             i += CHUNK
         while i < n:
-            var gray = UInt8((Int((in_r+i).load())*77 + Int((in_g+i).load())*150 + Int((in_b+i).load())*29) >> 8)
-            (out_r + i).store(gray); (out_g + i).store(gray); (out_b + i).store(gray)
+            var gray = UInt8((Int((in_r.unsafe_offset(i)).unsafe_load())*77 + Int((in_g.unsafe_offset(i)).unsafe_load())*150 + Int((in_b.unsafe_offset(i)).unsafe_load())*29) >> 8)
+            (out_r.unsafe_offset(i)).unsafe_store(gray); (out_g.unsafe_offset(i)).unsafe_store(gray); (out_b.unsafe_offset(i)).unsafe_store(gray)
             i += 1
         self.compute_time_ns += perf_counter_ns() - t0
         self.count += 1
+        _ = input  # Keep the owner alive while its untracked channel pointers are used.
         return out^
 
     # handle received EOS by printing timing stats
@@ -103,7 +105,7 @@ struct GaussianBlur(StageTrait):
     comptime InType = PPMImage
     comptime OutType = PPMImage
     comptime name = "GaussianBlur"
-    var compute_time_ns: UInt
+    var compute_time_ns: Int
     var count: Int
 
     # constructor
@@ -120,7 +122,7 @@ struct GaussianBlur(StageTrait):
 
     # helper to compute border pixel value using clamped coordinates
     @always_inline
-    def border_pixel(self, ch: UnsafePointer[mut=True, UInt8, _], x: Int, y: Int, w: Int, h: Int) -> UInt8:
+    def border_pixel(self, ch: Pointer[mut=True, UInt8, _], x: Int, y: Int, w: Int, h: Int) -> UInt8:
         var s: Int = 0
         for ky in range(-1, 2):
             var yy = self.clamp_coord(y + ky, 0, h - 1)
@@ -129,7 +131,7 @@ struct GaussianBlur(StageTrait):
                 var wt: Int = 1
                 if ky == 0: wt <<= 1
                 if kx == 0: wt <<= 1
-                s += wt * Int((ch + yy * w + xx).load())
+                s += wt * Int(ch.unsafe_offset(yy * w + xx).unsafe_load())
         return UInt8(s >> 4)
 
     # compute implementation
@@ -142,54 +144,56 @@ struct GaussianBlur(StageTrait):
         if w < 3 or h < 3:
             for y in range(h):
                 for x in range(w):
-                    (out.r_ptr() + y*w + x).store(self.border_pixel(input.r_ptr(), x, y, w, h))
-                    (out.g_ptr() + y*w + x).store(self.border_pixel(input.g_ptr(), x, y, w, h))
-                    (out.b_ptr() + y*w + x).store(self.border_pixel(input.b_ptr(), x, y, w, h))
+                    out.r_ptr().unsafe_offset(y*w + x).unsafe_store(self.border_pixel(input.r_ptr(), x, y, w, h))
+                    out.g_ptr().unsafe_offset(y*w + x).unsafe_store(self.border_pixel(input.g_ptr(), x, y, w, h))
+                    out.b_ptr().unsafe_offset(y*w + x).unsafe_store(self.border_pixel(input.b_ptr(), x, y, w, h))
             self.compute_time_ns += perf_counter_ns() - t0
             self.count += 1
+            _ = input  # Channel pointers borrow this allocation.
             return out^
         # process each channel separately — stride-1, 9 vector loads per pixel group
         for ch in range(3):
             var ch_in  = input.r_ptr() if ch == 0 else (input.g_ptr() if ch == 1 else input.b_ptr())
             var ch_out = out.r_ptr()   if ch == 0 else (out.g_ptr()   if ch == 1 else out.b_ptr())
             for y in range(1, h - 1):
-                var rm1 = ch_in + (y - 1) * w
-                var r0  = ch_in +  y      * w
-                var rp1 = ch_in + (y + 1) * w
-                var dst = ch_out + y * w
+                var rm1 = ch_in.unsafe_offset((y - 1) * w)
+                var r0  = ch_in.unsafe_offset(y      * w)
+                var rp1 = ch_in.unsafe_offset((y + 1) * w)
+                var dst = ch_out.unsafe_offset(y * w)
                 var x = 1
                 while x + CHUNK <= w - 1:
                     # 9 vector loads — each is a true contiguous load of 8 uint8 values
-                    var t00 = (rm1 + x - 1).load[width=CHUNK]().cast[DType.uint16]()
-                    var t01 = (rm1 + x    ).load[width=CHUNK]().cast[DType.uint16]()
-                    var t02 = (rm1 + x + 1).load[width=CHUNK]().cast[DType.uint16]()
-                    var t10 = (r0  + x - 1).load[width=CHUNK]().cast[DType.uint16]()
-                    var t11 = (r0  + x    ).load[width=CHUNK]().cast[DType.uint16]()
-                    var t12 = (r0  + x + 1).load[width=CHUNK]().cast[DType.uint16]()
-                    var t20 = (rp1 + x - 1).load[width=CHUNK]().cast[DType.uint16]()
-                    var t21 = (rp1 + x    ).load[width=CHUNK]().cast[DType.uint16]()
-                    var t22 = (rp1 + x + 1).load[width=CHUNK]().cast[DType.uint16]()
+                    var t00 = (rm1.unsafe_offset(x - 1)).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+                    var t01 = (rm1.unsafe_offset(x)    ).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+                    var t02 = rm1.unsafe_offset(x + 1).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+                    var t10 = (r0.unsafe_offset(x - 1)).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+                    var t11 = (r0.unsafe_offset(x)    ).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+                    var t12 = r0.unsafe_offset(x + 1).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+                    var t20 = (rp1.unsafe_offset(x - 1)).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+                    var t21 = (rp1.unsafe_offset(x)    ).unsafe_load[width=CHUNK]().cast[DType.uint16]()
+                    var t22 = rp1.unsafe_offset(x + 1).unsafe_load[width=CHUNK]().cast[DType.uint16]()
                     var res = (t00 + (t01 << 1) + t02
                              + (t10 << 1) + (t11 << 2) + (t12 << 1)
                              + t20 + (t21 << 1) + t22) >> 4
-                    (dst + x).store(res.cast[DType.uint8]())
+                    (dst.unsafe_offset(x)).unsafe_store(res.cast[DType.uint8]())
                     x += CHUNK
                 while x < w - 1:
                     var xm1 = x - 1; var xp1 = x + 1
-                    var v = Int((rm1 + xm1).load()) + (Int((rm1 + x).load()) << 1) + Int((rm1 + xp1).load())
-                          + (Int((r0  + xm1).load()) << 1) + (Int((r0  + x).load()) << 2) + (Int((r0  + xp1).load()) << 1)
-                          + Int((rp1 + xm1).load()) + (Int((rp1 + x).load()) << 1) + Int((rp1 + xp1).load())
-                    (dst + x).store(UInt8(v >> 4))
+                    var v = Int((rm1.unsafe_offset(xm1)).unsafe_load()) + (Int((rm1.unsafe_offset(x)).unsafe_load()) << 1) + Int((rm1.unsafe_offset(xp1)).unsafe_load())
+                          + (Int((r0.unsafe_offset(xm1)).unsafe_load()) << 1) + (Int((r0.unsafe_offset(x)).unsafe_load()) << 2) + (Int((r0.unsafe_offset(xp1)).unsafe_load()) << 1)
+                          + Int((rp1.unsafe_offset(xm1)).unsafe_load()) + (Int((rp1.unsafe_offset(x)).unsafe_load()) << 1) + Int((rp1.unsafe_offset(xp1)).unsafe_load())
+                    (dst.unsafe_offset(x)).unsafe_store(UInt8(v >> 4))
                     x += 1
             # borders
             for x in range(w):
-                (ch_out + x).store(self.border_pixel(ch_in, x, 0, w, h))
-                (ch_out + (h-1)*w + x).store(self.border_pixel(ch_in, x, h-1, w, h))
+                (ch_out.unsafe_offset(x)).unsafe_store(self.border_pixel(ch_in, x, 0, w, h))
+                ch_out.unsafe_offset((h-1)*w + x).unsafe_store(self.border_pixel(ch_in, x, h-1, w, h))
             for y in range(1, h - 1):
-                (ch_out + y*w).store(self.border_pixel(ch_in, 0, y, w, h))
-                (ch_out + y*w + w-1).store(self.border_pixel(ch_in, w-1, y, w, h))
+                (ch_out.unsafe_offset(y*w)).unsafe_store(self.border_pixel(ch_in, 0, y, w, h))
+                ch_out.unsafe_offset(y*w + w-1).unsafe_store(self.border_pixel(ch_in, w-1, y, w, h))
         self.compute_time_ns += perf_counter_ns() - t0
         self.count += 1
+        _ = input  # Keep the owner alive while its untracked channel pointers are used.
         return out^
 
     # handle received EOS by printing timing stats
@@ -205,7 +209,7 @@ struct Sharpen(StageTrait):
     comptime InType = PPMImage
     comptime OutType = PPMImage
     comptime name = "Sharpen"
-    var compute_time_ns: UInt
+    var compute_time_ns: Int
     var count: Int
 
     # constructor
@@ -222,7 +226,7 @@ struct Sharpen(StageTrait):
 
     # helper to compute border pixel value using clamped coordinates
     @always_inline
-    def border_pixel(self, ch_in: UnsafePointer[mut=True, UInt8, _], x: Int, y: Int, w: Int, h: Int) -> UInt8:
+    def border_pixel(self, ch_in: Pointer[mut=True, UInt8, _], x: Int, y: Int, w: Int, h: Int) -> UInt8:
         var xm1 = x - 1
         if xm1 < 0: xm1 = 0
         var xp1 = x + 1
@@ -231,51 +235,51 @@ struct Sharpen(StageTrait):
         if ym1 < 0: ym1 = 0
         var yp1 = y + 1
         if yp1 >= h: yp1 = h - 1
-        var v = Int((ch_in + y   * w + x  ).load()) * 5 \
-              - Int((ch_in + ym1 * w + x  ).load()) \
-              - Int((ch_in + yp1 * w + x  ).load()) \
-              - Int((ch_in + y   * w + xm1).load()) \
-              - Int((ch_in + y   * w + xp1).load())
+        var v = Int(ch_in.unsafe_offset(y   * w + x).unsafe_load()) * 5 \
+              - Int(ch_in.unsafe_offset(ym1 * w + x).unsafe_load()) \
+              - Int(ch_in.unsafe_offset(yp1 * w + x).unsafe_load()) \
+              - Int(ch_in.unsafe_offset(y   * w + xm1).unsafe_load()) \
+              - Int(ch_in.unsafe_offset(y   * w + xp1).unsafe_load())
         return self.clamp255(v)
 
     # compute sharpened image from input image
     @always_inline
-    def sharpen_plane(self, ch_in:  UnsafePointer[mut=True, UInt8, _],
-                      ch_out: UnsafePointer[mut=True, UInt8, _], w: Int, h: Int):
+    def sharpen_plane(self, ch_in:  Pointer[mut=True, UInt8, _],
+                      ch_out: Pointer[mut=True, UInt8, _], w: Int, h: Int):
         comptime CHUNK = 8
         # interior points
         for y in range(1, h - 1):
-            var rm  = ch_in  + (y - 1) * w
-            var r0  = ch_in  +  y      * w
-            var rp  = ch_in  + (y + 1) * w
-            var dst = ch_out +  y      * w
+            var rm  = ch_in.unsafe_offset((y - 1) * w)
+            var r0  = ch_in.unsafe_offset(y      * w)
+            var rp  = ch_in.unsafe_offset((y + 1) * w)
+            var dst = ch_out.unsafe_offset(y      * w)
             var x = 1
             while x + CHUNK <= w - 1:
-                var tc  = (r0 + x    ).load[width=CHUNK]().cast[DType.int16]()
-                var tup = (rm + x    ).load[width=CHUNK]().cast[DType.int16]()
-                var tdn = (rp + x    ).load[width=CHUNK]().cast[DType.int16]()
-                var tlt = (r0 + x - 1).load[width=CHUNK]().cast[DType.int16]()
-                var trt = (r0 + x + 1).load[width=CHUNK]().cast[DType.int16]()
+                var tc  = (r0.unsafe_offset(x)    ).unsafe_load[width=CHUNK]().cast[DType.int16]()
+                var tup = (rm.unsafe_offset(x)    ).unsafe_load[width=CHUNK]().cast[DType.int16]()
+                var tdn = (rp.unsafe_offset(x)    ).unsafe_load[width=CHUNK]().cast[DType.int16]()
+                var tlt = (r0.unsafe_offset(x - 1)).unsafe_load[width=CHUNK]().cast[DType.int16]()
+                var trt = r0.unsafe_offset(x + 1).unsafe_load[width=CHUNK]().cast[DType.int16]()
                 var res = tc * 5 - tup - tdn - tlt - trt
-                (dst + x).store(res.clamp(0, 255).cast[DType.uint8]())
+                (dst.unsafe_offset(x)).unsafe_store(res.clamp(0, 255).cast[DType.uint8]())
                 x += CHUNK
             while x < w - 1:
-                var v = Int((r0 + x).load()) * 5 \
-                      - Int((rm + x).load()) \
-                      - Int((rp + x).load()) \
-                      - Int((r0 + x - 1).load()) \
-                      - Int((r0 + x + 1).load())
-                (dst + x).store(self.clamp255(v))
+                var v = Int((r0.unsafe_offset(x)).unsafe_load()) * 5 \
+                      - Int((rm.unsafe_offset(x)).unsafe_load()) \
+                      - Int((rp.unsafe_offset(x)).unsafe_load()) \
+                      - Int((r0.unsafe_offset(x - 1)).unsafe_load()) \
+                      - Int(r0.unsafe_offset(x + 1).unsafe_load())
+                (dst.unsafe_offset(x)).unsafe_store(self.clamp255(v))
                 x += 1
         # borders
         for x in range(w):
-            (ch_out + x).store(self.border_pixel(ch_in, x, 0, w, h))
+            (ch_out.unsafe_offset(x)).unsafe_store(self.border_pixel(ch_in, x, 0, w, h))
         var bottom = (h - 1) * w
         for x in range(w):
-            (ch_out + bottom + x).store(self.border_pixel(ch_in, x, h - 1, w, h))
+            ch_out.unsafe_offset(bottom + x).unsafe_store(self.border_pixel(ch_in, x, h - 1, w, h))
         for y in range(1, h - 1):
-            (ch_out + y * w        ).store(self.border_pixel(ch_in, 0,     y, w, h))
-            (ch_out + y * w + w - 1).store(self.border_pixel(ch_in, w - 1, y, w, h))
+            (ch_out.unsafe_offset(y * w)        ).unsafe_store(self.border_pixel(ch_in, 0,     y, w, h))
+            ch_out.unsafe_offset(y * w + w - 1).unsafe_store(self.border_pixel(ch_in, w - 1, y, w, h))
 
     # compute implementation
     def compute(mut self, var input: PPMImage) -> Optional[PPMImage]:
@@ -287,6 +291,7 @@ struct Sharpen(StageTrait):
         self.sharpen_plane(input.b_ptr(), out.b_ptr(), w, h)
         self.compute_time_ns += perf_counter_ns() - t0
         self.count += 1
+        _ = input  # Keep the owner alive while its untracked channel pointers are used.
         return out^
 
     # handle received EOS by printing timing stats
@@ -303,7 +308,7 @@ struct RandomPixelRounds(StageTrait):
     comptime OutType = PPMImage
     comptime name = "RandomPixelRounds"
 
-    var compute_time_ns: UInt
+    var compute_time_ns: Int
     var count: Int
     var rng_state: UInt64
     var seeded: Bool
@@ -380,15 +385,15 @@ struct ImageSink(StageTrait):
     comptime name = "ImageSink"
     var count: Int
     var checksum_total: UInt64
-    var start_ns: UInt
-    var count_ptr: UnsafePointer[Int, MutExternalOrigin]
+    var start_ns: Int
+    var count_ptr: Pointer[Int, MutUntrackedOrigin]
 
     # constructor
     def __init__(out self):
         self.count = 0
         self.checksum_total = 0
         self.start_ns = 0
-        self.count_ptr = alloc[Int](1)
+        self.count_ptr = unsafe_alloc[Int](1)
         self.count_ptr[] = 0
 
     # consume_element implementation

@@ -27,6 +27,7 @@
 # quiesced.
 # ===------------------------------------------------------------------------=== #
 
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
 from std.collections import Optional
 from std.sys.info import size_of
@@ -40,18 +41,18 @@ struct BoundedLPRQPaddedAtomicU64:
     comptime PAD = Self.CACHE_LINE - size_of[Atomic[DType.uint64]]()
 
     var value: Atomic[DType.uint64]
-    var padding: InlineArray[UInt8, Self.PAD]
+    var padding: Array[UInt8, Self.PAD]
 
     def __init__(out self, initial: UInt64):
         self.value = Atomic[DType.uint64](initial)
-        self.padding = InlineArray[UInt8, Self.PAD](uninitialized=True)
+        self.padding = Array[UInt8, Self.PAD](uninitialized=True)
 
 
 # One atomic state word contains both a ticket-derived token and its phase.
 # `data` is non-atomic and may be accessed only by the owner of WRITING or
 # READING.  `index` is the logical producer ticket for which the cell is free,
 # or ticket + capacity while that ticket's item is published.
-struct BoundedLPRQCell[T: Copyable](Movable):
+struct BoundedLPRQCell[T: Copyable & Deinitable](Movable):
     comptime CACHE_LINE = 64
     comptime USED = (
         2 * size_of[Atomic[DType.uint64]]() + size_of[Optional[Self.T]]()
@@ -63,26 +64,26 @@ struct BoundedLPRQCell[T: Copyable](Movable):
     var state: Atomic[DType.uint64]
     var index: Atomic[DType.uint64]
     var data: Optional[Self.T]
-    var padding: InlineArray[UInt8, Self.PAD]
+    var padding: Array[UInt8, Self.PAD]
 
     def __init__(out self, initial_index: UInt64):
         self.state = Atomic[DType.uint64](0)
         self.index = Atomic[DType.uint64](initial_index)
         self.data = Optional[Self.T](None)
-        self.padding = InlineArray[UInt8, Self.PAD](uninitialized=True)
+        self.padding = Array[UInt8, Self.PAD](uninitialized=True)
 
-    def __init__(out self, *, deinit take: Self):
-        var state = take.state.load[ordering=Ordering.RELAXED]()
-        var index = take.index.load[ordering=Ordering.RELAXED]()
+    def __init__(out self, *, deinit move: Self):
+        var state = move.state.load[ordering=Ordering.RELAXED]()
+        var index = move.index.load[ordering=Ordering.RELAXED]()
         self.state = Atomic[DType.uint64](state)
         self.index = Atomic[DType.uint64](index)
-        self.data = take.data^
-        self.padding = InlineArray[UInt8, Self.PAD](uninitialized=True)
+        self.data = move.data^
+        self.padding = Array[UInt8, Self.PAD](uninitialized=True)
 
 
-struct BoundedLPRQInspired[T: Copyable](Movable):
-    comptime CellPointer = UnsafePointer[
-        BoundedLPRQCell[Self.T], MutExternalOrigin
+struct BoundedLPRQInspired[T: Copyable & Deinitable](Movable):
+    comptime CellPointer = Pointer[
+        BoundedLPRQCell[Self.T], MutUntrackedOrigin
     ]
 
     comptime EMPTY: UInt64 = 0
@@ -117,28 +118,28 @@ struct BoundedLPRQInspired[T: Copyable](Movable):
 
         self.capacity = UInt64(capacity)
         self.mask = UInt64(capacity - 1)
-        self.cells = alloc[BoundedLPRQCell[Self.T]](capacity, alignment=64)
+        self.cells = unsafe_alloc[BoundedLPRQCell[Self.T]](capacity, alignment=64)
         self.head = BoundedLPRQPaddedAtomicU64(0)
         self.tail = BoundedLPRQPaddedAtomicU64(0)
 
         for i in range(capacity):
-            (self.cells + i).init_pointee_move(
+            (self.cells.unsafe_offset(i)).unsafe_write(
                 BoundedLPRQCell[Self.T](UInt64(i))
             )
 
-    def __init__(out self, *, deinit take: Self):
-        var head = take.head.value.load[ordering=Ordering.RELAXED]()
-        var tail = take.tail.value.load[ordering=Ordering.RELAXED]()
-        self.cells = take.cells
-        self.capacity = take.capacity
-        self.mask = take.mask
+    def __init__(out self, *, deinit move: Self):
+        var head = move.head.value.load[ordering=Ordering.RELAXED]()
+        var tail = move.tail.value.load[ordering=Ordering.RELAXED]()
+        self.cells = move.cells
+        self.capacity = move.capacity
+        self.mask = move.mask
         self.head = BoundedLPRQPaddedAtomicU64(head)
         self.tail = BoundedLPRQPaddedAtomicU64(tail)
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         for i in range(Int(self.capacity)):
-            (self.cells + i).destroy_pointee()
-        self.cells.free()
+            (self.cells.unsafe_offset(i)).unsafe_deinit_pointee()
+        self.cells.unsafe_free()
 
     @always_inline
     @staticmethod
@@ -173,7 +174,7 @@ struct BoundedLPRQInspired[T: Copyable](Movable):
         ticket: UInt64,
         var item: Self.T,
     ):
-        var cell = cells + Int(ticket & mask)
+        var cell = cells.unsafe_offset(Int(ticket & mask))
         var reserved = Self.ticket_state(ticket, Self.RESERVED_PHASE)
         var spins = 0
 
@@ -206,7 +207,7 @@ struct BoundedLPRQInspired[T: Copyable](Movable):
 
         cell[].data = Optional(item^)
         Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
-            UnsafePointer(to=cell[].state.value),
+            Pointer(to=cell[].state.value),
             Self.ticket_state(ticket, Self.FULL_PHASE),
         )
 
@@ -224,7 +225,7 @@ struct BoundedLPRQInspired[T: Copyable](Movable):
         if ticket - current_head >= self.capacity:
             return Optional(item^)
 
-        var cell = self.cells + Int(ticket & self.mask)
+        var cell = self.cells.unsafe_offset(Int(ticket & self.mask))
         if (
             cell[].index.load[ordering=Ordering.SEQUENTIAL]() != ticket
             or cell[].state.load[ordering=Ordering.ACQUIRE]() != Self.EMPTY
@@ -263,7 +264,7 @@ struct BoundedLPRQInspired[T: Copyable](Movable):
         if ticket >= current_tail:
             return Optional[Self.T](None)
 
-        var cell = self.cells + Int(ticket & self.mask)
+        var cell = self.cells.unsafe_offset(Int(ticket & self.mask))
         var expected_full = Self.ticket_state(ticket, Self.FULL_PHASE)
         if (
             cell[].index.load[ordering=Ordering.SEQUENTIAL]()
@@ -295,7 +296,7 @@ struct BoundedLPRQInspired[T: Copyable](Movable):
 
         var item = cell[].data.take()
         Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
-            UnsafePointer(to=cell[].state.value), Self.EMPTY
+            Pointer(to=cell[].state.value), Self.EMPTY
         )
         return Optional(item^)
 
@@ -327,7 +328,7 @@ struct BoundedLPRQInspired[T: Copyable](Movable):
     def debug_full_cells(self) -> Int:
         var full = 0
         for i in range(Int(self.capacity)):
-            var state = (self.cells + i)[].state.load[
+            var state = (self.cells.unsafe_offset(i))[].state.load[
                 ordering=Ordering.RELAXED
             ]()
             if Self.phase(state) == Self.FULL_PHASE:
@@ -336,7 +337,7 @@ struct BoundedLPRQInspired[T: Copyable](Movable):
 
     def debug_dump_cells(self):
         for i in range(Int(self.capacity)):
-            var cell = self.cells + i
+            var cell = self.cells.unsafe_offset(i)
             var state = cell[].state.load[ordering=Ordering.RELAXED]()
             print(
                 "    cell/index/state/phase/state_ticket:",

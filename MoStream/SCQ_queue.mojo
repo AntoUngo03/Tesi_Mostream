@@ -16,6 +16,7 @@
 # emula l'OR con un CAS che imposta i bit Index a `bottom` mantenendo Cycle
 # e IsSafe. In caso di contesa il CAS viene ritentato sullo stesso ticket.
 
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
 # importa `Atomic` e gli ordinamenti di memoria per operazioni atomiche
 from std.collections import Optional
@@ -47,11 +48,11 @@ struct SCQPaddedAtomicU64:
     # contatore a 64 byte evita che condividano accidentalmente una cache line.
     comptime PAD = 64 - size_of[Atomic[DType.uint64]]()
     var value: Atomic[DType.uint64]
-    var padding: InlineArray[UInt8, Self.PAD]
+    var padding: Array[UInt8, Self.PAD]
 
     def __init__(out self, initial: UInt64):
         self.value = Atomic[DType.uint64](initial)
-        self.padding = InlineArray[UInt8, Self.PAD](uninitialized=True)
+        self.padding = Array[UInt8, Self.PAD](uninitialized=True)
 
 # `SCQPaddedAtomicU64` è un wrapper che allinea un contatore atomico a 64 byte
 # per ridurre il false sharing tra `head` e `tail` quando sono aggiornati da
@@ -62,8 +63,8 @@ struct SCQPaddedAtomicU64:
 struct SCQIndexRing(Movable):
     """Algoritmo 6 specializzato per indici compresi in [0, n)."""
 
-    comptime EntryPointer = UnsafePointer[
-        Atomic[DType.uint64], MutExternalOrigin
+    comptime EntryPointer = Pointer[
+        Atomic[DType.uint64], MutUntrackedOrigin
     ]
     comptime EARLY_SPINS = 256
     var entries: Self.EntryPointer
@@ -99,7 +100,7 @@ struct SCQIndexRing(Movable):
         # Layout della word atomica, dai bit meno significativi:
         # [ Index (index_bits) | IsSafe (1 bit) | Cycle (bit restanti) ].
         self.safe_mask = UInt64(1) << UInt64(self.index_bits)
-        self.entries = alloc[Atomic[DType.uint64]](2 * capacity, alignment=64)
+        self.entries = unsafe_alloc[Atomic[DType.uint64]](2 * capacity, alignment=64)
         for i in range(2 * capacity):
             var index = self.index_mask
             var initial_cycle: UInt64 = 0
@@ -109,9 +110,9 @@ struct SCQIndexRing(Movable):
                 # partendo dallo stato vuoto Head=Tail=2n: queste entry sono
                 # quindi nel ciclo 1, mentre le restanti sono ancora al ciclo 0.
                 initial_cycle = 1
-            self.entries[i] = Atomic[DType.uint64](self.safe_mask | index)
+            self.entries[unsafe_offset=i] = Atomic[DType.uint64](self.safe_mask | index)
             if initial_cycle != 0:
-                self.entries[i] = Atomic[DType.uint64](
+                self.entries[unsafe_offset=i] = Atomic[DType.uint64](
                     (initial_cycle << UInt64(self.index_bits + 1))
                     | self.safe_mask | index
                 )
@@ -134,32 +135,32 @@ struct SCQIndexRing(Movable):
 # entry contengono indici validi e hanno `Cycle=1` per rappresentare che
 # sono già stati inseriti una volta.
 
-    def __init__(out self, *, deinit take: Self):
-        self.entries = take.entries
-        self.capacity = take.capacity
-        self.ring_size = take.ring_size
-        self.ring_mask = take.ring_mask
-        self.index_bits = take.index_bits
-        self.index_mask = take.index_mask
-        self.safe_mask = take.safe_mask
+    def __init__(out self, *, deinit move: Self):
+        self.entries = move.entries
+        self.capacity = move.capacity
+        self.ring_size = move.ring_size
+        self.ring_mask = move.ring_mask
+        self.index_bits = move.index_bits
+        self.index_mask = move.index_mask
+        self.safe_mask = move.safe_mask
         self.head = SCQPaddedAtomicU64(
-            take.head.value.load[ordering=Ordering.RELAXED]()
+            move.head.value.load[ordering=Ordering.RELAXED]()
         )
         self.tail = SCQPaddedAtomicU64(
-            take.tail.value.load[ordering=Ordering.RELAXED]()
+            move.tail.value.load[ordering=Ordering.RELAXED]()
         )
         self.threshold = Atomic[DType.int64](
-            take.threshold.load[ordering=Ordering.RELAXED]()
+            move.threshold.load[ordering=Ordering.RELAXED]()
         )
 
 # Move-constructor: trasferisce le risorse dal valore `take` senza copiare
 # l'array; carica i contatori con ordine `RELAXED` perché sono stati
 # trasferiti esplicitamente.
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         for i in range(Int(self.ring_size)):
-            (self.entries + i).destroy_pointee()
-        self.entries.free()
+            (self.entries.unsafe_offset(i)).unsafe_deinit_pointee()
+        self.entries.unsafe_free()
 
 # Distruttore: dealloca le entry atomiche e libera la memoria dell'array.
 
@@ -203,7 +204,7 @@ struct SCQIndexRing(Movable):
     @always_inline
     def entry_at(self, ticket: UInt64) -> Self.EntryPointer:
         # Identity is correct; Cache_Remap is only a locality optimization.
-        return self.entries + Int(ticket & self.ring_mask)
+        return self.entries.unsafe_offset(Int(ticket & self.ring_mask))
 
 # `entry_at`: mappa un `ticket` alla posizione fisica nel ring usando
 # `ring_mask` (equivalente a modulo ring_size, ma efficiente se power-of-two).
@@ -277,7 +278,7 @@ struct SCQIndexRing(Movable):
                 # dequeuer possono attraversare slot mancati senza livelock.
                 if self.threshold.load[ordering=Ordering.RELAXED]() != maximum:
                     Atomic[DType.int64].store[ordering=Ordering.RELEASE](
-                        UnsafePointer(to=self.threshold.value), maximum
+                        Pointer(to=self.threshold.value), maximum
                     )
                 return
 
@@ -375,11 +376,11 @@ struct SCQIndexRing(Movable):
 # `threshold` restituendo `None`.
 
 
-struct SCQQueue[T: Copyable](Movable):
+struct SCQQueue[T: Copyable & Deinitable](Movable):
     """Coda bounded MPMC generica costruita con due SCQ di indici."""
 
-    comptime DataPointer = UnsafePointer[
-        Optional[Self.T], MutExternalOrigin
+    comptime DataPointer = Pointer[
+        Optional[Self.T], MutUntrackedOrigin
     ]
     comptime SPINS_BEFORE_YIELD = 1024
     var data: Self.DataPointer
@@ -401,9 +402,9 @@ struct SCQQueue[T: Copyable](Movable):
             )
             exit(1)
         self.capacity = UInt64(size)
-        self.data = alloc[Optional[Self.T]](size, alignment=64)
+        self.data = unsafe_alloc[Optional[Self.T]](size, alignment=64)
         for i in range(size):
-            (self.data + i).init_pointee_move(Optional[Self.T](None))
+            (self.data.unsafe_offset(i)).unsafe_write(Optional[Self.T](None))
         self.free_indices = SCQIndexRing(size, full=True)
         self.allocated_indices = SCQIndexRing(size, full=False)
         self.count = Atomic[DType.int64](0)
@@ -412,22 +413,22 @@ struct SCQQueue[T: Copyable](Movable):
 # l'array `data` e inizializzando le due SCQ: `free_indices` parte piena,
 # `allocated_indices` parte vuota. `count` inizialmente a 0.
 
-    def __init__(out self, *, deinit take: Self):
-        self.data = take.data
-        self.capacity = take.capacity
-        self.free_indices = take.free_indices^
-        self.allocated_indices = take.allocated_indices^
+    def __init__(out self, *, deinit move: Self):
+        self.data = move.data
+        self.capacity = move.capacity
+        self.free_indices = move.free_indices^
+        self.allocated_indices = move.allocated_indices^
         self.count = Atomic[DType.int64](
-            take.count.load[ordering=Ordering.RELAXED]()
+            move.count.load[ordering=Ordering.RELAXED]()
         )
 
 # Move-constructor per `SCQQueue`: trasferisce le risorse senza copiare l'array
 # `data` e ricarica `count` con ordine `RELAXED`.
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         for i in range(Int(self.capacity)):
-            (self.data + i).destroy_pointee()
-        self.data.free()
+            (self.data.unsafe_offset(i)).unsafe_deinit_pointee()
+        self.data.unsafe_free()
 
 # Distruttore: distrugge i valori in `data` e libera la memoria.
 
@@ -438,7 +439,7 @@ struct SCQQueue[T: Copyable](Movable):
             return Optional(item^)
         var index = available.value()
         # 2. Scrive il payload non atomico: nessun altro thread possiede index.
-        (self.data + Int(index))[] = Optional(item^)
+        (self.data.unsafe_offset(Int(index)))[] = Optional(item^)
         comptime if SCQ_TEST_PAUSE_BEFORE_PUBLISH:
             sleep(0.00001)
         # 3. Pubblica index. Il RELEASE dell'entry in enqueue sincronizza questa
@@ -482,7 +483,7 @@ struct SCQQueue[T: Copyable](Movable):
         var index = allocated.value()
         # 2. Prende il payload; l'indice non puo essere riusato finche non viene
         # reinserito in free_indices.
-        var item = (self.data + Int(index))[].take()  # preleva il payload
+        var item = (self.data.unsafe_offset(Int(index)))[].take()  # preleva il payload
         # 3. Restituisce la cella ai producer reinserendo l'indice in free_indices
         #    e decrementando il contatore indicativo `count`.
         self.free_indices.enqueue(index)

@@ -1,3 +1,4 @@
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
 from std.collections import Optional
 from std.sys import argv
@@ -43,13 +44,13 @@ struct LightSink(StageTrait):
     var local_count: UInt64
     var local_checksum: UInt64
     var work_iterations: Int
-    var total_count: UnsafePointer[Atomic[DType.uint64], MutExternalOrigin]
-    var total_checksum: UnsafePointer[Atomic[DType.uint64], MutExternalOrigin]
+    var total_count: Pointer[Atomic[DType.uint64], MutUntrackedOrigin]
+    var total_checksum: Pointer[Atomic[DType.uint64], MutUntrackedOrigin]
 
     def __init__(
         out self,
-        total_count: UnsafePointer[Atomic[DType.uint64], MutExternalOrigin],
-        total_checksum: UnsafePointer[Atomic[DType.uint64], MutExternalOrigin],
+        total_count: Pointer[Atomic[DType.uint64], MutUntrackedOrigin],
+        total_checksum: Pointer[Atomic[DType.uint64], MutUntrackedOrigin],
         work_iterations: Int,
     ):
         self.local_count = 0
@@ -95,8 +96,8 @@ def expected_checksum(elements: Int, degree: Int, iterations: Int) -> UInt64:
 def run_once(
     elements: Int, degree: Int, capacity: Int, work_iterations: Int
 ) raises:
-    var total_count = alloc[Atomic[DType.uint64]](1)
-    var total_checksum = alloc[Atomic[DType.uint64]](1)
+    var total_count = unsafe_alloc[Atomic[DType.uint64]](1)
+    var total_checksum = unsafe_alloc[Atomic[DType.uint64]](1)
     total_count[] = Atomic[DType.uint64](0)
     total_checksum[] = Atomic[DType.uint64](0)
 
@@ -142,10 +143,10 @@ def run_once(
         " valid=", valid,
     )
 
-    total_count.destroy_pointee()
-    total_count.free()
-    total_checksum.destroy_pointee()
-    total_checksum.free()
+    total_count.unsafe_deinit_pointee()
+    total_count.unsafe_free()
+    total_checksum.unsafe_deinit_pointee()
+    total_checksum.unsafe_free()
     if not valid:
         raise Error("standard MPMC pipeline validation failed")
 

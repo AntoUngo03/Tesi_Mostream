@@ -9,6 +9,7 @@
 #  - try_push/try_pop retain CAS because reservations must be cancellable.
 # ===------------------------------------------------------------------------=== #
 
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
 from std.time import sleep
 from std.sys.info import size_of
@@ -27,11 +28,11 @@ struct PaddedAtomicU64:
     comptime PAD_BYTES = Self.CACHE_LINE_SIZE_BYTES - Self.ATOMIC_SIZE_BYTES
 
     var atomicVal: Atomic[DType.uint64]
-    var pad: InlineArray[UInt8, Self.PAD_BYTES]
+    var pad: Array[UInt8, Self.PAD_BYTES]
 
     def __init__(out self, initial: UInt64):
         self.atomicVal = Atomic[DType.uint64](initial)
-        self.pad = InlineArray[UInt8, Self.PAD_BYTES](uninitialized=True)
+        self.pad = Array[UInt8, Self.PAD_BYTES](uninitialized=True)
 
 
 # One ring-buffer slot.
@@ -45,7 +46,7 @@ struct PaddedAtomicU64:
 # Consumer ticket c:
 #     sequence == c + 1   -> item available to consumer
 #     sequence  = c+size  -> cell released for next ring cycle
-struct Cell[T: Copyable](Movable):
+struct Cell[T: Copyable & Deinitable](Movable):
     var sequence: Atomic[DType.uint64]
     var data: Optional[Self.T]
 
@@ -53,10 +54,10 @@ struct Cell[T: Copyable](Movable):
         self.sequence = Atomic[DType.uint64](seq)
         self.data = Optional[Self.T](None)
 
-    def __init__(out self, *, deinit take: Self):
-        var seq = take.sequence.load[ordering=Ordering.RELAXED]()
+    def __init__(out self, *, deinit move: Self):
+        var seq = move.sequence.load[ordering=Ordering.RELAXED]()
         self.sequence = Atomic[DType.uint64](seq)
-        self.data = take.data^
+        self.data = move.data^
 
 
 # Experimental bounded MPMC queue.
@@ -68,10 +69,10 @@ struct Cell[T: Copyable](Movable):
 #
 # A thread that obtains a ticket in push/pop must wait for that
 # ticket's slot. Therefore these blocking methods are not wait-free.
-struct MPMCQueue[T: Copyable](Movable):
-    comptime CellPointer = UnsafePointer[
+struct MPMCQueue[T: Copyable & Deinitable](Movable):
+    comptime CellPointer = Pointer[
         Cell[Self.T],
-        MutExternalOrigin
+        MutUntrackedOrigin
     ]
 
     # Number of unsuccessful slot observations before yielding.
@@ -104,13 +105,13 @@ struct MPMCQueue[T: Copyable](Movable):
         self.size = UInt64(size)
         self.mask = UInt64(size - 1)
 
-        self.buffer = alloc[Cell[Self.T]](size)
+        self.buffer = unsafe_alloc[Cell[Self.T]](size)
 
         self.enqueue_pos = PaddedAtomicU64(0)
         self.dequeue_pos = PaddedAtomicU64(0)
 
         for i in range(size):
-            (self.buffer + i).init_pointee_move(
+            (self.buffer.unsafe_offset(i)).unsafe_write(
                 Cell[Self.T](UInt64(i))
             )
 
@@ -121,28 +122,28 @@ struct MPMCQueue[T: Copyable](Movable):
     # would make the counters inconsistent with the sequence values
     # already stored in the cells whenever a non-empty or previously
     # used queue is moved.
-    def __init__(out self, *, deinit take: Self):
-        var enqueue = take.enqueue_pos.atomicVal.load[
+    def __init__(out self, *, deinit move: Self):
+        var enqueue = move.enqueue_pos.atomicVal.load[
             ordering=Ordering.RELAXED
         ]()
 
-        var dequeue = take.dequeue_pos.atomicVal.load[
+        var dequeue = move.dequeue_pos.atomicVal.load[
             ordering=Ordering.RELAXED
         ]()
 
-        self.buffer = take.buffer
-        self.size = take.size
-        self.mask = take.mask
+        self.buffer = move.buffer
+        self.size = move.size
+        self.mask = move.mask
 
         self.enqueue_pos = PaddedAtomicU64(enqueue)
         self.dequeue_pos = PaddedAtomicU64(dequeue)
 
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         for i in range(Int(self.size)):
-            (self.buffer + i).destroy_pointee()
+            (self.buffer.unsafe_offset(i)).unsafe_deinit_pointee()
 
-        self.buffer.free()
+        self.buffer.unsafe_free()
 
 
     # -------------------------------------------------------------------------
@@ -185,7 +186,7 @@ struct MPMCQueue[T: Copyable](Movable):
             ordering=Ordering.RELAXED
         ](1)
 
-        var cell_ptr = self.buffer + Int(producer_ticket & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset(Int(producer_ticket & self.mask))
         var spins = 0
 
         while True:
@@ -201,7 +202,7 @@ struct MPMCQueue[T: Copyable](Movable):
                 Atomic[DType.uint64].store[
                     ordering=Ordering.RELEASE
                 ](
-                    UnsafePointer(to=cell_ptr[].sequence.value),
+                    Pointer(to=cell_ptr[].sequence.value),
                     producer_ticket + 1
                 )
 
@@ -229,7 +230,7 @@ struct MPMCQueue[T: Copyable](Movable):
             ordering=Ordering.RELAXED
         ]()
 
-        var cell_ptr = self.buffer + Int(producer_ticket & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset(Int(producer_ticket & self.mask))
 
         var sequence = cell_ptr[].sequence.load[
             ordering=Ordering.ACQUIRE
@@ -256,7 +257,7 @@ struct MPMCQueue[T: Copyable](Movable):
         Atomic[DType.uint64].store[
             ordering=Ordering.RELEASE
         ](
-            UnsafePointer(to=cell_ptr[].sequence.value),
+            Pointer(to=cell_ptr[].sequence.value),
             producer_ticket + 1
         )
 
@@ -277,7 +278,7 @@ struct MPMCQueue[T: Copyable](Movable):
             ordering=Ordering.RELAXED
         ](1)
 
-        var cell_ptr = self.buffer + Int(consumer_ticket & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset(Int(consumer_ticket & self.mask))
         var expected_sequence = consumer_ticket + 1
         var spins = 0
 
@@ -294,7 +295,7 @@ struct MPMCQueue[T: Copyable](Movable):
                 Atomic[DType.uint64].store[
                     ordering=Ordering.RELEASE
                 ](
-                    UnsafePointer(to=cell_ptr[].sequence.value),
+                    Pointer(to=cell_ptr[].sequence.value),
                     consumer_ticket + self.size
                 )
 
@@ -321,7 +322,7 @@ struct MPMCQueue[T: Copyable](Movable):
             ordering=Ordering.RELAXED
         ]()
 
-        var cell_ptr = self.buffer + Int(consumer_ticket & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset(Int(consumer_ticket & self.mask))
         var expected_sequence = consumer_ticket + 1
 
         var sequence = cell_ptr[].sequence.load[
@@ -348,7 +349,7 @@ struct MPMCQueue[T: Copyable](Movable):
         Atomic[DType.uint64].store[
             ordering=Ordering.RELEASE
         ](
-            UnsafePointer(to=cell_ptr[].sequence.value),
+            Pointer(to=cell_ptr[].sequence.value),
             consumer_ticket + self.size
         )
 

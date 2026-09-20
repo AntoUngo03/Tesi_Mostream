@@ -1,4 +1,5 @@
-from std.algorithm import parallelize
+from std.memory.alloc import unsafe_alloc
+from std.runtime.asyncrt import TaskGroup
 from std.atomic import Atomic, Ordering
 from std.sys.terminate import exit
 from MoStream.SCQ_queue import SCQQueue
@@ -14,15 +15,15 @@ def run_case(capacity: Int) -> Bool:
     var queue = SCQQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
     var invalid = Atomic[DType.uint64](0)
-    var seen = alloc[Atomic[DType.uint64]](TOTAL)
-    var counts = alloc[UInt64](CONSUMERS)
+    var seen = unsafe_alloc[Atomic[DType.uint64]](TOTAL)
+    var counts = unsafe_alloc[UInt64](CONSUMERS)
     for i in range(TOTAL):
-        seen[i] = Atomic[DType.uint64](0)
+        seen[unsafe_offset=i] = Atomic[DType.uint64](0)
     for i in range(CONSUMERS):
-        counts[i] = 0
+        counts[unsafe_offset=i] = 0
 
     @parameter
-    def worker(thread_id: Int):
+    async def worker(thread_id: Int):
         if thread_id < PRODUCERS:
             var base = thread_id * MESSAGES
             for i in range(MESSAGES):
@@ -39,29 +40,33 @@ def run_case(capacity: Int) -> Bool:
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer] = local_count
+                    counts[unsafe_offset=consumer] = local_count
                     return
                 if value < 0 or value >= TOTAL:
                     _ = invalid.fetch_add[ordering=Ordering.RELAXED](1)
                 else:
-                    _ = seen[value].fetch_add[ordering=Ordering.RELAXED](1)
+                    _ = seen[unsafe_offset=value].fetch_add[ordering=Ordering.RELAXED](1)
                 local_count += 1
 
-    parallelize[worker](PRODUCERS + CONSUMERS)
+    var tasks = TaskGroup()
+    for worker_id in range(PRODUCERS + CONSUMERS):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
 
     var actual: UInt64 = 0
     for i in range(CONSUMERS):
-        actual += counts[i]
+        actual += counts[unsafe_offset=i]
     var first_bad = -1
     for i in range(TOTAL):
-        if seen[i].load[ordering=Ordering.RELAXED]() != 1:
+        if seen[unsafe_offset=i].load[ordering=Ordering.RELAXED]() != 1:
             first_bad = i
             break
     var invalid_count = invalid.load[ordering=Ordering.RELAXED]()
     for i in range(TOTAL):
-        (seen + i).destroy_pointee()
-    seen.free()
-    counts.free()
+        (seen.unsafe_offset(i)).unsafe_deinit_pointee()
+    seen.unsafe_free()
+    counts.unsafe_free()
 
     if (
         actual != UInt64(TOTAL)

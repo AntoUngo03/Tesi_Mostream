@@ -28,14 +28,14 @@ running a replica of the stage).
 
 ## Requirements
 
-- Mojo toolchain (version >= 0.26.3)
+- Mojo 1.0.0 (the tested toolchain for this version).
 - A C compiler such as `gcc` for the CPU-affinity helper.
 - Linux-style pthread CPU affinity support for thread pinning.
 
 The current runtime expects the helper library at:
 
 ```text
-$MOSTREAM_HOME/MoStream/lib/libFuncC.so
+$MOSTREAM_HOME/MoStream/lib/libpinning.so
 ```
 
 ## Setup
@@ -54,6 +54,35 @@ mojo -O3 -I. Tests/test_pipe_1.mojo
 ```
 
 If `MOSTREAM_HOME` is not set, MoStream falls back to the current directory.
+
+### Mojo 1.0 migration and validation
+
+The library, tests, and benchmarks use Mojo 1.0's `Pointer`, `Array`,
+`Deinitable`, `__deinit__`, and `deinit move` APIs. Manually managed allocations
+use `MutUntrackedOrigin` and explicit `unsafe_*` operations; their owners must
+remain alive until all pointer accesses and asynchronous tasks have finished.
+Timer values use `Int`, matching `perf_counter_ns()`.
+
+The CPU queue tests and benchmarks use `TaskGroup` from Mojo's runtime, so they
+do not require MAX's relocated `parallelize` API. See the
+[Mojo 1.0 release notes](https://mojolang.org/releases/v1.0.0/) for language changes.
+
+Build with warnings treated as errors and run all tests, including image
+copy/move and filter checks:
+
+```sh
+python3 Tests/run_tests.py
+```
+
+To also compile every benchmark entry point:
+
+```sh
+python3 Tests/run_tests.py --benchmarks
+```
+
+The runner builds the C helpers, links the native wCQ object where required,
+and supplies the worker count to the cooperative pipeline test. Benchmark
+compilation does not execute the timed performance workloads.
 
 ## Quick Example
 
@@ -301,7 +330,7 @@ TimedImageSource -> Grayscale -> GaussianBlur -> Sharpen -> ImageSink
 Run it with the parallelism degree for each transform stage:
 
 ```sh
-mojo Benchmarks/ImagePipeline/test_image_pipeline.mojo 2 4 2
+mojo -I. Benchmarks/ImagePipeline/test_image_1.mojo 1 2 4 2 1
 ```
 
 ## License

@@ -1,4 +1,5 @@
-from std.algorithm import parallelize
+from std.memory.alloc import unsafe_alloc
+from std.runtime.asyncrt import TaskGroup
 from std.atomic import Atomic, Ordering
 from std.collections import Optional
 from std.sys.terminate import exit
@@ -17,17 +18,17 @@ def run_case(capacity: Int) -> Bool:
     var queue = BoundedLPRQInspired[Int](capacity)
     var finished_producers = Atomic[DType.uint64](0)
     var invalid_values = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](CONSUMERS)
-    var checksums = alloc[UInt64](CONSUMERS)
-    var seen = alloc[UInt64](TOTAL_MESSAGES)
+    var counts = unsafe_alloc[UInt64](CONSUMERS)
+    var checksums = unsafe_alloc[UInt64](CONSUMERS)
+    var seen = unsafe_alloc[UInt64](TOTAL_MESSAGES)
     for i in range(CONSUMERS):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     for i in range(TOTAL_MESSAGES):
-        seen[i] = 0
+        seen[unsafe_offset=i] = 0
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < PRODUCERS:
             var base = index * MESSAGES_PER_PRODUCER
             for i in range(MESSAGES_PER_PRODUCER):
@@ -59,34 +60,38 @@ def run_case(capacity: Int) -> Bool:
                     continue
                 var value = item.take()
                 if value == -1:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 if value < 0 or value >= TOTAL_MESSAGES:
                     _ = invalid_values.fetch_add[ordering=Ordering.RELAXED](1)
                 else:
                     _ = Atomic[DType.uint64].fetch_add[
                         ordering=Ordering.RELAXED
-                    ](seen + value, 1)
+                    ](seen.unsafe_offset(value), 1)
                 local_count += 1
                 local_checksum += UInt64(value)
 
-    parallelize[worker](PRODUCERS + CONSUMERS)
+    var tasks = TaskGroup()
+    for worker_id in range(PRODUCERS + CONSUMERS):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
 
     var count: UInt64 = 0
     var checksum: UInt64 = 0
     for i in range(CONSUMERS):
-        count += counts[i]
-        checksum += checksums[i]
+        count += counts[unsafe_offset=i]
+        checksum += checksums[unsafe_offset=i]
     var first_bad_id = -1
     for i in range(TOTAL_MESSAGES):
-        if Atomic[DType.uint64].load[ordering=Ordering.RELAXED](seen + i) != 1:
+        if Atomic[DType.uint64].load[ordering=Ordering.RELAXED](seen.unsafe_offset(i)) != 1:
             first_bad_id = i
             break
     var invalid_count = invalid_values.load[ordering=Ordering.RELAXED]()
-    counts.free()
-    checksums.free()
-    seen.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
+    seen.unsafe_free()
 
     var expected_count = UInt64(PRODUCERS * MESSAGES_PER_PRODUCER)
     var expected_checksum = (expected_count * (expected_count - 1)) // 2

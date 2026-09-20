@@ -33,7 +33,7 @@ comptime DURATION: Int = 60
 comptime BASELINE_N: Int = 5000
 
 # Utility functions
-def elapsed_ms(t0: UInt) -> Float64:
+def elapsed_ms(t0: Int) -> Float64:
     return Float64(Int(perf_counter_ns() - t0)) / 1_000_000.0
 
 # Throughput in images per second
@@ -56,7 +56,7 @@ def run_config(src_degree: Int, gray_degree: Int, random_degree: Int, blur_degre
     pipeline.run()
     var ms = elapsed_ms(t0)
     var n = count_ptr[]
-    count_ptr.free()
+    count_ptr.unsafe_free()
     _ = pipeline
     return (n, ms)
 

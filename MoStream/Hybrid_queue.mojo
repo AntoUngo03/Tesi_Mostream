@@ -10,6 +10,7 @@
 # cancelled when an immediate operation cannot complete.
 # ===------------------------------------------------------------------------=== #
 
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
 from std.collections import Optional
 from std.sys.info import size_of
@@ -24,14 +25,14 @@ struct PaddedAtomicU64:
     comptime PAD_BYTES = Self.CACHE_LINE_SIZE_BYTES - Self.ATOMIC_SIZE_BYTES
 
     var atomicVal: Atomic[DType.uint64]
-    var pad: InlineArray[UInt8, Self.PAD_BYTES]
+    var pad: Array[UInt8, Self.PAD_BYTES]
 
     def __init__(out self, initial: UInt64):
         self.atomicVal = Atomic[DType.uint64](initial)
-        self.pad = InlineArray[UInt8, Self.PAD_BYTES](uninitialized=True)
+        self.pad = Array[UInt8, Self.PAD_BYTES](uninitialized=True)
 
 
-struct Cell[T: Copyable](Movable):
+struct Cell[T: Copyable & Deinitable](Movable):
     var sequence: Atomic[DType.uint64]
     var data: Optional[Self.T]
 
@@ -39,14 +40,14 @@ struct Cell[T: Copyable](Movable):
         self.sequence = Atomic[DType.uint64](sequence)
         self.data = Optional[Self.T](None)
 
-    def __init__(out self, *, deinit take: Self):
-        var sequence = take.sequence.load[ordering=Ordering.RELAXED]()
+    def __init__(out self, *, deinit move: Self):
+        var sequence = move.sequence.load[ordering=Ordering.RELAXED]()
         self.sequence = Atomic[DType.uint64](sequence)
-        self.data = take.data^
+        self.data = move.data^
 
 
-struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
-    comptime CellPointer = UnsafePointer[Cell[Self.T], MutExternalOrigin]
+struct HybridMPMCQueue[T: Copyable & Deinitable, cas_failures_before_faa: Int = 4](Movable):
+    comptime CellPointer = Pointer[Cell[Self.T], MutUntrackedOrigin]
 
     # FAA is used only after this many CAS collisions in one blocking call.
     comptime CAS_FAILURES_BEFORE_FAA = Self.cas_failures_before_faa
@@ -77,43 +78,43 @@ struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
 
         self.size = UInt64(size)
         self.mask = UInt64(size - 1)
-        self.buffer = alloc[Cell[Self.T]](size)
+        self.buffer = unsafe_alloc[Cell[Self.T]](size)
         self.enqueue_pos = PaddedAtomicU64(0)
         self.dequeue_pos = PaddedAtomicU64(0)
         self.enqueue_faa_fallbacks = PaddedAtomicU64(0)
         self.dequeue_faa_fallbacks = PaddedAtomicU64(0)
 
         for i in range(size):
-            (self.buffer + i).init_pointee_move(Cell[Self.T](UInt64(i)))
+            (self.buffer.unsafe_offset(i)).unsafe_write(Cell[Self.T](UInt64(i)))
 
 
-    def __init__(out self, *, deinit take: Self):
-        var enqueue = take.enqueue_pos.atomicVal.load[
+    def __init__(out self, *, deinit move: Self):
+        var enqueue = move.enqueue_pos.atomicVal.load[
             ordering=Ordering.RELAXED
         ]()
-        var dequeue = take.dequeue_pos.atomicVal.load[
+        var dequeue = move.dequeue_pos.atomicVal.load[
             ordering=Ordering.RELAXED
         ]()
-        var enqueue_fallbacks = take.enqueue_faa_fallbacks.atomicVal.load[
+        var enqueue_fallbacks = move.enqueue_faa_fallbacks.atomicVal.load[
             ordering=Ordering.RELAXED
         ]()
-        var dequeue_fallbacks = take.dequeue_faa_fallbacks.atomicVal.load[
+        var dequeue_fallbacks = move.dequeue_faa_fallbacks.atomicVal.load[
             ordering=Ordering.RELAXED
         ]()
 
-        self.buffer = take.buffer
-        self.size = take.size
-        self.mask = take.mask
+        self.buffer = move.buffer
+        self.size = move.size
+        self.mask = move.mask
         self.enqueue_pos = PaddedAtomicU64(enqueue)
         self.dequeue_pos = PaddedAtomicU64(dequeue)
         self.enqueue_faa_fallbacks = PaddedAtomicU64(enqueue_fallbacks)
         self.dequeue_faa_fallbacks = PaddedAtomicU64(dequeue_fallbacks)
 
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         for i in range(Int(self.size)):
-            (self.buffer + i).destroy_pointee()
-        self.buffer.free()
+            (self.buffer.unsafe_offset(i)).unsafe_deinit_pointee()
+        self.buffer.unsafe_free()
 
 
     @always_inline
@@ -127,20 +128,20 @@ struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
 
     @always_inline
     def publish(mut self, ticket: UInt64, var item: Self.T):
-        var cell_ptr = self.buffer + Int(ticket & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset(Int(ticket & self.mask))
         cell_ptr[].data = Optional(item^)
         Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
-            UnsafePointer(to=cell_ptr[].sequence.value),
+            Pointer(to=cell_ptr[].sequence.value),
             ticket + 1,
         )
 
 
     @always_inline
     def release_cell(mut self, ticket: UInt64) -> Self.T:
-        var cell_ptr = self.buffer + Int(ticket & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset(Int(ticket & self.mask))
         var item = cell_ptr[].data.take()
         Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
-            UnsafePointer(to=cell_ptr[].sequence.value),
+            Pointer(to=cell_ptr[].sequence.value),
             ticket + self.size,
         )
         return item^
@@ -155,7 +156,7 @@ struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
             var ticket = self.enqueue_pos.atomicVal.load[
                 ordering=Ordering.RELAXED
             ]()
-            var cell_ptr = self.buffer + Int(ticket & self.mask)
+            var cell_ptr = self.buffer.unsafe_offset(Int(ticket & self.mask))
             var sequence = cell_ptr[].sequence.load[
                 ordering=Ordering.ACQUIRE
             ]()
@@ -185,7 +186,7 @@ struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
             var faa_ticket = self.enqueue_pos.atomicVal.fetch_add[
                 ordering=Ordering.RELAXED
             ](1)
-            var faa_cell = self.buffer + Int(faa_ticket & self.mask)
+            var faa_cell = self.buffer.unsafe_offset(Int(faa_ticket & self.mask))
             spins = 0
             while faa_cell[].sequence.load[
                 ordering=Ordering.ACQUIRE
@@ -200,7 +201,7 @@ struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
         var ticket = self.enqueue_pos.atomicVal.load[
             ordering=Ordering.RELAXED
         ]()
-        var cell_ptr = self.buffer + Int(ticket & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset(Int(ticket & self.mask))
         if cell_ptr[].sequence.load[
             ordering=Ordering.ACQUIRE
         ]() != ticket:
@@ -226,7 +227,7 @@ struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
             var ticket = self.dequeue_pos.atomicVal.load[
                 ordering=Ordering.RELAXED
             ]()
-            var cell_ptr = self.buffer + Int(ticket & self.mask)
+            var cell_ptr = self.buffer.unsafe_offset(Int(ticket & self.mask))
             var expected_sequence = ticket + 1
             var sequence = cell_ptr[].sequence.load[
                 ordering=Ordering.ACQUIRE
@@ -255,7 +256,7 @@ struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
             var faa_ticket = self.dequeue_pos.atomicVal.fetch_add[
                 ordering=Ordering.RELAXED
             ](1)
-            var faa_cell = self.buffer + Int(faa_ticket & self.mask)
+            var faa_cell = self.buffer.unsafe_offset(Int(faa_ticket & self.mask))
             var faa_expected_sequence = faa_ticket + 1
             spins = 0
             while faa_cell[].sequence.load[
@@ -269,7 +270,7 @@ struct HybridMPMCQueue[T: Copyable, cas_failures_before_faa: Int = 4](Movable):
         var ticket = self.dequeue_pos.atomicVal.load[
             ordering=Ordering.RELAXED
         ]()
-        var cell_ptr = self.buffer + Int(ticket & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset(Int(ticket & self.mask))
         if cell_ptr[].sequence.load[
             ordering=Ordering.ACQUIRE
         ]() != ticket + 1:

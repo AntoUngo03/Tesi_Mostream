@@ -1,5 +1,6 @@
 # Timed, silent equivalent of Tests/test_pipe_2.mojo.
 
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
 from std.collections import Optional
 from std.sys import argv
@@ -50,20 +51,20 @@ struct ThirdStage(StageTrait):
     comptime name = "ThirdStage"
     var local_count: UInt64
     var local_checksum: UInt64
-    var observed_count: UnsafePointer[
-        Atomic[DType.uint64], MutExternalOrigin
+    var observed_count: Pointer[
+        Atomic[DType.uint64], MutUntrackedOrigin
     ]
-    var observed_checksum: UnsafePointer[
-        Atomic[DType.uint64], MutExternalOrigin
+    var observed_checksum: Pointer[
+        Atomic[DType.uint64], MutUntrackedOrigin
     ]
 
     def __init__(
         out self,
-        observed_count: UnsafePointer[
-            Atomic[DType.uint64], MutExternalOrigin
+        observed_count: Pointer[
+            Atomic[DType.uint64], MutUntrackedOrigin
         ],
-        observed_checksum: UnsafePointer[
-            Atomic[DType.uint64], MutExternalOrigin
+        observed_checksum: Pointer[
+            Atomic[DType.uint64], MutUntrackedOrigin
         ],
     ):
         self.local_count = 0
@@ -102,8 +103,8 @@ def expected_checksum(elements: Int) -> UInt64:
 
 
 def run_once(elements: Int) raises:
-    var observed_count = alloc[Atomic[DType.uint64]](1)
-    var observed_checksum = alloc[Atomic[DType.uint64]](1)
+    var observed_count = unsafe_alloc[Atomic[DType.uint64]](1)
+    var observed_checksum = unsafe_alloc[Atomic[DType.uint64]](1)
     observed_count[] = Atomic[DType.uint64](0)
     observed_checksum[] = Atomic[DType.uint64](0)
 
@@ -147,10 +148,10 @@ def run_once(elements: Int) raises:
         " valid=", valid,
     )
 
-    observed_count.destroy_pointee()
-    observed_count.free()
-    observed_checksum.destroy_pointee()
-    observed_checksum.free()
+    observed_count.unsafe_deinit_pointee()
+    observed_count.unsafe_free()
+    observed_checksum.unsafe_deinit_pointee()
+    observed_checksum.unsafe_free()
     if not valid:
         raise Error("pipe_2 benchmark correctness failure")
 

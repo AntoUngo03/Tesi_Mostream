@@ -16,6 +16,7 @@
 # Atomic rappresenta un valore modificabile in sicurezza da piu thread;
 # Ordering specifica le garanzie di ordinamento delle operazioni atomiche.
 # fence e importata per il backoff sperimentale commentato piu sotto.
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering, fence
 # sleep al momento non e usato: e rimasto da precedenti strategie di attesa.
 from std.time import sleep
@@ -37,18 +38,18 @@ struct PaddedAtomicU64:
     # Il contatore UInt64 realmente usato dall'algoritmo.
     var atomicVal: Atomic[DType.uint64]
     # Byte senza significato logico: servono soltanto a occupare spazio.
-    var pad: InlineArray[UInt8, Self.PAD_BYTES]
+    var pad: Array[UInt8, Self.PAD_BYTES]
 
     # Costruisce il contatore atomico partendo da initial.
     def __init__(out self, initial: UInt64):
         # Inizializza il valore atomico.
         self.atomicVal = Atomic[DType.uint64](initial)
         # Il padding non verra mai letto, quindi puo restare non inizializzato.
-        self.pad = InlineArray[UInt8, Self.PAD_BYTES](uninitialized=True)
+        self.pad = Array[UInt8, Self.PAD_BYTES](uninitialized=True)
 
 # Una posizione fisica del buffer circolare. sequence dice a quale giro logico
 # appartiene la cella e se essa e libera o contiene un elemento pubblicato.
-struct Cell[T: Copyable](Movable):
+struct Cell[T: Copyable & Deinitable](Movable):
     # Stato atomico usato per sincronizzare producer e consumer sulla cella.
     var sequence: Atomic[DType.uint64]
     # Payload della cella; None significa che non contiene un valore posseduto.
@@ -61,20 +62,20 @@ struct Cell[T: Copyable](Movable):
         # All'inizio non esiste alcun payload.
         self.data = Optional[Self.T](None)
 
-    # Costruisce una cella prendendo le risorse da take.
-    def __init__(out self, *, deinit take: Self):
+    # Costruisce una cella prendendo le risorse da move.
+    def __init__(out self, *, deinit move: Self):
         # Un'atomica non viene copiata direttamente: se ne legge il valore.
-        var val = take.sequence.load()
+        var val = move.sequence.load()
         # Ricrea l'atomica di destinazione con la sequenza letta.
         self.sequence = Atomic[DType.uint64](val)
         # ^ trasferisce, anziche copiare, l'Optional e il suo payload.
-        self.data = take.data^
+        self.data = move.data^
 
 # MPMC queue implementation based the algorithm by Dmitry Vyukov
 #   (https://www.1024cores.net/home/lock-free-algorithms/queues/bounded-mpmc-queue)
-struct MPMCQueue[T: Copyable](Movable):
+struct MPMCQueue[T: Copyable & Deinitable](Movable):
     # Alias del tipo puntatore usato per accedere alle celle allocate a mano.
-    comptime CellPointer = UnsafePointer[Cell[Self.T], MutExternalOrigin]
+    comptime CellPointer = Pointer[Cell[Self.T], MutUntrackedOrigin]
     # Numero iniziale di iterazioni vuote dopo una collisione tra thread.
     comptime BACKOFF_MIN = 128
     # Limite dichiarato per il backoff (si veda la nota nel metodo push).
@@ -104,7 +105,7 @@ struct MPMCQueue[T: Copyable](Movable):
         # Con size potenza di due, pw & mask equivale a pw % size.
         self.mask = UInt64(size - 1)
         # Alloca size celle non ancora costruite.
-        self.buffer = alloc[Cell[Self.T]](Int(self.size))
+        self.buffer = unsafe_alloc[Cell[Self.T]](Int(self.size))
         # Il primo producer parte dal ticket logico zero.
         self.enqueue_pos = PaddedAtomicU64(0)
         # Anche il primo consumer parte dal ticket logico zero.
@@ -112,16 +113,16 @@ struct MPMCQueue[T: Copyable](Movable):
         # Costruisce esplicitamente ogni cella nel blocco appena allocato.
         for i in range(self.size):
             # La cella i riceve sequence=i: e libera per il primo giro.
-            (self.buffer + i).init_pointee_move(Cell[Self.T](UInt64(i)))
+            (self.buffer.unsafe_offset(i)).unsafe_write(Cell[Self.T](UInt64(i)))
 
     # Sposta la coda senza copiare il buffer.
-    def __init__(out self, *, deinit take: Self):
+    def __init__(out self, *, deinit move: Self):
         # Trasferisce il puntatore al medesimo blocco di celle.
-        self.buffer = take.buffer
+        self.buffer = move.buffer
         # Conserva la capacita.
-        self.size = take.size
+        self.size = move.size
         # Conserva la maschera per l'indicizzazione circolare.
-        self.mask = take.mask
+        self.mask = move.mask
         # ATTENZIONE: il codice corrente azzera i contatori invece di trasferirli.
         # Spostare una coda gia usata puo quindi perdere la posizione corrente.
         self.enqueue_pos = PaddedAtomicU64(0)
@@ -129,13 +130,13 @@ struct MPMCQueue[T: Copyable](Movable):
         self.dequeue_pos = PaddedAtomicU64(0)
 
     # Distrugge la coda. Nessun altro thread deve usarla a questo punto.
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         # Visita tutte le celle costruite dal costruttore.
         for i in range(self.size):
             # Esegue il distruttore della cella e dell'eventuale payload.
-            (self.buffer + i).destroy_pointee()
+            (self.buffer.unsafe_offset(i)).unsafe_deinit_pointee()
         # Restituisce all'allocatore il blocco di memoria del buffer.
-        self.buffer.free()
+        self.buffer.unsafe_free()
 
     # Inserimento bloccante tramite busy waiting: ritorna soltanto dopo avere
     # riservato una cella, scritto item e pubblicato la nuova sequenza.
@@ -152,7 +153,7 @@ struct MPMCQueue[T: Copyable](Movable):
             # del payload e sincronizzata separatamente tramite sequence.
             pw = self.enqueue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
             # Traduce il ticket crescente nell'indice del buffer circolare.
-            var cell_ptr = self.buffer + (pw & self.mask)
+            var cell_ptr = self.buffer.unsafe_offset((pw & self.mask))
             # ACQUIRE si sincronizza con il RELEASE dell'ultimo consumer che
             # ha liberato questa cella.
             seq = cell_ptr[].sequence.load[ordering=Ordering.ACQUIRE]()
@@ -165,7 +166,7 @@ struct MPMCQueue[T: Copyable](Movable):
                     cell_ptr[].data = Optional(item^)
                     # Pubblica il dato. RELEASE garantisce che un consumer che
                     # vede pw+1 con ACQUIRE veda anche la scrittura precedente.
-                    Atomic[DType.uint64].store[ordering=Ordering.RELEASE](UnsafePointer(to=cell_ptr[].sequence.value), pw + 1)
+                    Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=cell_ptr[].sequence.value), pw + 1)
                     # L'elemento e ora visibile ai consumer.
                     return  # successfully pushed
                 # Un altro producer ha vinto il CAS: attende prima di riprovare.
@@ -187,7 +188,7 @@ struct MPMCQueue[T: Copyable](Movable):
         # Legge una sola volta il prossimo ticket producer.
         var pw = self.enqueue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
         # Trova la cella fisica associata al ticket.
-        var cell_ptr = self.buffer + (pw & self.mask)
+        var cell_ptr = self.buffer.unsafe_offset((pw & self.mask))
         # Legge lo stato pubblicato della cella.
         var seq = cell_ptr[].sequence.load[ordering=Ordering.ACQUIRE]()
         # Se le sequenze non coincidono, la cella non e libera per pw.
@@ -202,7 +203,7 @@ struct MPMCQueue[T: Copyable](Movable):
         # Il ticket e nostro: trasferisce il payload nella cella.
         cell_ptr[].data = Optional(item^)
         # Pubblica il dato ai consumer con semantica RELEASE.
-        Atomic[DType.uint64].store[ordering=Ordering.RELEASE](UnsafePointer(to=cell_ptr[].sequence.value), pw + 1)
+        Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=cell_ptr[].sequence.value), pw + 1)
         # None comunica che item e stato consumato e inserito correttamente.
         return None # successfully pushed
 
@@ -211,7 +212,7 @@ struct MPMCQueue[T: Copyable](Movable):
         # Continua a interrogare la coda quando questa appare vuota.
         while (True):
             # Esegue un tentativo non bloccante.
-            item = self.try_pop()
+            var item = self.try_pop()
             # Un Optional valorizzato indica che l'estrazione e riuscita.
             if item:
                 # Estrae e trasferisce il payload dall'Optional al chiamante.
@@ -231,7 +232,7 @@ struct MPMCQueue[T: Copyable](Movable):
             # Legge il prossimo ticket consumer senza imporre altro ordine.
             pr = self.dequeue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
             # Traduce il ticket nell'indice del buffer circolare.
-            var cell_ptr = self.buffer + (pr & self.mask)
+            var cell_ptr = self.buffer.unsafe_offset((pr & self.mask))
             # ACQUIRE si sincronizza con il RELEASE usato dal producer per
             # pubblicare il payload in questa cella.
             seq = cell_ptr[].sequence.load[ordering=Ordering.ACQUIRE]()
@@ -247,7 +248,7 @@ struct MPMCQueue[T: Copyable](Movable):
                     var item = cell_ptr[].data.take()
                     # Libera la cella per il giro seguente. Poiche mask+1=size,
                     # la nuova sequenza e pr+size. RELEASE rende conclusa la lettura.
-                    Atomic[DType.uint64].store[ordering=Ordering.RELEASE](UnsafePointer(to=cell_ptr[].sequence.value), pr + self.mask + 1)
+                    Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=cell_ptr[].sequence.value), pr + self.mask + 1)
                     # Trasferisce al chiamante l'elemento estratto.
                     return Optional(item^)
                 # CAS failed, another consumer might have claimed this item, retry

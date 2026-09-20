@@ -13,10 +13,12 @@
 #  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # ===------------------------------------------------------------------------=== #
 
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
 from MoStream.MPMC_queue import MPMCQueue
 from MoStream.actor import ActorStatus
 from MoStream.pipeline import Pinning
+from MoStream.stage import StageKind
 from MoStream.node import NodeTrait, SeqNode, ParallelNode
 from MoStream.utils import print_cyan_color, print_red_color, print_yellow_color
 from std.runtime.asyncrt import create_task, TaskGroup, parallelism_level
@@ -38,12 +40,12 @@ struct ActorDescriptor(ImplicitlyCopyable):
 struct Scheduler[*Ts: NodeTrait]:
     var num_stages: Int # number of stages in the pipeline
     var total_actors: Int # total number of actors in the pipeline (sum of parallelism degrees of all stages)
-    var ready_queue: UnsafePointer[MPMCQueue[ActorDescriptor], MutExternalOrigin] # ready queue for actors that are ready to run
-    var wq_inputs: UnsafePointer[MPMCQueue[ActorDescriptor], MutExternalOrigin] # array of wait queues for actors waiting on input 
-    var wq_outputs: UnsafePointer[MPMCQueue[ActorDescriptor], MutExternalOrigin] # array of wait queues for actors waiting on output
-    var actor_states: UnsafePointer[Atomic[DType.uint64], MutExternalOrigin] # array of atomic variables representing the state of each actor
-    var done_count: UnsafePointer[Atomic[DType.uint64], MutExternalOrigin] # count of actors that have finished execution
-    var actor_busy: UnsafePointer[Atomic[DType.uint64], MutExternalOrigin] # flag to indicate if an actor is currently being processed (for debugging)
+    var ready_queue: Pointer[MPMCQueue[ActorDescriptor], MutUntrackedOrigin] # ready queue for actors that are ready to run
+    var wq_inputs: Pointer[MPMCQueue[ActorDescriptor], MutUntrackedOrigin] # array of wait queues for actors waiting on input
+    var wq_outputs: Pointer[MPMCQueue[ActorDescriptor], MutUntrackedOrigin] # array of wait queues for actors waiting on output
+    var actor_states: Pointer[Atomic[DType.uint64], MutUntrackedOrigin] # array of atomic variables representing the state of each actor
+    var done_count: Pointer[Atomic[DType.uint64], MutUntrackedOrigin] # count of actors that have finished execution
+    var actor_busy: Pointer[Atomic[DType.uint64], MutUntrackedOrigin] # flag to indicate if an actor is currently being processed (for debugging)
 
     # constructor
     def __init__(out self, mut nodes: Tuple[*Self.Ts]) raises:
@@ -51,45 +53,45 @@ struct Scheduler[*Ts: NodeTrait]:
         self.total_actors = 0
         comptime for i in range(len(Self.Ts)):
             self.total_actors += nodes[i].parallelism()
-        self.ready_queue = alloc[MPMCQueue[ActorDescriptor]](1)
-        self.ready_queue.init_pointee_move(MPMCQueue[ActorDescriptor](1048576))
+        self.ready_queue = unsafe_alloc[MPMCQueue[ActorDescriptor]](1)
+        self.ready_queue.unsafe_write(MPMCQueue[ActorDescriptor](1048576))
         var flat_id = 0
         comptime for i in range(len(Self.Ts)): # i is the stage index
              var parDegree = nodes[i].parallelism()
              for j in range(parDegree): # j is the node index within the stage
                 self.ready_queue[].push(ActorDescriptor(stage_idx=i, replica_idx=j, flat_id=flat_id))
                 flat_id += 1
-        self.wq_inputs = alloc[MPMCQueue[ActorDescriptor]](self.num_stages)
-        self.wq_outputs = alloc[MPMCQueue[ActorDescriptor]](self.num_stages)
+        self.wq_inputs = unsafe_alloc[MPMCQueue[ActorDescriptor]](self.num_stages)
+        self.wq_outputs = unsafe_alloc[MPMCQueue[ActorDescriptor]](self.num_stages)
         for i in range(self.num_stages):
-            (self.wq_inputs + i).init_pointee_move(MPMCQueue[ActorDescriptor](1048576))
-            (self.wq_outputs + i).init_pointee_move(MPMCQueue[ActorDescriptor](1048576))
-        self.actor_states = alloc[Atomic[DType.uint64]](self.total_actors)
+            (self.wq_inputs.unsafe_offset(i)).unsafe_write(MPMCQueue[ActorDescriptor](1048576))
+            (self.wq_outputs.unsafe_offset(i)).unsafe_write(MPMCQueue[ActorDescriptor](1048576))
+        self.actor_states = unsafe_alloc[Atomic[DType.uint64]](self.total_actors)
         for i in range(self.total_actors):
-            (self.actor_states+i)[] = Atomic[DType.uint64](ActorStatus.READY)
-        self.done_count = alloc[Atomic[DType.uint64]](1)
+            (self.actor_states.unsafe_offset(i))[] = Atomic[DType.uint64](ActorStatus.READY)
+        self.done_count = unsafe_alloc[Atomic[DType.uint64]](1)
         self.done_count[] = Atomic[DType.uint64](0)
-        self.actor_busy = alloc[Atomic[DType.uint64]](self.total_actors)
+        self.actor_busy = unsafe_alloc[Atomic[DType.uint64]](self.total_actors)
         for i in range(self.total_actors):
-            (self.actor_busy+i)[] = Atomic[DType.uint64](0)
+            (self.actor_busy.unsafe_offset(i))[] = Atomic[DType.uint64](0)
 
     # destructor
-    def __del__(deinit self):
-        self.ready_queue.destroy_pointee()
-        self.ready_queue.free()
+    def __deinit__(deinit self):
+        self.ready_queue.unsafe_deinit_pointee()
+        self.ready_queue.unsafe_free()
         for i in range(self.num_stages):
-            (self.wq_inputs + i).destroy_pointee()
-            (self.wq_outputs + i).destroy_pointee()
-        self.wq_inputs.free()
-        self.wq_outputs.free()
+            (self.wq_inputs.unsafe_offset(i)).unsafe_deinit_pointee()
+            (self.wq_outputs.unsafe_offset(i)).unsafe_deinit_pointee()
+        self.wq_inputs.unsafe_free()
+        self.wq_outputs.unsafe_free()
         for i in range(self.total_actors):
-            (self.actor_states + i).destroy_pointee()
-        self.actor_states.free()
-        self.done_count.destroy_pointee()
-        self.done_count.free()
+            (self.actor_states.unsafe_offset(i)).unsafe_deinit_pointee()
+        self.actor_states.unsafe_free()
+        self.done_count.unsafe_deinit_pointee()
+        self.done_count.unsafe_free()
         for i in range(self.total_actors):
-            (self.actor_busy + i).destroy_pointee()
-        self.actor_busy.free()
+            (self.actor_busy.unsafe_offset(i)).unsafe_deinit_pointee()
+        self.actor_busy.unsafe_free()
 
     # start the scheduler
     def start(mut self, mut nodes: Tuple[*Self.Ts], n_workers: Int, mut pinning_handler: Pinning):
@@ -111,7 +113,7 @@ struct Scheduler[*Ts: NodeTrait]:
     # try to start an actor, return true if successful, false otherwise
     def try_start_actor(mut self, actor: ActorDescriptor) -> Bool:
         var expected = ActorStatus.READY
-        return self.actor_states[actor.flat_id].compare_exchange[
+        return self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
             success_ordering=Ordering.ACQUIRE,
             failure_ordering=Ordering.RELAXED]
             (expected, ActorStatus.RUNNING)
@@ -119,7 +121,7 @@ struct Scheduler[*Ts: NodeTrait]:
     # mark an actor as finished and ready to run again
     def mark_ready(mut self, actor: ActorDescriptor):
         var expected = ActorStatus.RUNNING
-        if self.actor_states[actor.flat_id].compare_exchange[
+        if self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
             success_ordering=Ordering.RELEASE,
             failure_ordering=Ordering.RELAXED]
             (expected, ActorStatus.READY):
@@ -128,7 +130,7 @@ struct Scheduler[*Ts: NodeTrait]:
     # mark an actor as done
     def mark_done(mut self, actor: ActorDescriptor):
         var expected = ActorStatus.RUNNING
-        if self.actor_states[actor.flat_id].compare_exchange[
+        if self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
             success_ordering=Ordering.RELEASE,
             failure_ordering=Ordering.RELAXED]
             (expected, ActorStatus.DONE):
@@ -137,7 +139,7 @@ struct Scheduler[*Ts: NodeTrait]:
     # set an actor as busy (to protect parking logic)
     def set_busy(mut self, actor: ActorDescriptor) raises:
         var expected = UInt64(0) # non-busy
-        if not self.actor_busy[actor.flat_id].compare_exchange[
+        if not self.actor_busy[unsafe_offset=actor.flat_id].compare_exchange[
             success_ordering=Ordering.ACQUIRE_RELEASE, # ordering is safer, RELEASE should be still fine
             failure_ordering=Ordering.RELAXED]
             (expected, UInt64(1)): # busy
@@ -146,7 +148,7 @@ struct Scheduler[*Ts: NodeTrait]:
 
     def set_not_busy(mut self, actor: ActorDescriptor) raises:
         var expected = UInt64(1) # busy
-        if not self.actor_busy[actor.flat_id].compare_exchange[
+        if not self.actor_busy[unsafe_offset=actor.flat_id].compare_exchange[
             success_ordering=Ordering.RELEASE,
             failure_ordering=Ordering.RELAXED]
             (expected, UInt64(0)): # non-busy
@@ -155,7 +157,7 @@ struct Scheduler[*Ts: NodeTrait]:
 
     # spin until the actor is not busy
     def spin_until_not_busy(mut self, actor: ActorDescriptor):
-        while self.actor_busy[actor.flat_id].load[ordering=Ordering.ACQUIRE]() == UInt64(1):
+        while self.actor_busy[unsafe_offset=actor.flat_id].load[ordering=Ordering.ACQUIRE]() == UInt64(1):
             continue
 
     # process an actor: static dispatching
@@ -182,7 +184,7 @@ struct Scheduler[*Ts: NodeTrait]:
     # mark a blocked actor as ready to run
     def mark_blocked_ready(mut self, actor: ActorDescriptor, blocked_state: UInt64):
         var expected = blocked_state
-        if self.actor_states[actor.flat_id].compare_exchange[
+        if self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
             success_ordering=Ordering.RELEASE,
             failure_ordering=Ordering.RELAXED,
         ](expected, ActorStatus.READY):
@@ -215,12 +217,12 @@ struct Scheduler[*Ts: NodeTrait]:
     # try to wake an actor waiting on its input queue
     def wake_one_input_waiter(mut self, comm_idx: Int):
         while True:
-            var maybe_actor = self.wq_inputs[comm_idx].try_pop()
+            var maybe_actor = self.wq_inputs[unsafe_offset=comm_idx].try_pop()
             if not maybe_actor:
                 return
             var actor = maybe_actor.take()
             var expected = ActorStatus.BLOCKED_INPUT
-            if self.actor_states[actor.flat_id].compare_exchange[
+            if self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
                 success_ordering=Ordering.ACQUIRE_RELEASE,
                 failure_ordering=Ordering.RELAXED]
                 (expected, ActorStatus.READY):
@@ -230,12 +232,12 @@ struct Scheduler[*Ts: NodeTrait]:
     # try to wake all actors waiting on the same input queue
     def wake_all_input_waiters(mut self, comm_idx: Int):
         while True:
-            var maybe_actor = self.wq_inputs[comm_idx].try_pop()
+            var maybe_actor = self.wq_inputs[unsafe_offset=comm_idx].try_pop()
             if not maybe_actor:
                 return
             var actor = maybe_actor.take()
             var expected = ActorStatus.BLOCKED_INPUT
-            if self.actor_states[actor.flat_id].compare_exchange[
+            if self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
                 success_ordering=Ordering.ACQUIRE_RELEASE,
                 failure_ordering=Ordering.RELAXED]
                 (expected, ActorStatus.READY):
@@ -254,12 +256,12 @@ struct Scheduler[*Ts: NodeTrait]:
     # try to wake an actor waiting on its output queue
     def wake_one_output_waiter(mut self, comm_idx: Int):
         while True:
-            var maybe_actor = self.wq_outputs[comm_idx].try_pop()
+            var maybe_actor = self.wq_outputs[unsafe_offset=comm_idx].try_pop()
             if not maybe_actor:
                 return
             var actor = maybe_actor.take()
             var expected = ActorStatus.BLOCKED_OUTPUT
-            if self.actor_states[actor.flat_id].compare_exchange[
+            if self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
                 success_ordering=Ordering.ACQUIRE_RELEASE,
                 failure_ordering=Ordering.RELAXED]
                 (expected, ActorStatus.READY):
@@ -269,12 +271,12 @@ struct Scheduler[*Ts: NodeTrait]:
     # force waiting some actors on the input queue to make room for new waiters
     def try_make_room_input(mut self, comm_idx: Int, max_pops: Int):
         for _ in range(max_pops):
-            var maybe_actor = self.wq_inputs[comm_idx].try_pop()
+            var maybe_actor = self.wq_inputs[unsafe_offset=comm_idx].try_pop()
             if not maybe_actor:
                 return
             var stale = maybe_actor.take()
             var expected = ActorStatus.BLOCKED_INPUT
-            if self.actor_states[stale.flat_id].compare_exchange[
+            if self.actor_states[unsafe_offset=stale.flat_id].compare_exchange[
                 success_ordering=Ordering.ACQUIRE_RELEASE,
                 failure_ordering=Ordering.RELAXED]
                 (expected, ActorStatus.READY):
@@ -284,12 +286,12 @@ struct Scheduler[*Ts: NodeTrait]:
     # force waiting some actors on the output queue to make room for new waiters
     def try_make_room_output(mut self, comm_idx: Int, max_pops: Int):
         for _ in range(max_pops):
-            var maybe_actor = self.wq_outputs[comm_idx].try_pop()
+            var maybe_actor = self.wq_outputs[unsafe_offset=comm_idx].try_pop()
             if not maybe_actor:
                 return
             var stale = maybe_actor.take()
             var expected = ActorStatus.BLOCKED_OUTPUT
-            if self.actor_states[stale.flat_id].compare_exchange[
+            if self.actor_states[unsafe_offset=stale.flat_id].compare_exchange[
                 success_ordering=Ordering.ACQUIRE_RELEASE,
                 failure_ordering=Ordering.RELAXED]
                 (expected, ActorStatus.READY):
@@ -304,16 +306,16 @@ struct Scheduler[*Ts: NodeTrait]:
         var comm_idx = self.input_wait_queue_idx(actor)
         self.set_busy(actor) # protect
         var expected = ActorStatus.RUNNING
-        if not self.actor_states[actor.flat_id].compare_exchange[
+        if not self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
             success_ordering=Ordering.RELEASE,
             failure_ordering=Ordering.RELAXED]
             (expected, ActorStatus.BLOCKED_INPUT):
             self.set_not_busy(actor) # unprotect
             return
-        var not_queued = self.wq_inputs[comm_idx].try_push(actor)
+        var not_queued = self.wq_inputs[unsafe_offset=comm_idx].try_push(actor)
         if not_queued:
             self.try_make_room_input(comm_idx, 8)
-            not_queued = self.wq_inputs[comm_idx].try_push(actor)
+            not_queued = self.wq_inputs[unsafe_offset=comm_idx].try_push(actor)
         if not_queued:
             self.mark_blocked_ready(actor, ActorStatus.BLOCKED_INPUT)
             self.set_not_busy(actor) # unprotect
@@ -332,16 +334,16 @@ struct Scheduler[*Ts: NodeTrait]:
         var comm_idx = self.output_wait_queue_idx(actor)
         self.set_busy(actor) # protect
         var expected = ActorStatus.RUNNING
-        if not self.actor_states[actor.flat_id].compare_exchange[
+        if not self.actor_states[unsafe_offset=actor.flat_id].compare_exchange[
             success_ordering=Ordering.RELEASE,
             failure_ordering=Ordering.RELAXED]
             (expected, ActorStatus.BLOCKED_OUTPUT):
             self.set_not_busy(actor) # unprotect
             return
-        var not_queued = self.wq_outputs[comm_idx].try_push(actor)
+        var not_queued = self.wq_outputs[unsafe_offset=comm_idx].try_push(actor)
         if not_queued:
             self.try_make_room_output(comm_idx, 8)
-            not_queued = self.wq_outputs[comm_idx].try_push(actor)
+            not_queued = self.wq_outputs[unsafe_offset=comm_idx].try_push(actor)
         if not_queued:
             self.mark_blocked_ready(actor, ActorStatus.BLOCKED_OUTPUT)
             self.set_not_busy(actor) # unprotect
@@ -390,8 +392,7 @@ struct Scheduler[*Ts: NodeTrait]:
                 self.wake_downstream_input_waiters(actor)
 
     # main worker loop
-    async
-    def worker_loop(mut self, mut nodes: Tuple[*Self.Ts], core_id: Int, mut pinning_handler: Pinning):
+    async def worker_loop(mut self, mut nodes: Tuple[*Self.Ts], core_id: Int, mut pinning_handler: Pinning):
         try:
             # pinning of the underlying thread if pinning is enabled
             if (core_id >= 0):

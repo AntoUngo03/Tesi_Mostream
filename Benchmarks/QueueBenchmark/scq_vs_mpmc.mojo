@@ -1,4 +1,5 @@
-from std.algorithm import parallelize
+from std.memory.alloc import unsafe_alloc
+from std.runtime.asyncrt import TaskGroup
 from std.atomic import Atomic, Ordering
 from std.sys import argv
 from std.time import perf_counter_ns
@@ -18,7 +19,7 @@ def expected_checksum(messages: Int, producers: Int) -> UInt64:
 
 def print_result(
     name: String,
-    elapsed_ns: UInt,
+    elapsed_ns: Int,
     messages: Int,
     producers: Int,
     consumers: Int,
@@ -48,15 +49,15 @@ def run_mpmc(
 ) raises:
     var queue = MPMCQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(thread_id: Int):
+    async def worker(thread_id: Int):
         # parallelize assegna un ID distinto a ogni producer/consumer. I range
         # prodotti sono disgiunti, rendendo noto checksum e numero di messaggi.
         if thread_id < producers:
@@ -78,39 +79,43 @@ def run_mpmc(
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer] = count
-                    checksums[consumer] = checksum
+                    counts[unsafe_offset=consumer] = count
+                    checksums[unsafe_offset=consumer] = checksum
                     return
                 count += 1
                 checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
     var elapsed = perf_counter_ns() - start
     var count: UInt64 = 0
     var checksum: UInt64 = 0
     for i in range(consumers):
-        count += counts[i]
-        checksum += checksums[i]
+        count += counts[unsafe_offset=i]
+        checksum += checksums[unsafe_offset=i]
     print_result(
         "MPMC", elapsed, messages, producers, consumers, capacity,
         count, checksum,
     )
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def run_scq(messages: Int, producers: Int, consumers: Int, capacity: Int):
     var queue = SCQQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(thread_id: Int):
+    async def worker(thread_id: Int):
         if thread_id < producers:
             var base = thread_id * messages
             for i in range(messages):
@@ -128,25 +133,29 @@ def run_scq(messages: Int, producers: Int, consumers: Int, capacity: Int):
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer] = count
-                    checksums[consumer] = checksum
+                    counts[unsafe_offset=consumer] = count
+                    checksums[unsafe_offset=consumer] = checksum
                     return
                 count += 1
                 checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
     var elapsed = perf_counter_ns() - start
     var count: UInt64 = 0
     var checksum: UInt64 = 0
     for i in range(consumers):
-        count += counts[i]
-        checksum += checksums[i]
+        count += counts[unsafe_offset=i]
+        checksum += checksums[unsafe_offset=i]
     print_result(
         "SCQ", elapsed, messages, producers, consumers, capacity,
         count, checksum,
     )
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def main() raises:

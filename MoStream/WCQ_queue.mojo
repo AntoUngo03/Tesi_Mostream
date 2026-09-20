@@ -33,7 +33,7 @@ from MoStream.utils import print_red_color
 struct WCQQueue(Movable):
     """Fixed-capacity MPMC wCQ adapter for UInt64 values."""
 
-    comptime Handle = UnsafePointer[UInt8, MutExternalOrigin]
+    comptime Handle = Pointer[UInt8, MutUntrackedOrigin]
     comptime SUCCESS = 1
     comptime WOULD_BLOCK = 0
 
@@ -62,7 +62,7 @@ struct WCQQueue(Movable):
         var status = external_call["mostream_wcq_u64_create", c_int](
             c_ulong(capacity),
             c_ulong(max_threads),
-            UnsafePointer(to=self.handle),
+            Pointer(to=self.handle),
         )
         if status != 0:
             print_red_color(
@@ -71,12 +71,12 @@ struct WCQQueue(Movable):
             )
             exit(1)
 
-    def __init__(out self, *, deinit take: Self):
-        self.handle = take.handle
-        self.queue_capacity = take.queue_capacity
-        self.max_threads = take.max_threads
+    def __init__(out self, *, deinit move: Self):
+        self.handle = move.handle
+        self.queue_capacity = move.queue_capacity
+        self.max_threads = move.max_threads
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         external_call["mostream_wcq_u64_destroy", NoneType](self.handle)
 
     @always_inline
@@ -106,7 +106,7 @@ struct WCQQueue(Movable):
         var value: UInt64 = 0
         var status = external_call[
             "mostream_wcq_u64_try_dequeue", c_int
-        ](self.handle, c_ulong(thread_id), UnsafePointer(to=value))
+        ](self.handle, c_ulong(thread_id), Pointer(to=value))
         if status == Self.SUCCESS:
             return Optional(value)
         if status == Self.WOULD_BLOCK:
@@ -118,7 +118,7 @@ struct WCQQueue(Movable):
     def pop(mut self, thread_id: Int) -> UInt64:
         var value: UInt64 = 0
         var status = external_call["mostream_wcq_u64_dequeue", c_int](
-            self.handle, c_ulong(thread_id), UnsafePointer(to=value)
+            self.handle, c_ulong(thread_id), Pointer(to=value)
         )
         if status != Self.SUCCESS:
             Self.fail_operation("pop", thread_id)

@@ -6,8 +6,9 @@
 # and sum all values, allowing the benchmark to detect lost or duplicated
 # messages after every run.
 
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
-from std.algorithm import parallelize
+from std.runtime.asyncrt import TaskGroup
 from std.sys import argv
 from std.time import perf_counter_ns
 
@@ -26,7 +27,7 @@ def expected_checksum(total: UInt64) -> UInt64:
 
 def print_result(
     name: String,
-    elapsed_ns: UInt,
+    elapsed_ns: Int,
     expected_count: UInt64,
     actual_count: UInt64,
     actual_checksum: UInt64,
@@ -62,15 +63,15 @@ def run_cas(
 ) raises:
     var queue = CASQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < producers:
             var base = index * messages
             for i in range(messages):
@@ -88,21 +89,25 @@ def run_cas(
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 local_count += 1
                 local_checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
 
     var elapsed = perf_counter_ns() - start
     var total = UInt64(messages * producers)
     var actual_count: UInt64 = 0
     var actual_checksum: UInt64 = 0
     for i in range(consumers):
-        actual_count += counts[i]
-        actual_checksum += checksums[i]
+        actual_count += counts[unsafe_offset=i]
+        actual_checksum += checksums[unsafe_offset=i]
     print_result(
         "CAS ",
         elapsed,
@@ -110,22 +115,22 @@ def run_cas(
         actual_count,
         actual_checksum,
     )
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def run_faa(messages: Int, producers: Int, consumers: Int, capacity: Int):
     var queue = FAAQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < producers:
             var base = index * messages
             for i in range(messages):
@@ -143,21 +148,25 @@ def run_faa(messages: Int, producers: Int, consumers: Int, capacity: Int):
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 local_count += 1
                 local_checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
 
     var elapsed = perf_counter_ns() - start
     var total = UInt64(messages * producers)
     var actual_count: UInt64 = 0
     var actual_checksum: UInt64 = 0
     for i in range(consumers):
-        actual_count += counts[i]
-        actual_checksum += checksums[i]
+        actual_count += counts[unsafe_offset=i]
+        actual_checksum += checksums[unsafe_offset=i]
     print_result(
         "FAA ",
         elapsed,
@@ -165,8 +174,8 @@ def run_faa(messages: Int, producers: Int, consumers: Int, capacity: Int):
         actual_count,
         actual_checksum,
     )
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def run_hybrid[
@@ -174,15 +183,15 @@ def run_hybrid[
 ](messages: Int, producers: Int, consumers: Int, capacity: Int):
     var queue = HybridMPMCQueue[Int, threshold](capacity)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < producers:
             var base = index * messages
             for i in range(messages):
@@ -200,21 +209,25 @@ def run_hybrid[
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 local_count += 1
                 local_checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
 
     var elapsed = perf_counter_ns() - start
     var total = UInt64(messages * producers)
     var actual_count: UInt64 = 0
     var actual_checksum: UInt64 = 0
     for i in range(consumers):
-        actual_count += counts[i]
-        actual_checksum += checksums[i]
+        actual_count += counts[unsafe_offset=i]
+        actual_checksum += checksums[unsafe_offset=i]
     print_result(
         "HYBRID" + String(threshold) + " ",
         elapsed,
@@ -222,8 +235,8 @@ def run_hybrid[
         actual_count,
         actual_checksum,
     )
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def run_padded_faa(
@@ -231,15 +244,15 @@ def run_padded_faa(
 ):
     var queue = PaddedFAAQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < producers:
             var base = index * messages
             for i in range(messages):
@@ -257,37 +270,41 @@ def run_padded_faa(
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 local_count += 1
                 local_checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
     var elapsed = perf_counter_ns() - start
     var total = UInt64(messages * producers)
     var actual_count: UInt64 = 0
     var actual_checksum: UInt64 = 0
     for i in range(consumers):
-        actual_count += counts[i]
-        actual_checksum += checksums[i]
+        actual_count += counts[unsafe_offset=i]
+        actual_checksum += checksums[unsafe_offset=i]
     print_result("PADDEDFAA ", elapsed, total, actual_count, actual_checksum)
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def run_rigtorp(messages: Int, producers: Int, consumers: Int, capacity: Int):
     var queue = RigtorpMPMCQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < producers:
             var base = index * messages
             for i in range(messages):
@@ -305,23 +322,27 @@ def run_rigtorp(messages: Int, producers: Int, consumers: Int, capacity: Int):
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 local_count += 1
                 local_checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
     var elapsed = perf_counter_ns() - start
     var total = UInt64(messages * producers)
     var actual_count: UInt64 = 0
     var actual_checksum: UInt64 = 0
     for i in range(consumers):
-        actual_count += counts[i]
-        actual_checksum += checksums[i]
+        actual_count += counts[unsafe_offset=i]
+        actual_checksum += checksums[unsafe_offset=i]
     print_result("RIGTORP ", elapsed, total, actual_count, actual_checksum)
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def run_bounded_lprq(
@@ -329,15 +350,15 @@ def run_bounded_lprq(
 ):
     var queue = BoundedLPRQInspired[Int](capacity)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < producers:
             var base = index * messages
             for i in range(messages):
@@ -355,20 +376,24 @@ def run_bounded_lprq(
             while True:
                 var value = queue.pop()
                 if value == -1:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 local_count += 1
                 local_checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
     var elapsed = perf_counter_ns() - start
     var total = UInt64(messages * producers)
     var actual_count: UInt64 = 0
     var actual_checksum: UInt64 = 0
     for i in range(consumers):
-        actual_count += counts[i]
-        actual_checksum += checksums[i]
+        actual_count += counts[unsafe_offset=i]
+        actual_checksum += checksums[unsafe_offset=i]
     if actual_count != total or actual_checksum != expected_checksum(total):
         print(
             "  BLPRQ post-run head/tail/full:",
@@ -378,8 +403,8 @@ def run_bounded_lprq(
         )
         queue.debug_dump_cells()
     print_result("BLPRQ ", elapsed, total, actual_count, actual_checksum)
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def run_wcq(messages: Int, producers: Int, consumers: Int, capacity: Int):
@@ -388,15 +413,15 @@ def run_wcq(messages: Int, producers: Int, consumers: Int, capacity: Int):
     # can be used directly as thread IDs.
     var queue = WCQQueue(capacity, producers + consumers)
     var finished = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](consumers)
-    var checksums = alloc[UInt64](consumers)
+    var counts = unsafe_alloc[UInt64](consumers)
+    var checksums = unsafe_alloc[UInt64](consumers)
     for i in range(consumers):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
     var start = perf_counter_ns()
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < producers:
             var base = index * messages
             for i in range(messages):
@@ -414,23 +439,27 @@ def run_wcq(messages: Int, producers: Int, consumers: Int, capacity: Int):
             while True:
                 var value = queue.pop(index)
                 if value == UInt64.MAX:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 local_count += 1
                 local_checksum += UInt64(value)
 
-    parallelize[worker](producers + consumers)
+    var tasks = TaskGroup()
+    for worker_id in range(producers + consumers):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
     var elapsed = perf_counter_ns() - start
     var total = UInt64(messages * producers)
     var actual_count: UInt64 = 0
     var actual_checksum: UInt64 = 0
     for i in range(consumers):
-        actual_count += counts[i]
-        actual_checksum += checksums[i]
+        actual_count += counts[unsafe_offset=i]
+        actual_checksum += checksums[unsafe_offset=i]
     print_result("WCQ ", elapsed, total, actual_count, actual_checksum)
-    counts.free()
-    checksums.free()
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
 
 def main() raises:

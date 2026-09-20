@@ -16,7 +16,7 @@
 from MoStream.stage import StageKind, StageTrait
 from MoStream.communicator import MessageTrait, Communicator, MessageWrapper
 from MoStream.utils import print_red_color
-from MoStream.emitter import Emitter, EmitterState
+from MoStream.emitter import Emitter
 
 # The actor activation might produce one of the following statuses:
 struct ActorStatus:
@@ -28,10 +28,10 @@ struct ActorStatus:
     comptime ERROR: UInt64 = 5 # error, will not be scheduled again
 
 # An actor associated with a pipeline node
-struct Actor[StageT: StageTrait](Movable & ImplicitlyDestructible):
+struct Actor[StageT: StageTrait](Movable & Deinitable):
     var stage: Self.StageT
-    var in_comm: UnsafePointer[Communicator[Self.StageT.InType], MutAnyOrigin]
-    var out_comm: UnsafePointer[Communicator[Self.StageT.OutType], MutAnyOrigin]
+    var in_comm: Pointer[Communicator[Self.StageT.InType], MutUntrackedOrigin]
+    var out_comm: Pointer[Communicator[Self.StageT.OutType], MutUntrackedOrigin]
     var pending_input: Optional[MessageWrapper[Self.StageT.InType]]
     var pending_output: Optional[MessageWrapper[Self.StageT.OutType]]
     var done: Bool
@@ -39,11 +39,13 @@ struct Actor[StageT: StageTrait](Movable & ImplicitlyDestructible):
     # constructor
     def __init__(out self,
                 stage: Self.StageT,
-                in_comm: UnsafePointer[mut=True, Communicator[Self.StageT.InType], _],
-                out_comm: UnsafePointer[mut=True, Communicator[Self.StageT.OutType], _]):
+                in_comm: Pointer[mut=True, Communicator[Self.StageT.InType], _],
+                out_comm: Pointer[mut=True, Communicator[Self.StageT.OutType], _]):
         self.stage = stage.copy()
-        self.in_comm = in_comm
-        self.out_comm = out_comm
+        # Communicators are heap allocated by Pipeline and released only by
+        # the last consumer after EOS; they outlive these actor accesses.
+        self.in_comm = in_comm.unsafe_origin_cast[MutUntrackedOrigin]()
+        self.out_comm = out_comm.unsafe_origin_cast[MutUntrackedOrigin]()
         self.pending_input = None
         self.pending_output = None
         self.done = False
@@ -106,8 +108,8 @@ struct Actor[StageT: StageTrait](Movable & ImplicitlyDestructible):
             self.stage.received_eos()
             # try to destroy the input communicator
             if (self.in_comm[].check_isDestroyable()):
-                self.in_comm.destroy_pointee()
-                self.in_comm.free()
+                self.in_comm.unsafe_deinit_pointee()
+                self.in_comm.unsafe_free()
             return ActorStatus.DONE
         var maybe_output = self.stage.compute(rebind[MessageWrapper[Self.StageT.InType]](input).data.take())
         if maybe_output:
@@ -131,8 +133,8 @@ struct Actor[StageT: StageTrait](Movable & ImplicitlyDestructible):
             self.stage.received_eos()
             # try to destroy the input communicator
             if (self.in_comm[].check_isDestroyable()):
-                self.in_comm.destroy_pointee()
-                self.in_comm.free()
+                self.in_comm.unsafe_deinit_pointee()
+                self.in_comm.unsafe_free()
             return ActorStatus.DONE
         self.stage.consume_element(rebind[MessageWrapper[Self.StageT.InType]](input).data.take())
         return ActorStatus.READY

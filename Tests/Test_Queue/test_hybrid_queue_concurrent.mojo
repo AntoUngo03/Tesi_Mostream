@@ -1,4 +1,5 @@
-from std.algorithm import parallelize
+from std.memory.alloc import unsafe_alloc
+from std.runtime.asyncrt import TaskGroup
 from std.atomic import Atomic, Ordering
 from MoStream.Hybrid_queue import HybridMPMCQueue
 
@@ -11,14 +12,14 @@ comptime MESSAGES_PER_PRODUCER = 250_000
 def main():
     var queue = HybridMPMCQueue[Int](1024)
     var finished_producers = Atomic[DType.uint64](0)
-    var counts = alloc[UInt64](CONSUMERS)
-    var checksums = alloc[UInt64](CONSUMERS)
+    var counts = unsafe_alloc[UInt64](CONSUMERS)
+    var checksums = unsafe_alloc[UInt64](CONSUMERS)
     for i in range(CONSUMERS):
-        counts[i] = 0
-        checksums[i] = 0
+        counts[unsafe_offset=i] = 0
+        checksums[unsafe_offset=i] = 0
 
     @parameter
-    def worker(index: Int):
+    async def worker(index: Int):
         if index < PRODUCERS:
             var base = index * MESSAGES_PER_PRODUCER
             for i in range(MESSAGES_PER_PRODUCER):
@@ -36,21 +37,25 @@ def main():
             while True:
                 var item = queue.pop()
                 if item == -1:
-                    counts[consumer_id] = local_count
-                    checksums[consumer_id] = local_checksum
+                    counts[unsafe_offset=consumer_id] = local_count
+                    checksums[unsafe_offset=consumer_id] = local_checksum
                     return
                 local_count += 1
                 local_checksum += UInt64(item)
 
-    parallelize[worker](PRODUCERS + CONSUMERS)
+    var tasks = TaskGroup()
+    for worker_id in range(PRODUCERS + CONSUMERS):
+        tasks.create_task(worker(worker_id))
+    tasks.wait()
+    _ = queue  # Legacy task captures must not outlive the queue allocation.
 
     var count: UInt64 = 0
     var checksum: UInt64 = 0
     for i in range(CONSUMERS):
-        count += counts[i]
-        checksum += checksums[i]
-    counts.free()
-    checksums.free()
+        count += counts[unsafe_offset=i]
+        checksum += checksums[unsafe_offset=i]
+    counts.unsafe_free()
+    checksums.unsafe_free()
 
     var expected_count = UInt64(PRODUCERS * MESSAGES_PER_PRODUCER)
     var expected_checksum = (expected_count * (expected_count - 1)) // 2

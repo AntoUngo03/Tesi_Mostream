@@ -1,6 +1,7 @@
 # Mojo port of Erik Rigtorp's bounded MPMCQueue turn-based algorithm.
 # Original: https://github.com/rigtorp/MPMCQueue (MIT license).
 
+from std.memory.alloc import unsafe_alloc
 from std.atomic import Atomic, Ordering
 from std.collections import Optional
 from std.sys.info import size_of
@@ -12,15 +13,15 @@ struct PaddedAtomicU64:
     comptime CACHE_LINE = 64
     comptime PAD = Self.CACHE_LINE - size_of[Atomic[DType.uint64]]()
     var value: Atomic[DType.uint64]
-    var padding: InlineArray[UInt8, Self.PAD]
+    var padding: Array[UInt8, Self.PAD]
 
     def __init__(out self, initial: UInt64):
         self.value = Atomic[DType.uint64](initial)
-        self.padding = InlineArray[UInt8, Self.PAD](uninitialized=True)
+        self.padding = Array[UInt8, Self.PAD](uninitialized=True)
 
 
 # Rigtorp isolates adjacent slot turn counters on different cache lines.
-struct RigtorpSlot[T: Copyable](Movable):
+struct RigtorpSlot[T: Copyable & Deinitable](Movable):
     comptime CACHE_LINE = 64
     comptime USED = (
         size_of[Atomic[DType.uint64]]() + size_of[Optional[Self.T]]()
@@ -29,23 +30,23 @@ struct RigtorpSlot[T: Copyable](Movable):
 
     var turn: Atomic[DType.uint64]
     var data: Optional[Self.T]
-    var padding: InlineArray[UInt8, Self.PAD]
+    var padding: Array[UInt8, Self.PAD]
 
     def __init__(out self):
         self.turn = Atomic[DType.uint64](0)
         self.data = Optional[Self.T](None)
-        self.padding = InlineArray[UInt8, Self.PAD](uninitialized=True)
+        self.padding = Array[UInt8, Self.PAD](uninitialized=True)
 
-    def __init__(out self, *, deinit take: Self):
-        var turn = take.turn.load[ordering=Ordering.RELAXED]()
+    def __init__(out self, *, deinit move: Self):
+        var turn = move.turn.load[ordering=Ordering.RELAXED]()
         self.turn = Atomic[DType.uint64](turn)
-        self.data = take.data^
-        self.padding = InlineArray[UInt8, Self.PAD](uninitialized=True)
+        self.data = move.data^
+        self.padding = Array[UInt8, Self.PAD](uninitialized=True)
 
 
-struct RigtorpMPMCQueue[T: Copyable](Movable):
-    comptime SlotPointer = UnsafePointer[
-        RigtorpSlot[Self.T], MutExternalOrigin
+struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
+    comptime SlotPointer = Pointer[
+        RigtorpSlot[Self.T], MutUntrackedOrigin
     ]
 
     var raw_buffer: Self.SlotPointer
@@ -63,30 +64,30 @@ struct RigtorpMPMCQueue[T: Copyable](Movable):
             exit(1)
 
         self.capacity = UInt64(capacity)
-        self.raw_buffer = alloc[RigtorpSlot[Self.T]](
+        self.raw_buffer = unsafe_alloc[RigtorpSlot[Self.T]](
             capacity, alignment=64
         )
         self.slots = self.raw_buffer
         self.head = PaddedAtomicU64(0)
         self.tail = PaddedAtomicU64(0)
         for i in range(capacity):
-            (self.slots + i).init_pointee_move(RigtorpSlot[Self.T]())
+            (self.slots.unsafe_offset(i)).unsafe_write(RigtorpSlot[Self.T]())
 
 
-    def __init__(out self, *, deinit take: Self):
-        var head = take.head.value.load[ordering=Ordering.RELAXED]()
-        var tail = take.tail.value.load[ordering=Ordering.RELAXED]()
-        self.raw_buffer = take.raw_buffer
-        self.slots = take.slots
-        self.capacity = take.capacity
+    def __init__(out self, *, deinit move: Self):
+        var head = move.head.value.load[ordering=Ordering.RELAXED]()
+        var tail = move.tail.value.load[ordering=Ordering.RELAXED]()
+        self.raw_buffer = move.raw_buffer
+        self.slots = move.slots
+        self.capacity = move.capacity
         self.head = PaddedAtomicU64(head)
         self.tail = PaddedAtomicU64(tail)
 
 
-    def __del__(deinit self):
+    def __deinit__(deinit self):
         for i in range(Int(self.capacity)):
-            (self.slots + i).destroy_pointee()
-        self.raw_buffer.free()
+            (self.slots.unsafe_offset(i)).unsafe_deinit_pointee()
+        self.raw_buffer.unsafe_free()
 
 
     @always_inline
@@ -104,7 +105,7 @@ struct RigtorpMPMCQueue[T: Copyable](Movable):
         var ticket = self.head.value.fetch_add[
             ordering=Ordering.SEQUENTIAL
         ](1)
-        var slot = self.slots + self.index(ticket)
+        var slot = self.slots.unsafe_offset(self.index(ticket))
         var expected_turn = self.cycle(ticket) * 2
         while slot[].turn.load[
             ordering=Ordering.ACQUIRE
@@ -112,14 +113,14 @@ struct RigtorpMPMCQueue[T: Copyable](Movable):
             pass
         slot[].data = Optional(item^)
         Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
-            UnsafePointer(to=slot[].turn.value), expected_turn + 1
+            Pointer(to=slot[].turn.value), expected_turn + 1
         )
 
 
     def try_push(mut self, var item: Self.T) -> Optional[Self.T]:
         var ticket = self.head.value.load[ordering=Ordering.ACQUIRE]()
         while True:
-            var slot = self.slots + self.index(ticket)
+            var slot = self.slots.unsafe_offset(self.index(ticket))
             var expected_turn = self.cycle(ticket) * 2
             if slot[].turn.load[
                 ordering=Ordering.ACQUIRE
@@ -131,7 +132,7 @@ struct RigtorpMPMCQueue[T: Copyable](Movable):
                 ](expected, ticket + 1):
                     slot[].data = Optional(item^)
                     Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
-                        UnsafePointer(to=slot[].turn.value), expected_turn + 1
+                        Pointer(to=slot[].turn.value), expected_turn + 1
                     )
                     return Optional[Self.T](None)
                 ticket = expected
@@ -146,7 +147,7 @@ struct RigtorpMPMCQueue[T: Copyable](Movable):
         var ticket = self.tail.value.fetch_add[
             ordering=Ordering.SEQUENTIAL
         ](1)
-        var slot = self.slots + self.index(ticket)
+        var slot = self.slots.unsafe_offset(self.index(ticket))
         var expected_turn = self.cycle(ticket) * 2 + 1
         while slot[].turn.load[
             ordering=Ordering.ACQUIRE
@@ -154,7 +155,7 @@ struct RigtorpMPMCQueue[T: Copyable](Movable):
             pass
         var item = slot[].data.take()
         Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
-            UnsafePointer(to=slot[].turn.value), expected_turn + 1
+            Pointer(to=slot[].turn.value), expected_turn + 1
         )
         return item^
 
@@ -162,7 +163,7 @@ struct RigtorpMPMCQueue[T: Copyable](Movable):
     def try_pop(mut self) -> Optional[Self.T]:
         var ticket = self.tail.value.load[ordering=Ordering.ACQUIRE]()
         while True:
-            var slot = self.slots + self.index(ticket)
+            var slot = self.slots.unsafe_offset(self.index(ticket))
             var expected_turn = self.cycle(ticket) * 2 + 1
             if slot[].turn.load[
                 ordering=Ordering.ACQUIRE
@@ -174,7 +175,7 @@ struct RigtorpMPMCQueue[T: Copyable](Movable):
                 ](expected, ticket + 1):
                     var item = slot[].data.take()
                     Atomic[DType.uint64].store[ordering=Ordering.RELEASE](
-                        UnsafePointer(to=slot[].turn.value), expected_turn + 1
+                        Pointer(to=slot[].turn.value), expected_turn + 1
                     )
                     return Optional(item^)
                 ticket = expected

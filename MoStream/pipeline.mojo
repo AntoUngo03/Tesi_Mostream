@@ -13,8 +13,10 @@
 #  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # ===------------------------------------------------------------------------=== #
 
+from std.memory.alloc import unsafe_alloc
 from std.runtime.asyncrt import create_task, TaskGroup, parallelism_level
 from MoStream.communicator import MessageTrait, Communicator
+from MoStream.stage import StageKind
 from MoStream.node import NodeTrait, seq, parallel
 from MoStream.emitter import Emitter
 from MoStream.runtime import executor_task
@@ -100,7 +102,7 @@ struct Pipeline[*Ts: NodeTrait]:
         path_lib += "/MoStream/lib/libpinning.so"
         self.pinning_handler = Pinning(path_lib)
         var mapping_str = getenv("MOSTREAM_PINNING", "")
-        mp = Python.import_module("multiprocessing")
+        var mp = Python.import_module("multiprocessing")
         self.pinning_handler.init_cores_list(mapping_str, Int(py=mp.cpu_count()))
         self.alreadyRun = False
 
@@ -110,13 +112,13 @@ struct Pipeline[*Ts: NodeTrait]:
                  M: MessageTrait]
                  (mut self,
                  mut tg: TaskGroup,
-                 in_comm: UnsafePointer[mut=True, Communicator[M], _]) raises:    
+                 in_comm: Pointer[mut=True, Communicator[M], _]) raises:
         var np = self.nodes[idx].parallelism() # parallelism of node idx
-        var out_comm = UnsafePointer[Communicator[Self.Ts[idx].StageT.OutType], MutExternalOrigin].unsafe_dangling()
+        var out_comm = Pointer[Communicator[Self.Ts[idx].StageT.OutType], MutUntrackedOrigin].unsafe_dangling()
         comptime if idx < Self.N-1:
             var nc = self.nodes[idx+1].parallelism()
-            out_comm = alloc[Communicator[Self.Ts[idx].StageT.OutType]](1)
-            out_comm.init_pointee_move(Communicator[Self.Ts[idx].StageT.OutType](pN=np, cN=nc, queue_size=self.queue_size))
+            out_comm = unsafe_alloc[Communicator[Self.Ts[idx].StageT.OutType]](1)
+            out_comm.unsafe_write(Communicator[Self.Ts[idx].StageT.OutType](pN=np, cN=nc, queue_size=self.queue_size))
         for _ in range(0, np):
             tg.create_task(executor_task[idx, length](self.nodes[idx],
                                                       in_comm,
@@ -143,7 +145,7 @@ struct Pipeline[*Ts: NodeTrait]:
         print_cyan_color("{MoStream} CPU pinning is " + pinning)
         print_cyan_color("{MoStream} Pipeline starts...")
         var tg = TaskGroup()
-        var first_comm = UnsafePointer[Communicator[Self.Ts[0].StageT.InType], MutExternalOrigin].unsafe_dangling()
+        var first_comm = Pointer[Communicator[Self.Ts[0].StageT.InType], MutUntrackedOrigin].unsafe_dangling()
         self._run_from[0, Self.N](tg, first_comm)
         tg.wait()
         print_cyan_color("{MoStream} ...terminated successfully!")
@@ -153,14 +155,14 @@ struct Pipeline[*Ts: NodeTrait]:
                              length: Int,
                              M: MessageTrait]
                              (mut self,
-                             in_comm: UnsafePointer[mut=True, Communicator[M], _]) raises:   
+                             in_comm: Pointer[mut=True, Communicator[M], _]) raises:
         var np = self.nodes[idx].parallelism() # parallelism of node idx
-        var out_comm = UnsafePointer[Communicator[Self.Ts[idx].StageT.OutType], MutExternalOrigin].unsafe_dangling()
+        var out_comm = Pointer[Communicator[Self.Ts[idx].StageT.OutType], MutUntrackedOrigin].unsafe_dangling()
         comptime if idx < Self.N-1:
             var nc = self.nodes[idx+1].parallelism()
-            out_comm = alloc[Communicator[Self.Ts[idx].StageT.OutType]](1)
-            out_comm.init_pointee_move(Communicator[Self.Ts[idx].StageT.OutType](pN=np, cN=nc, queue_size=self.queue_size))
-        in_c = rebind[UnsafePointer[Communicator[Self.Ts[idx].StageT.InType], MutAnyOrigin]](in_comm)
+            out_comm = unsafe_alloc[Communicator[Self.Ts[idx].StageT.OutType]](1)
+            out_comm.unsafe_write(Communicator[Self.Ts[idx].StageT.OutType](pN=np, cN=nc, queue_size=self.queue_size))
+        var in_c = rebind[Pointer[Communicator[Self.Ts[idx].StageT.InType], MutUntrackedOrigin]](in_comm)
         for _ in range(0, self.nodes[idx].parallelism()):
             self.nodes[idx].add_actor(Actor[Self.Ts[idx].StageT](stage=self.nodes[idx].make_stage(), in_comm=in_c, out_comm=out_comm))
         comptime if idx + 1 < Self.N:
@@ -178,9 +180,9 @@ struct Pipeline[*Ts: NodeTrait]:
         var pinning = "disabled"
         if self.pinning_handler.enabled:
             pinning = "enabled"
-        var in_comm = UnsafePointer[Communicator[Self.Ts[0].StageT.InType], MutExternalOrigin].unsafe_dangling()
-        out_comm = alloc[Communicator[Self.Ts[0].StageT.OutType]](1)
-        out_comm.init_pointee_move(Communicator[Self.Ts[0].StageT.OutType](pN=self.nodes[0].parallelism(), cN=self.nodes[1].parallelism(), queue_size=self.queue_size))
+        var in_comm = Pointer[Communicator[Self.Ts[0].StageT.InType], MutUntrackedOrigin].unsafe_dangling()
+        var out_comm = unsafe_alloc[Communicator[Self.Ts[0].StageT.OutType]](1)
+        out_comm.unsafe_write(Communicator[Self.Ts[0].StageT.OutType](pN=self.nodes[0].parallelism(), cN=self.nodes[1].parallelism(), queue_size=self.queue_size))
         for _ in range(0, self.nodes[0].parallelism()):
             self.nodes[0].add_actor(Actor[Self.Ts[0].StageT](stage=self.nodes[0].make_stage(), in_comm=in_comm, out_comm=out_comm))
         self._run_cooperative_from[1, Self.N](out_comm)
@@ -190,7 +192,7 @@ struct Pipeline[*Ts: NodeTrait]:
         print_cyan_color("{MoStream} Pipeline starts...")
         var scheduler = Scheduler(self.nodes)
         scheduler.start(self.nodes, n_workers, self.pinning_handler)
-        print_cyan_color("{MoStream} ...terminated successfully!")    
+        print_cyan_color("{MoStream} ...terminated successfully!")
 
     # enable/disable pinning for the pipeline threads
     def setPinning(mut self, enabled: Bool):
