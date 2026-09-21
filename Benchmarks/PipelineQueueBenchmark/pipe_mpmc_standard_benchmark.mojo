@@ -5,7 +5,7 @@ from std.sys import argv
 from std.time import perf_counter_ns
 
 from MoStream import Pipeline, StageKind, StageTrait, parallel
-from MoStream.pipeline_queue import USE_PADDED_FAA, USE_SCQ
+from MoStream.pipeline_queue import USE_PADDED_FAA, USE_SCQ, USE_MICHAEL_SCOTT, USE_NBLFQ
 
 # Pipeline intenzionalmente minimale per isolare il costo del comunicatore nel
 # runtime standard. `degree` crea lo stesso numero di producer e consumer:
@@ -124,7 +124,11 @@ def run_once(
     # Il backend e risolto a compile time: nessun branch viene eseguito nel
     # percorso caldo della coda.
     var backend = String("MPMC")
-    comptime if USE_SCQ:
+    comptime if USE_NBLFQ:
+        backend = String("NBLFQ")
+    elif USE_MICHAEL_SCOTT:
+        backend = String("MICHAELSCOTT")
+    elif USE_SCQ:
         backend = String("SCQ")
     elif USE_PADDED_FAA:
         backend = String("PADDEDFAA")

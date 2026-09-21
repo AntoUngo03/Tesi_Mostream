@@ -72,7 +72,6 @@ struct Cell[T: Copyable & Deinitable](Movable):
         self.data = move.data^
 
 # MPMC queue implementation based the algorithm by Dmitry Vyukov
-#   (https://www.1024cores.net/home/lock-free-algorithms/queues/bounded-mpmc-queue)
 struct MPMCQueue[T: Copyable & Deinitable](Movable):
     # Alias del tipo puntatore usato per accedere alle celle allocate a mano.
     comptime CellPointer = Pointer[Cell[Self.T], MutUntrackedOrigin]
@@ -153,7 +152,7 @@ struct MPMCQueue[T: Copyable & Deinitable](Movable):
             # del payload e sincronizzata separatamente tramite sequence.
             pw = self.enqueue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
             # Traduce il ticket crescente nell'indice del buffer circolare.
-            var cell_ptr = self.buffer.unsafe_offset((pw & self.mask))
+            var cell_ptr = self.buffer.unsafe_offset(Int(pw & self.mask))
             # ACQUIRE si sincronizza con il RELEASE dell'ultimo consumer che
             # ha liberato questa cella.
             seq = cell_ptr[].sequence.load[ordering=Ordering.ACQUIRE]()
@@ -188,7 +187,7 @@ struct MPMCQueue[T: Copyable & Deinitable](Movable):
         # Legge una sola volta il prossimo ticket producer.
         var pw = self.enqueue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
         # Trova la cella fisica associata al ticket.
-        var cell_ptr = self.buffer.unsafe_offset((pw & self.mask))
+        var cell_ptr = self.buffer.unsafe_offset(Int(pw & self.mask))
         # Legge lo stato pubblicato della cella.
         var seq = cell_ptr[].sequence.load[ordering=Ordering.ACQUIRE]()
         # Se le sequenze non coincidono, la cella non e libera per pw.
@@ -212,7 +211,7 @@ struct MPMCQueue[T: Copyable & Deinitable](Movable):
         # Continua a interrogare la coda quando questa appare vuota.
         while (True):
             # Esegue un tentativo non bloccante.
-            var item = self.try_pop()
+            item = self.try_pop()
             # Un Optional valorizzato indica che l'estrazione e riuscita.
             if item:
                 # Estrae e trasferisce il payload dall'Optional al chiamante.
@@ -232,7 +231,7 @@ struct MPMCQueue[T: Copyable & Deinitable](Movable):
             # Legge il prossimo ticket consumer senza imporre altro ordine.
             pr = self.dequeue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
             # Traduce il ticket nell'indice del buffer circolare.
-            var cell_ptr = self.buffer.unsafe_offset((pr & self.mask))
+            var cell_ptr = self.buffer.unsafe_offset(Int(pr & self.mask))
             # ACQUIRE si sincronizza con il RELEASE usato dal producer per
             # pubblicare il payload in questa cella.
             seq = cell_ptr[].sequence.load[ordering=Ordering.ACQUIRE]()

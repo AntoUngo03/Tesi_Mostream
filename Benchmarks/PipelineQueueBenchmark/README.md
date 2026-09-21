@@ -128,3 +128,38 @@ non bloccante, non il percorso FAA bloccante usato dal runtime standard.
 Conteggio e checksum sono controlli di sanità per perdita/duplicazione, non una
 prova formale di exact-once. I risultati della campagna del 22 luglio 2026 e le
 limitazioni osservate sono riassunti in `RESULTS.md`.
+
+## Confronto con Michael–Scott
+
+Il backend `-DMOSTREAM_MICHAEL_SCOTT=1` seleziona la variante bounded con pool
+preallocato e riuso dei nodi differito fino al completamento del consumer.
+Vedi [implementazione e test](../../Documentazione/Michael_Scott/README.md).
+
+`run_michael_scott.py` confronta MPMC, Padded-FAA, SCQ e Michael–Scott sulla
+pipeline cooperativa MPMC a due stage, a parità di attori e worker:
+
+```bash
+python3 Benchmarks/PipelineQueueBenchmark/run_michael_scott.py \
+  --elements 50000 --degree 4 --workers 1,2,4,8 --work 0,160 \
+  --warmups 2 --repetitions 12 --output /tmp/mostream-ms-comparison
+```
+
+I risultati della campagna inclusa nel repository sono in
+[MICHAEL_SCOTT_RESULTS.md](MICHAEL_SCOTT_RESULTS.md) e `michael_scott_results/`.
+Le vecchie campagne e il runner a due backend restano documentati sopra.
+
+## Confronto con Padico NBLFQ
+
+`-DMOSTREAM_NBLFQ=1` seleziona il port NBLFQ a 64 bit, con due ring di indici
+per gestire payload generici. Non seleziona la variante NBLFQ2 a 128 bit.
+Vedi [algoritmo, provenienza e test](../../Documentazione/Padico_NBLFQ/README.md).
+
+```bash
+python3 Benchmarks/PipelineQueueBenchmark/run_nblfq.py \
+  --elements 50000 --degree 4 --workers 1,2,4,8 --work 0,160 \
+  --warmups 2 --repetitions 10 --output /tmp/mostream-nblfq-comparison
+```
+
+Il confronto ricompila MPMC, Padded-FAA, SCQ, Michael–Scott e NBLFQ, bilanciando
+le cinque posizioni di esecuzione. I risultati sono in
+[NBLFQ_RESULTS.md](NBLFQ_RESULTS.md) e `nblfq_results/`.

@@ -7,7 +7,7 @@ from std.sys import argv
 from std.time import perf_counter_ns
 
 from MoStream import Pipeline, StageKind, StageTrait, parallel
-from MoStream.pipeline_queue import USE_PADDED_FAA, USE_SCQ
+from MoStream.pipeline_queue import USE_PADDED_FAA, USE_SCQ, USE_MICHAEL_SCOTT, USE_NBLFQ
 
 
 struct FirstStage(StageTrait):
@@ -117,7 +117,11 @@ def run_once(elements: Int, workers: Int) raises:
         actual_count == expected_count and actual_checksum == expected_sum
     )
     var backend = String("MPMC")
-    comptime if USE_SCQ:
+    comptime if USE_NBLFQ:
+        backend = String("NBLFQ")
+    elif USE_MICHAEL_SCOTT:
+        backend = String("MICHAELSCOTT")
+    elif USE_SCQ:
         backend = String("SCQ")
     elif USE_PADDED_FAA:
         backend = String("PADDEDFAA")

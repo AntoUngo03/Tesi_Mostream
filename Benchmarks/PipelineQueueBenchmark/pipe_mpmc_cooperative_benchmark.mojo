@@ -5,12 +5,12 @@ from std.sys import argv
 from std.time import perf_counter_ns
 
 from MoStream import Pipeline, StageKind, StageTrait, parallel
-from MoStream.pipeline_queue import USE_PADDED_FAA, USE_SCQ
+from MoStream.pipeline_queue import USE_PADDED_FAA, USE_SCQ, USE_MICHAEL_SCOTT, USE_NBLFQ
 
 # Equivalente cooperativo del benchmark standard. `degree` controlla il numero
 # di source actor e sink actor; `workers` controlla separatamente quanti worker
 # dello scheduler li eseguono. Le ready/wait queue dello scheduler non cambiano
-# backend: soltanto il Communicator tra source e sink usa MPMC oppure SCQ.
+# backend: soltanto il Communicator tra source e sink cambia implementazione.
 
 
 @always_inline
@@ -122,7 +122,11 @@ def run_once(
         actual_count == expected_count and actual_checksum == expected_sum
     )
     var backend = String("MPMC")
-    comptime if USE_SCQ:
+    comptime if USE_NBLFQ:
+        backend = String("NBLFQ")
+    elif USE_MICHAEL_SCOTT:
+        backend = String("MICHAELSCOTT")
+    elif USE_SCQ:
         backend = String("SCQ")
     elif USE_PADDED_FAA:
         backend = String("PADDEDFAA")
