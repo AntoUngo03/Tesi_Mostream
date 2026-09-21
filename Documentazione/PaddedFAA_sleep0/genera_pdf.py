@@ -34,6 +34,7 @@ def load_rows(csv_paths: list[Path]) -> list[dict[str, float | str | int | bool]
                     "consumers": int(row["consumers"]),
                     "capacity": int(row["capacity"]),
                     "rep": int(row["rep"]),
+                    "pinning": row.get("pinning", "off"),
                     "hybrid_time_ms": float(row["hybrid_time_ms"]),
                     "spin_time_ms": float(row["spin_time_ms"]),
                     "ratio_spin_hybrid": float(row["ratio_spin_hybrid"]),
@@ -47,27 +48,38 @@ def load_rows(csv_paths: list[Path]) -> list[dict[str, float | str | int | bool]
 
 
 def summarize(rows: list[dict[str, float | str | int | bool]]) -> list[dict[str, float | str | int]]:
-    groups: dict[tuple[int, int, int, int], list[dict[str, float | str | int | bool]]] = defaultdict(list)
+    groups: dict[tuple[int, int, int, int, str], list[dict[str, float | str | int | bool]]] = defaultdict(list)
     for row in rows:
-        key = (int(row["messages"]), int(row["producers"]), int(row["consumers"]), int(row["capacity"]))
+        key = (int(row["messages"]), int(row["producers"]), int(row["consumers"]), int(row["capacity"]), str(row["pinning"]))
         groups[key].append(row)
 
     summary: list[dict[str, float | str | int]] = []
-    for (messages, producers, consumers, capacity), items in sorted(groups.items()):
+    for (messages, producers, consumers, capacity, pinning), items in sorted(groups.items()):
         hybrid = [float(item["hybrid_time_ms"]) for item in items]
         spin = [float(item["spin_time_ms"]) for item in items]
         ratio = [float(item["ratio_spin_hybrid"]) for item in items]
         delta = [float(item["pct_spin_vs_hybrid"]) for item in items]
+        hybrid_mean = sum(hybrid) / len(hybrid)
+        spin_mean = sum(spin) / len(spin)
+        hybrid_std = (sum((x - hybrid_mean) ** 2 for x in hybrid) / max(len(hybrid)-1, 1)) ** 0.5 if len(hybrid) > 1 else 0.0
+        spin_std = (sum((x - spin_mean) ** 2 for x in spin) / max(len(spin)-1, 1)) ** 0.5 if len(spin) > 1 else 0.0
+        ratio_std = (sum((x - (sum(ratio) / len(ratio))) ** 2 for x in ratio) / max(len(ratio)-1, 1)) ** 0.5 if len(ratio) > 1 else 0.0
+        delta_std = (sum((x - (sum(delta) / len(delta))) ** 2 for x in delta) / max(len(delta)-1, 1)) ** 0.5 if len(delta) > 1 else 0.0
         summary.append({
-            "label": f"{messages:,}/{producers}P/{consumers}C",
+            "label": f"{messages:,}/{producers}P/{consumers}C/{pinning}",
             "messages": messages,
             "producers": producers,
             "consumers": consumers,
             "capacity": capacity,
-            "hybrid_mean": sum(hybrid) / len(hybrid),
-            "spin_mean": sum(spin) / len(spin),
+            "pinning": pinning,
+            "hybrid_mean": hybrid_mean,
+            "spin_mean": spin_mean,
+            "hybrid_std": hybrid_std,
+            "spin_std": spin_std,
             "ratio_mean": sum(ratio) / len(ratio),
+            "ratio_std": ratio_std,
             "delta_mean": sum(delta) / len(delta),
+            "delta_std": delta_std,
         })
     return summary
 
@@ -76,27 +88,29 @@ def make_chart_page(summary_rows: list[dict[str, float | str | int]]) -> None:
     labels = [row["label"] for row in summary_rows]
     hybrid = [float(row["hybrid_mean"]) for row in summary_rows]
     spin = [float(row["spin_mean"]) for row in summary_rows]
+    hybrid_err = [float(row["hybrid_std"]) for row in summary_rows]
+    spin_err = [float(row["spin_std"]) for row in summary_rows]
     deltas = [float(row["delta_mean"]) for row in summary_rows]
-    ratios = [float(row["ratio_mean"]) for row in summary_rows]
+    delta_err = [float(row["delta_std"]) for row in summary_rows]
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5.8))
     x = range(len(labels))
     width = 0.35
-    axes[0].bar([i - width / 2 for i in x], hybrid, width=width, label="PaddedFAAQueue")
-    axes[0].bar([i + width / 2 for i in x], spin, width=width, label="PaddedFAASpinQueue")
+    axes[0].bar([i - width / 2 for i in x], hybrid, width=width, label="PaddedFAAQueue", yerr=hybrid_err, capsize=4, alpha=0.9)
+    axes[0].bar([i + width / 2 for i in x], spin, width=width, label="PaddedFAASpinQueue", yerr=spin_err, capsize=4, alpha=0.9)
     axes[0].set_xticks(list(x))
-    axes[0].set_xticklabels(labels, rotation=20, ha="right")
+    axes[0].set_xticklabels(labels, rotation=25, ha="right")
     axes[0].set_ylabel("Tempo medio (ms)")
-    axes[0].set_title("Confronto tempi medi")
+    axes[0].set_title("Confronto tempi medi con deviazione standard")
     axes[0].legend()
     axes[0].grid(axis="y", linestyle="--", alpha=0.35)
 
-    axes[1].bar(labels, deltas, color=["tab:green" if v >= 0 else "tab:red" for v in deltas], edgecolor="black")
+    axes[1].bar(labels, deltas, yerr=delta_err, capsize=4, color=["tab:green" if v >= 0 else "tab:red" for v in deltas], edgecolor="black")
     axes[1].set_ylabel("Δ% (spin vs hybrid)")
-    axes[1].set_title("Variazione percentuale del pure-spin")
+    axes[1].set_title("Variazione percentuale del pure-spin ±σ")
     axes[1].axhline(0, color="black", linewidth=1)
     axes[1].grid(axis="y", linestyle="--", alpha=0.35)
-    plt.setp(axes[1].get_xticklabels(), rotation=20, ha="right")
+    plt.setp(axes[1].get_xticklabels(), rotation=25, ha="right")
 
     fig.suptitle("PaddedFAAQueue vs PaddedFAASpinQueue: costo di sleep(0.0)", fontsize=16, fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.96])
@@ -106,15 +120,16 @@ def make_chart_page(summary_rows: list[dict[str, float | str | int]]) -> None:
 def make_ratio_page(summary_rows: list[dict[str, float | str | int]]) -> None:
     labels = [row["label"] for row in summary_rows]
     ratios = [float(row["ratio_mean"]) for row in summary_rows]
+    ratio_err = [float(row["ratio_std"]) for row in summary_rows]
 
     fig, ax = plt.subplots(figsize=(11, 5.5))
-    ax.plot(labels, ratios, marker="o", color="tab:blue", linewidth=2)
+    ax.bar(labels, ratios, yerr=ratio_err, capsize=5, color="tab:blue", edgecolor="black", alpha=0.9)
     ax.axhline(1.0, color="black", linestyle="--", linewidth=1)
     ax.set_ylabel("Ratio spin / hybrid")
-    ax.set_title("Rapporto tra tempo medio pure-spin e hybrid")
+    ax.set_title("Rapporto tra tempo medio pure-spin e hybrid ±σ")
     ax.set_ylim(bottom=0.8, top=max(1.2, max(ratios) * 1.15))
     ax.grid(True, linestyle="--", alpha=0.35)
-    plt.setp(ax.get_xticklabels(), rotation=20, ha="right")
+    plt.setp(ax.get_xticklabels(), rotation=25, ha="right")
     fig.tight_layout()
     return fig
 
@@ -126,6 +141,7 @@ def make_table_page(summary_rows: list[dict[str, float | str | int]]) -> None:
         "Spin ms",
         "Ratio S/H",
         "Δ%",
+        "σΔ%",
     ]
     data = [
         [
@@ -134,11 +150,12 @@ def make_table_page(summary_rows: list[dict[str, float | str | int]]) -> None:
             f"{float(row['spin_mean']):.2f}",
             f"{float(row['ratio_mean']):.3f}",
             f"{float(row['delta_mean']):.2f}",
+            f"{float(row['delta_std']):.2f}",
         ]
         for row in summary_rows
     ]
 
-    fig, ax = plt.subplots(figsize=(12, 7))
+    fig, ax = plt.subplots(figsize=(13, 7))
     ax.axis("off")
     table = ax.table(
         cellText=data,
@@ -150,7 +167,7 @@ def make_table_page(summary_rows: list[dict[str, float | str | int]]) -> None:
     table.auto_set_font_size(False)
     table.set_fontsize(9)
     table.scale(1.0, 1.7)
-    ax.set_title("Sintesi delle medie per configurazione", fontsize=14, fontweight="bold", pad=18)
+    ax.set_title("Sintesi delle medie per configurazione con variabilità", fontsize=14, fontweight="bold", pad=18)
     fig.tight_layout()
     return fig
 
@@ -162,18 +179,19 @@ def add_narrative_page(pdf: PdfPages) -> None:
     body = [
         "Il confronto è stato costruito per isolare il costo di sleep(0.0) senza cambiare il resto del runtime.",
         "Le due code condividono lo stesso layout di slot, la stessa capacità, gli stessi ticket FAA e lo stesso ordine di scheduling dei worker. L'unica differenza è la policy di attesa: la variante ibrida fa spin fino a 1024 iterazioni e poi cede la CPU, mentre la pure-spin resta in busy wait continuo.",
-        "In pratica, il benchmark misura quanto il yield esplicito stia costando in throughput e latenza sotto contenimento.",
-        "I dati mostrano un comportamento non uniforme: per 20k e 100k messaggi con più producer, il pure-spin resta più veloce, mentre per 50k il rapporto si avvicina a 1 e in alcuni casi la variante ibrida può pareggiare o superare il pure-spin.",
-        "Questo indica che sleep(0.0) non è necessariamente ""gratis"" ma il suo beneficio dipende dalle condizioni di contesa e dal regime del sistema: in carico medio-alto il pure-spin paga meno overhead di schedulazione; in carico più basso il beneficio del yield può diventare marginale o addirittura controproducente.",
-        "La conclusione più prudente è che sleep(0.0) è una policy di backoff utile per contenere il busy-wait, ma il suo costo va misurato empiricamente e non assunto a priori.",
+        "La raccolta è stata estesa con due configurazioni critiche: 8P/8C e 8P/2C. La prima aumenta la contesa in forma simmetrica, la seconda crea un forte squilibrio produttore-consumatore e misura il caso in cui i producer hanno più pressione sul ring.",
+        "Inoltre, una parte della campagna è stata ripetuta con pinning attivo attraverso taskset, per verificare se il comportamento cambia quando ogni thread è costretto a lavorare su un core dedicato, come ipotizza il modello del professor.",
+        "I grafici riportano anche deviazione standard e barre d'errore, perché differenze come −1.95% o +0.86% non sono statisticamente informative senza misurare la variabilità. In altre parole, la media sola può nascondere un rumore sperimentale importante, soprattutto in regimi di contesa modesta.",
+        "I risultati indicano che il pure-spin tende a vincere quando la contesa cresce, ma la magnitudine del vantaggio varia molto tra configurazioni. L'ibrido può essere competitivo o addirittura superiore a carico più basso, mentre il pure-spin emerge come policy più stabile alla crescita di P e C.",
+        "La conclusione più prudente è che sleep(0.0) non è a priori un vantaggio: va valutata in funzione del regime, della contesa e del pinning. L'errore statistico va sempre considerato quando si interpreta la differenza tra le due policy."
     ]
-    y = 0.80
+    y = 0.79
     for paragraph in body:
-        fig.text(0.07, y, paragraph, fontsize=11.5, ha="left", va="top", wrap=True)
-        y -= 0.12
+        fig.text(0.07, y, paragraph, fontsize=11.3, ha="left", va="top", wrap=True)
+        y -= 0.11
         if y < 0.08:
             break
-    fig.text(0.07, 0.08, "Nota: i grafici sono ottenuti dai dati raccolti con la stessa pipeline, stesso workload e stesso seed di scheduling per ogni esecuzione.", fontsize=10, color="dimgray")
+    fig.text(0.07, 0.08, "Nota: i grafici riportano la deviazione standard dei tempi e del Δ% per evidenziare se una differenza appare stabile o se invece è compatibile con il rumore sperimentale.", fontsize=10, color="dimgray")
     pdf.savefig(fig)
     plt.close(fig)
 

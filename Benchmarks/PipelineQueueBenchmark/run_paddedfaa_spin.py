@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import csv
 import itertools
+import os
+import shutil
 import statistics
 import subprocess
 from pathlib import Path
@@ -34,6 +36,23 @@ def compile_benchmark() -> None:
         str(BINARY_PATH),
     ]
     subprocess.run(cmd, cwd=ROOT, check=True)
+
+
+def build_binary_command(args: argparse.Namespace, messages: int, producers: int, consumers: int, capacity: int, seed: int) -> list[str]:
+    cmd = [
+        str(BINARY_PATH),
+        str(messages),
+        str(producers),
+        str(consumers),
+        str(capacity),
+        str(seed),
+    ]
+    if args.pinning:
+        if not shutil.which("taskset"):
+            raise RuntimeError("taskset is required for --pinning on Linux")
+        cpus = parse_csv_ints(args.cpus)
+        return ["taskset", "-c", ",".join(str(cpu) for cpu in cpus)] + cmd
+    return cmd
 
 
 def parse_run(output: str) -> dict[str, float | bool]:
@@ -77,18 +96,20 @@ def run_case(
     capacity: int,
     repetitions: int,
     seed: int,
-) -> list[dict[str, float | bool | int]]:
-    results: list[dict[str, float | bool | int]] = []
+    pinning: bool,
+    cpus: str,
+) -> list[dict[str, float | bool | int | str]]:
+    results: list[dict[str, float | bool | int | str]] = []
     for rep in range(repetitions):
         run_seed = seed + rep
-        cmd = [
-            str(BINARY_PATH),
-            str(messages),
-            str(producers),
-            str(consumers),
-            str(capacity),
-            str(run_seed),
-        ]
+        cmd = build_binary_command(
+            argparse.Namespace(pinning=pinning, cpus=cpus),
+            messages,
+            producers,
+            consumers,
+            capacity,
+            run_seed,
+        )
         completed = subprocess.run(
             cmd,
             cwd=ROOT,
@@ -114,6 +135,7 @@ def run_case(
             "consumers": consumers,
             "capacity": capacity,
             "rep": rep,
+            "pinning": "on" if pinning else "off",
             "hybrid_time_ms": float(parsed["hybrid_time_ms"]),
             "spin_time_ms": float(parsed["spin_time_ms"]),
             "hybrid_valid": bool(parsed["hybrid_valid"]),
@@ -133,13 +155,14 @@ def config_grid(args: argparse.Namespace) -> list[tuple[int, int, int, int]]:
     return [(m, p, c, cap) for m, p, c, cap in itertools.product(messages, producers, consumers, capacities)]
 
 
-def write_csv(rows: list[dict[str, float | bool | int]], path: Path) -> None:
+def write_csv(rows: list[dict[str, float | bool | int | str]], path: Path) -> None:
     fieldnames = [
         "messages",
         "producers",
         "consumers",
         "capacity",
         "rep",
+        "pinning",
         "hybrid_time_ms",
         "spin_time_ms",
         "hybrid_valid",
@@ -154,19 +177,20 @@ def write_csv(rows: list[dict[str, float | bool | int]], path: Path) -> None:
             writer.writerow(row)
 
 
-def print_summary(rows: list[dict[str, float | bool | int]], args: argparse.Namespace) -> None:
-    by_config: dict[tuple[int, int, int, int], list[dict[str, float | bool | int]]] = {}
+def print_summary(rows: list[dict[str, float | bool | int | str]], args: argparse.Namespace) -> None:
+    by_config: dict[tuple[int, int, int, int, str], list[dict[str, float | bool | int | str]]] = {}
     for row in rows:
         key = (
             int(row["messages"]),
             int(row["producers"]),
             int(row["consumers"]),
             int(row["capacity"]),
+            str(row["pinning"]),
         )
         by_config.setdefault(key, []).append(row)
 
     print(f"\nSweep: PaddedFAAQueue vs PaddedFAASpinQueue")
-    print(f"repetitions={args.repetitions} seed={args.seed}")
+    print(f"repetitions={args.repetitions} seed={args.seed} pinning={args.pinning}")
     for key in sorted(by_config):
         config_rows = by_config[key]
         hybrid = [float(r["hybrid_time_ms"]) for r in config_rows]
@@ -177,7 +201,7 @@ def print_summary(rows: list[dict[str, float | bool | int]], args: argparse.Name
         s = summary(spin)
         rr = summary(ratio)
         pp = summary(pct)
-        print(f"\nconfig messages={key[0]} producers={key[1]} consumers={key[2]} capacity={key[3]}")
+        print(f"\nconfig messages={key[0]} producers={key[1]} consumers={key[2]} capacity={key[3]} pinning={key[4]}")
         print(f"  hybrid mean_ms={h['mean']:.3f} median_ms={h['median']:.3f} stdev_ms={h['stdev']:.3f}")
         print(f"  spin   mean_ms={s['mean']:.3f} median_ms={s['median']:.3f} stdev_ms={s['stdev']:.3f}")
         print(f"  ratio  mean_spin/hybrid={rr['mean']:.4f} median={rr['median']:.4f} stdev={rr['stdev']:.4f}")
@@ -187,14 +211,16 @@ def print_summary(rows: list[dict[str, float | bool | int]], args: argparse.Name
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--messages", type=str, default="50000")
-    parser.add_argument("--producers", type=str, default="4")
-    parser.add_argument("--consumers", type=str, default="4")
+    parser.add_argument("--messages", type=str, default="20000,50000,100000")
+    parser.add_argument("--producers", type=str, default="2,4,8")
+    parser.add_argument("--consumers", type=str, default="2,8")
     parser.add_argument("--capacity", type=str, default="1024")
-    parser.add_argument("--repetitions", type=int, default=10)
+    parser.add_argument("--repetitions", type=int, default=5)
     parser.add_argument("--seed", type=int, default=0xC0FFEE123456789)
     parser.add_argument("--output", type=str, default=str(DEFAULT_OUTPUT))
     parser.add_argument("--no-compile", action="store_true")
+    parser.add_argument("--pinning", action="store_true", help="Run each benchmark under taskset CPU pinning")
+    parser.add_argument("--cpus", type=str, default="0,1,2,3,4,5,6,7", help="Comma-separated CPU list for taskset when --pinning is enabled")
     args = parser.parse_args()
 
     configs = config_grid(args)
@@ -206,7 +232,7 @@ def main() -> None:
     if not BINARY_PATH.exists():
         raise SystemExit(f"Binary not found: {BINARY_PATH}")
 
-    rows: list[dict[str, float | bool | int]] = []
+    rows: list[dict[str, float | bool | int | str]] = []
     for messages, producers, consumers, capacity in configs:
         rows.extend(
             run_case(
@@ -216,6 +242,8 @@ def main() -> None:
                 capacity=capacity,
                 repetitions=args.repetitions,
                 seed=args.seed,
+                pinning=args.pinning,
+                cpus=args.cpus,
             )
         )
 
