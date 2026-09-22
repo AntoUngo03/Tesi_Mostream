@@ -26,6 +26,7 @@ from MoStream.utils import print_cyan_color, print_red_color, print_yellow_color
 from std.os import getenv
 from std.ffi import OwnedDLHandle, c_int
 from std.python import Python
+from std.time import perf_counter_ns
 
 # Pinning handler
 struct Pinning:
@@ -87,6 +88,10 @@ struct Pipeline[*Ts: NodeTrait]:
     var queue_size: Int
     var pinning_handler: Pinning
     var alreadyRun: Bool
+    var cooperative_execution_ns: Int
+    var cooperative_activations: UInt64
+    var cooperative_input_parks: UInt64
+    var cooperative_output_parks: UInt64
 
     # constructor
     def __init__(out self, var nodes: Tuple[*Self.Ts]) raises:
@@ -105,6 +110,10 @@ struct Pipeline[*Ts: NodeTrait]:
         var mp = Python.import_module("multiprocessing")
         self.pinning_handler.init_cores_list(mapping_str, Int(py=mp.cpu_count()))
         self.alreadyRun = False
+        self.cooperative_execution_ns = 0
+        self.cooperative_activations = 0
+        self.cooperative_input_parks = 0
+        self.cooperative_output_parks = 0
 
     # _run_from
     def _run_from[idx: Int,
@@ -169,7 +178,9 @@ struct Pipeline[*Ts: NodeTrait]:
             self._run_cooperative_from[idx + 1, length, Self.Ts[idx].StageT.OutType](out_comm)
 
     # run_cooperative
-    def run_cooperative(mut self, n_workers: Int) raises:
+    def run_cooperative(mut self, n_workers: Int, batch_size: Int = 1) raises:
+        if n_workers < 1 or batch_size < 1:
+            raise Error("worker count and batch size must be positive")
         if (self.alreadyRun):
             print_red_color("{MoStream} Error: run() or run_cooperative() method can be called only once for each pipeline instance!")
             raise Error("error in run()")
@@ -190,8 +201,19 @@ struct Pipeline[*Ts: NodeTrait]:
         print_cyan_color("{MoStream} Cooperative MoStream runtime is used")
         print_cyan_color("{MoStream} CPU pinning is " + pinning)
         print_cyan_color("{MoStream} Pipeline starts...")
-        var scheduler = Scheduler(self.nodes)
+        var scheduler = Scheduler(self.nodes, batch_size)
+        var execution_start = perf_counter_ns()
         scheduler.start(self.nodes, n_workers, self.pinning_handler)
+        self.cooperative_execution_ns = perf_counter_ns() - execution_start
+        self.cooperative_activations = scheduler.activations
+        self.cooperative_input_parks = scheduler.input_parks
+        self.cooperative_output_parks = scheduler.output_parks
+        # Notifications can inspect a communicator after its last consumer
+        # sees EOS. Keep all communicators alive until every worker has joined.
+        comptime for i in range(1, Self.N):
+            var comm = self.nodes[i].actor_ref(0)[].in_comm
+            comm.unsafe_deinit_pointee()
+            comm.unsafe_free()
         print_cyan_color("{MoStream} ...terminated successfully!")
 
     # enable/disable pinning for the pipeline threads

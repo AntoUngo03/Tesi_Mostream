@@ -263,6 +263,17 @@ pipeline.run_cooperative(n_workers)
 where `n_workers` is the number of scheduler workers used to execute the
 pipeline actors.
 
+An optional `batch_size` limits the number of stage processing steps per
+activation, stopping early when an actor blocks or finishes:
+
+```mojo
+pipeline.run_cooperative(4, batch_size=8)
+```
+
+The default batch size is one. Completed runs expose
+`cooperative_execution_ns`, `cooperative_activations`,
+`cooperative_input_parks`, and `cooperative_output_parks` on the pipeline.
+
 In this runtime, each node replica is represented as an actor. Actors do not own
 a runtime thread permanently. Instead, a smaller number of scheduler workers
 repeatedly pick ready actors, run one non-blocking activation, and then either
@@ -299,6 +310,13 @@ original CAS queue; a build can select the experimental Padded-FAA backend for
 the inter-stage communicators with `-DMOSTREAM_PADDED_FAA=1`. The cooperative
 scheduler's internal ready/wait queues remain CAS-based. The default queue size
 is `1024`. Queue sizes must be powers of two and at least `2`.
+
+`-DMOSTREAM_COOPERATIVE_FAA=1` selects an experimental backend whose cooperative
+actors retain FAA tickets while parked. It uses broadcast wakeups for blocked
+actors on the affected connection; the ready queue remains CAS-based. Select
+only one data queue backend per build. See the
+[real cooperative pipeline comparison](Benchmarks/RealCooperativeQueueBenchmark/README.md)
+for measurements, correctness checks, and limitations.
 
 ```mojo
 pipeline.setQueueSize(2048)

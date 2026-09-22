@@ -14,7 +14,8 @@
 # ===------------------------------------------------------------------------=== #
 
 from std.memory.alloc import unsafe_alloc
-from MoStream.pipeline_queue import PipelineQueue
+from MoStream.pipeline_queue import PipelineQueue, USE_COOPERATIVE_FAA
+from MoStream.Cooperative_FAA_queue import PushOperation, PopOperation, PollStatus
 from std.collections import Optional
 from std.sys.info import size_of
 from std.atomic import Atomic, Ordering
@@ -50,7 +51,7 @@ struct Communicator[T: MessageTrait](Movable):
 
     # constructor
     def __init__(out self, pN: Int, cN: Int, queue_size: Int) raises:
-        self.queue = PipelineQueue[MessageWrapper[Self.T]](size=queue_size)
+        self.queue = PipelineQueue[MessageWrapper[Self.T]](size=queue_size, producers=pN)
         self.prodNum = pN
         self.consNum = cN
         self.destroyCount = unsafe_alloc[Atomic[DType.int64]](1)
@@ -83,10 +84,15 @@ struct Communicator[T: MessageTrait](Movable):
 
     # check if the communicator is closed (i.e., no more messages will be sent)
     def is_closed(mut self) -> Bool:
+        comptime if USE_COOPERATIVE_FAA:
+            return self.queue.cooperative_ref()[].is_closed()
         return self.closed[].load[ordering=Ordering.ACQUIRE]() == Int64(1)
 
     # signaling that a producer has finished sending messages (to coordinate the sending of end-of-stream messages)
     def producer_finished(mut self):
+        comptime if USE_COOPERATIVE_FAA:
+            self.queue.cooperative_ref()[].producer_finished()
+            return
         var old_count = self.remainingProducers[].fetch_sub[ordering=Ordering.ACQUIRE_RELEASE](1)
         if old_count == Int64(1):
             Atomic[DType.int64].store[ordering=Ordering.RELEASE](Pointer(to=self.closed[].value), Int64(1))
@@ -130,3 +136,13 @@ struct Communicator[T: MessageTrait](Movable):
     # get the estimated number of messages currently in the communicator
     def estimated_len(self) -> Int:
         return self.queue.estimated_len()
+
+    def poll_push(mut self, mut operation: PushOperation[MessageWrapper[Self.T]]) -> Int:
+        return self.queue.cooperative_ref()[].poll_push(operation)
+
+    def poll_pop(mut self, mut operation: PopOperation[MessageWrapper[Self.T]]) -> Int:
+        var status = self.queue.cooperative_ref()[].poll_pop(operation)
+        if status == PollStatus.CLOSED:
+            operation.item = Optional(MessageWrapper[Self.T](eos=True))
+            return PollStatus.SUCCESS
+        return status

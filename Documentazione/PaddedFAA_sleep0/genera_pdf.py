@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Generate a PDF report comparing PaddedFAAQueue and PaddedFAASpinQueue."""
-
-from __future__ import annotations
-
+"""Generate the point-4 PDF from validated paired measurements."""
+import argparse
 import csv
-from collections import defaultdict
+import hashlib
+import json
+import math
 from pathlib import Path
+import statistics
+import sys
+import textwrap
 
 import matplotlib
 matplotlib.use("Agg")
@@ -13,208 +16,161 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 
 ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_CSVS = [
-    Path("/tmp/paddedfaa_spin_sweep.csv"),
-    ROOT / "Benchmarks" / "PipelineQueueBenchmark" / "paddedfaa_spin_results.csv",
-]
+BENCH = ROOT / "Benchmarks/PipelineQueueBenchmark"
+sys.path.insert(0, str(BENCH))
+from run_benchmarks import geometric_speedup_stats
+
 OUTPUT = Path(__file__).with_name("relazione_sleep0.pdf")
 
 
-def load_rows(csv_paths: list[Path]) -> list[dict[str, float | str | int | bool]]:
-    rows: list[dict[str, float | str | int | bool]] = []
-    for csv_path in csv_paths:
-        if not csv_path.exists():
-            continue
-        with csv_path.open(newline="") as fh:
-            reader = csv.DictReader(fh)
-            for row in reader:
-                rows.append({
-                    "messages": int(row["messages"]),
-                    "producers": int(row["producers"]),
-                    "consumers": int(row["consumers"]),
-                    "capacity": int(row["capacity"]),
-                    "rep": int(row["rep"]),
-                    "pinning": row.get("pinning", "off"),
-                    "hybrid_time_ms": float(row["hybrid_time_ms"]),
-                    "spin_time_ms": float(row["spin_time_ms"]),
-                    "ratio_spin_hybrid": float(row["ratio_spin_hybrid"]),
-                    "pct_spin_vs_hybrid": float(row["pct_spin_vs_hybrid"]),
-                })
-    if not rows:
-        raise FileNotFoundError(
-            "No benchmark CSV data found in: " + ", ".join(str(p) for p in csv_paths)
-        )
+def load_rows(path):
+    with path.open(newline="") as stream:
+        rows = list(csv.DictReader(stream))
+    seen = set()
+    for row in rows:
+        for key in ("messages", "producers", "consumers", "capacity", "rep"):
+            row[key] = int(row[key])
+        key = tuple(row[k] for k in ("messages", "producers", "consumers", "capacity", "pinning", "rep"))
+        if key in seen:
+            raise ValueError(f"Duplicate pair: {key}")
+        seen.add(key)
+        for name in ("hybrid", "spin"):
+            if row[f"{name}_valid"].lower() != "true":
+                raise ValueError(f"Invalid observation: {key}")
+            value = float(row[f"{name}_time_ms"])
+            if not math.isfinite(value) or value <= 0:
+                raise ValueError(f"Invalid time: {key}")
+            row[f"{name}_time_ms"] = value
     return rows
 
 
-def summarize(rows: list[dict[str, float | str | int | bool]]) -> list[dict[str, float | str | int]]:
-    groups: dict[tuple[int, int, int, int, str], list[dict[str, float | str | int | bool]]] = defaultdict(list)
+def summarize(rows):
+    groups = {}
     for row in rows:
-        key = (int(row["messages"]), int(row["producers"]), int(row["consumers"]), int(row["capacity"]), str(row["pinning"]))
-        groups[key].append(row)
-
-    summary: list[dict[str, float | str | int]] = []
-    for (messages, producers, consumers, capacity, pinning), items in sorted(groups.items()):
-        hybrid = [float(item["hybrid_time_ms"]) for item in items]
-        spin = [float(item["spin_time_ms"]) for item in items]
-        ratio = [float(item["ratio_spin_hybrid"]) for item in items]
-        delta = [float(item["pct_spin_vs_hybrid"]) for item in items]
-        hybrid_mean = sum(hybrid) / len(hybrid)
-        spin_mean = sum(spin) / len(spin)
-        hybrid_std = (sum((x - hybrid_mean) ** 2 for x in hybrid) / max(len(hybrid)-1, 1)) ** 0.5 if len(hybrid) > 1 else 0.0
-        spin_std = (sum((x - spin_mean) ** 2 for x in spin) / max(len(spin)-1, 1)) ** 0.5 if len(spin) > 1 else 0.0
-        ratio_std = (sum((x - (sum(ratio) / len(ratio))) ** 2 for x in ratio) / max(len(ratio)-1, 1)) ** 0.5 if len(ratio) > 1 else 0.0
-        delta_std = (sum((x - (sum(delta) / len(delta))) ** 2 for x in delta) / max(len(delta)-1, 1)) ** 0.5 if len(delta) > 1 else 0.0
-        summary.append({
-            "label": f"{messages:,}/{producers}P/{consumers}C/{pinning}",
-            "messages": messages,
-            "producers": producers,
-            "consumers": consumers,
-            "capacity": capacity,
-            "pinning": pinning,
-            "hybrid_mean": hybrid_mean,
-            "spin_mean": spin_mean,
-            "hybrid_std": hybrid_std,
-            "spin_std": spin_std,
-            "ratio_mean": sum(ratio) / len(ratio),
-            "ratio_std": ratio_std,
-            "delta_mean": sum(delta) / len(delta),
-            "delta_std": delta_std,
-        })
-    return summary
+        key = tuple(row[k] for k in ("messages", "capacity", "producers", "consumers", "pinning"))
+        groups.setdefault(key, []).append(row)
+    result = []
+    for (messages, capacity, producers, consumers, pinning), items in sorted(groups.items()):
+        if len(items) < 10:
+            raise ValueError("At least 10 paired repetitions are required")
+        ratios = [r["spin_time_ms"] / r["hybrid_time_ms"] for r in items]
+        stats = geometric_speedup_stats(ratios)
+        low, high = stats["ci95_lower"], stats["ci95_upper"]
+        result.append(dict(messages=messages, capacity=capacity, producers=producers,
+                           consumers=consumers, pinning=pinning, n=len(items),
+                           hybrid_ms=statistics.mean(r["hybrid_time_ms"] for r in items),
+                           spin_ms=statistics.mean(r["spin_time_ms"] for r in items),
+                           ratio=stats["geomean"], low=low, high=high,
+                           verdict="Spin" if high < 1 else "Ibrida" if low > 1 else "Inconclusivo"))
+    for messages, capacity in {(r["messages"], r["capacity"]) for r in result}:
+        actual = {(r["producers"], r["consumers"], r["pinning"]) for r in result
+                  if r["messages"] == messages and r["capacity"] == capacity}
+        expected = {(p, c, pin) for p, c in [(2, 2), (4, 2), (8, 2), (8, 8)] for pin in ("off", "on")}
+        if actual != expected:
+            raise ValueError(f"Incomplete point-4 matrix: {actual}")
+    if not result:
+        raise ValueError("Empty campaign")
+    return result
 
 
-def make_chart_page(summary_rows: list[dict[str, float | str | int]]) -> None:
-    labels = [row["label"] for row in summary_rows]
-    hybrid = [float(row["hybrid_mean"]) for row in summary_rows]
-    spin = [float(row["spin_mean"]) for row in summary_rows]
-    hybrid_err = [float(row["hybrid_std"]) for row in summary_rows]
-    spin_err = [float(row["spin_std"]) for row in summary_rows]
-    deltas = [float(row["delta_mean"]) for row in summary_rows]
-    delta_err = [float(row["delta_std"]) for row in summary_rows]
-
-    fig, axes = plt.subplots(1, 2, figsize=(14, 5.8))
-    x = range(len(labels))
-    width = 0.35
-    axes[0].bar([i - width / 2 for i in x], hybrid, width=width, label="PaddedFAAQueue", yerr=hybrid_err, capsize=4, alpha=0.9)
-    axes[0].bar([i + width / 2 for i in x], spin, width=width, label="PaddedFAASpinQueue", yerr=spin_err, capsize=4, alpha=0.9)
-    axes[0].set_xticks(list(x))
-    axes[0].set_xticklabels(labels, rotation=25, ha="right")
-    axes[0].set_ylabel("Tempo medio (ms)")
-    axes[0].set_title("Confronto tempi medi con deviazione standard")
-    axes[0].legend()
-    axes[0].grid(axis="y", linestyle="--", alpha=0.35)
-
-    axes[1].bar(labels, deltas, yerr=delta_err, capsize=4, color=["tab:green" if v >= 0 else "tab:red" for v in deltas], edgecolor="black")
-    axes[1].set_ylabel("Δ% (spin vs hybrid)")
-    axes[1].set_title("Variazione percentuale del pure-spin ±σ")
-    axes[1].axhline(0, color="black", linewidth=1)
-    axes[1].grid(axis="y", linestyle="--", alpha=0.35)
-    plt.setp(axes[1].get_xticklabels(), rotation=25, ha="right")
-
-    fig.suptitle("PaddedFAAQueue vs PaddedFAASpinQueue: costo di sleep(0.0)", fontsize=16, fontweight="bold")
-    fig.tight_layout(rect=[0, 0, 1, 0.96])
-    return fig
-
-
-def make_ratio_page(summary_rows: list[dict[str, float | str | int]]) -> None:
-    labels = [row["label"] for row in summary_rows]
-    ratios = [float(row["ratio_mean"]) for row in summary_rows]
-    ratio_err = [float(row["ratio_std"]) for row in summary_rows]
-
-    fig, ax = plt.subplots(figsize=(11, 5.5))
-    ax.bar(labels, ratios, yerr=ratio_err, capsize=5, color="tab:blue", edgecolor="black", alpha=0.9)
-    ax.axhline(1.0, color="black", linestyle="--", linewidth=1)
-    ax.set_ylabel("Ratio spin / hybrid")
-    ax.set_title("Rapporto tra tempo medio pure-spin e hybrid ±σ")
-    ax.set_ylim(bottom=0.8, top=max(1.2, max(ratios) * 1.15))
-    ax.grid(True, linestyle="--", alpha=0.35)
-    plt.setp(ax.get_xticklabels(), rotation=25, ha="right")
-    fig.tight_layout()
-    return fig
-
-
-def make_table_page(summary_rows: list[dict[str, float | str | int]]) -> None:
-    columns = [
-        "Config",
-        "Hybrid ms",
-        "Spin ms",
-        "Ratio S/H",
-        "Δ%",
-        "σΔ%",
-    ]
-    data = [
-        [
-            row["label"],
-            f"{float(row['hybrid_mean']):.2f}",
-            f"{float(row['spin_mean']):.2f}",
-            f"{float(row['ratio_mean']):.3f}",
-            f"{float(row['delta_mean']):.2f}",
-            f"{float(row['delta_std']):.2f}",
-        ]
-        for row in summary_rows
-    ]
-
-    fig, ax = plt.subplots(figsize=(13, 7))
-    ax.axis("off")
-    table = ax.table(
-        cellText=data,
-        colLabels=columns,
-        loc="center",
-        cellLoc="center",
-        colColours=["#d9edf7"] * len(columns),
-    )
-    table.auto_set_font_size(False)
-    table.set_fontsize(9)
-    table.scale(1.0, 1.7)
-    ax.set_title("Sintesi delle medie per configurazione con variabilità", fontsize=14, fontweight="bold", pad=18)
-    fig.tight_layout()
-    return fig
-
-
-def add_narrative_page(pdf: PdfPages) -> None:
-    fig = plt.figure(figsize=(11, 8))
-    fig.patch.set_facecolor("white")
-    fig.text(0.05, 0.92, "Interpretazione dei risultati", fontsize=18, fontweight="bold")
-    body = [
-        "Il confronto è stato costruito per isolare il costo di sleep(0.0) senza cambiare il resto del runtime.",
-        "Le due code condividono lo stesso layout di slot, la stessa capacità, gli stessi ticket FAA e lo stesso ordine di scheduling dei worker. L'unica differenza è la policy di attesa: la variante ibrida fa spin fino a 1024 iterazioni e poi cede la CPU, mentre la pure-spin resta in busy wait continuo.",
-        "La raccolta è stata estesa con due configurazioni critiche: 8P/8C e 8P/2C. La prima aumenta la contesa in forma simmetrica, la seconda crea un forte squilibrio produttore-consumatore e misura il caso in cui i producer hanno più pressione sul ring.",
-        "Inoltre, una parte della campagna è stata ripetuta con pinning attivo attraverso taskset, per verificare se il comportamento cambia quando ogni thread è costretto a lavorare su un core dedicato, come ipotizza il modello del professor.",
-        "I grafici riportano anche deviazione standard e barre d'errore, perché differenze come −1.95% o +0.86% non sono statisticamente informative senza misurare la variabilità. In altre parole, la media sola può nascondere un rumore sperimentale importante, soprattutto in regimi di contesa modesta.",
-        "I risultati indicano che il pure-spin tende a vincere quando la contesa cresce, ma la magnitudine del vantaggio varia molto tra configurazioni. L'ibrido può essere competitivo o addirittura superiore a carico più basso, mentre il pure-spin emerge come policy più stabile alla crescita di P e C.",
-        "La conclusione più prudente è che sleep(0.0) non è a priori un vantaggio: va valutata in funzione del regime, della contesa e del pinning. L'errore statistico va sempre considerato quando si interpreta la differenza tra le due policy."
-    ]
-    y = 0.79
-    for paragraph in body:
-        fig.text(0.07, y, paragraph, fontsize=11.3, ha="left", va="top", wrap=True)
-        y -= 0.11
-        if y < 0.08:
-            break
-    fig.text(0.07, 0.08, "Nota: i grafici riportano la deviazione standard dei tempi e del Δ% per evidenziare se una differenza appare stabile o se invece è compatibile con il rumore sperimentale.", fontsize=10, color="dimgray")
+def text_page(pdf, title, paragraphs):
+    fig = plt.figure(figsize=(11.7, 8.3))
+    fig.text(.07, .92, title, fontsize=19, weight="bold")
+    y = .84
+    for paragraph in paragraphs:
+        lines = textwrap.wrap(paragraph, width=112)
+        fig.text(.07, y, "\n".join(lines), fontsize=11, va="top", linespacing=1.5)
+        y -= len(lines) * .029 + .03
     pdf.savefig(fig)
     plt.close(fig)
 
 
-def build_report() -> None:
-    rows = load_rows(DEFAULT_CSVS)
-    summary_rows = summarize(rows)
-    with PdfPages(str(OUTPUT)) as pdf:
-        fig = make_chart_page(summary_rows)
-        pdf.savefig(fig)
-        plt.close(fig)
-
-        fig = make_ratio_page(summary_rows)
-        pdf.savefig(fig)
-        plt.close(fig)
-
-        fig = make_table_page(summary_rows)
-        pdf.savefig(fig)
-        plt.close(fig)
-
-        add_narrative_page(pdf)
-
+def build_report():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--csv", type=Path, default=BENCH / "paddedfaa_point4.csv")
+    args = parser.parse_args()
+    rows = load_rows(args.csv)
+    summary = summarize(rows)
+    manifest = json.loads(args.csv.with_suffix(".manifest.json").read_text())
+    if manifest["status"] != "complete" or hashlib.sha256(args.csv.read_bytes()).hexdigest() != manifest["csv_sha256"]:
+        raise ValueError("Incomplete campaign or mismatched CSV hash")
+    with args.csv.with_suffix(".summary.csv").open("w", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(summary[0]))
+        writer.writeheader()
+        writer.writerows(summary)
+    with PdfPages(OUTPUT) as pdf:
+        text_page(pdf, "PaddedFAA: spin oppure sleep(0.0)?", [
+            "Punto 4: PaddedFAAQueue (spin fino a 1024 iterazioni, poi sleep(0.0)) contro "
+            "PaddedFAASpinQueue (attesa attiva continua). Misuriamo la policy completa, incluso "
+            "il contatore di spin, non la latenza isolata della chiamata sleep.",
+            f"{len(rows)} coppie misurate; due coppie di warm-up escluse per configurazione. "
+            "Stesso carico e seed di avvio dei worker; ordine H/S alternato fra ripetizioni; "
+            "configurazioni mescolate in ogni blocco. Conteggio e checksum verificati. Nessun outlier rimosso.",
+            "Il carico e' espresso in messaggi PER produttore: interi senza lavoro applicativo. "
+            "Il tempo comprende avvio e attesa dei TaskGroup. Aumentando P aumenta anche il lavoro "
+            "totale: il confronto fra policy va fatto entro la stessa configurazione.",
+            f"OFF: affinita' ereditata ({len(manifest['affinity_off'])} CPU logiche). ON: taskset sulle CPU "
+            f"{manifest['affinity_on']}. E' affinita' del processo, non un core dedicato per worker. "
+            "I worker possono migrare all'interno dell'insieme ammesso.",
+            "R = exp(media(log(T_spin / T_ibrida))) sulle coppie. IC95% = exp(media(log R_i) +/- "
+            "t_(n-1,0.975) * s(log R_i)/sqrt(n)), come nella campagna NBLFQ. R < 1 favorisce spin; "
+            "R > 1 favorisce l'ibrida. Se l'intervallo attraversa 1, il risultato e' inconclusivo: "
+            "non prova equivalenza. IC individuali senza correzione per confronti multipli.",
+            f"Esecuzione UTC: {manifest['started_utc']}. {manifest['compiler']}. "
+            "Hash di sorgenti e binario, topologia CPU e parametri sono conservati nel manifest accanto al CSV.",
+        ])
+        for messages, capacity in sorted({(r['messages'], r['capacity']) for r in summary}):
+            selected = [r for r in summary if (r['messages'], r['capacity']) == (messages, capacity)]
+            labels = [f"{r['producers']}P/{r['consumers']}C  {r['pinning'].upper()}" for r in selected]
+            fig, ax = plt.subplots(figsize=(11.7, 8.3))
+            for i, r in enumerate(selected):
+                ax.errorbar(r['ratio'], i, xerr=[[r['ratio']-r['low']], [r['high']-r['ratio']]],
+                            fmt='o', capsize=5, color={'Spin': '#16855b', 'Ibrida': '#b33f42', 'Inconclusivo': '#666666'}[r['verdict']])
+            ax.axvline(1, color='black', linestyle='--')
+            ax.set_yticks(range(len(labels)), labels)
+            ax.invert_yaxis()
+            ax.set_xlabel("Rapporto geometrico T_spin / T_ibrida, IC95% accoppiato")
+            ax.set_title(f"{messages:,} messaggi/produttore; capacita' {capacity}\nSinistra di 1: spin piu' veloce; destra: ibrida piu' veloce")
+            ax.grid(axis='x', alpha=.25)
+            fig.tight_layout(pad=3)
+            pdf.savefig(fig)
+            plt.close(fig)
+            fig, ax = plt.subplots(figsize=(11.7, 8.3))
+            ax.axis('off')
+            data = [[label, r['n'], f"{r['hybrid_ms']:.3f}", f"{r['spin_ms']:.3f}",
+                     f"{r['ratio']:.3f}", f"[{r['low']:.3f}, {r['high']:.3f}]", r['verdict']]
+                    for label, r in zip(labels, selected)]
+            table = ax.table(cellText=data, colLabels=['Config', 'n', 'Ibrida ms', 'Spin ms', 'R S/H', 'IC95%', 'Esito'],
+                             colWidths=[.17,.05,.13,.13,.10,.22,.20], loc='center', cellLoc='center')
+            table.auto_set_font_size(False)
+            table.set_fontsize(10)
+            table.scale(1, 2.2)
+            ax.set_title(f"Tempi medi e rapporto accoppiato: {messages:,} messaggi/P, capacita' {capacity}", pad=20)
+            fig.text(.08,.16,"Le medie dei tempi sono aritmetiche; R e' la media geometrica dei rapporti per coppia.",fontsize=10)
+            pdf.savefig(fig)
+            plt.close(fig)
+        counts = {v: sum(r['verdict'] == v for r in summary) for v in ['Spin', 'Ibrida', 'Inconclusivo']}
+        text_page(pdf, "Conclusioni e limiti", [
+            f"IC95% individuali: {counts['Spin']} configurazioni favoriscono spin, "
+            f"{counts['Ibrida']} favoriscono l'ibrida, {counts['Inconclusivo']} sono inconclusive. "
+            "La tabella identifica i singoli regimi: la media da sola non basta per dichiarare una vincitrice.",
+            "Il risultato vale per questo hardware, runtime, capacita' e carico. Non autorizza "
+            "una sostituzione universale della PaddedFAAQueue: consumo CPU, energia, latenze "
+            "e pipeline con lavoro applicativo non sono misurati qui.",
+            "Prova preliminare con taskset 0-7: 8P/2C non ha completato il warm-up entro 120 secondi "
+            "(seed 869193496018642825). La causa non e' stata diagnosticata. Il timeout non entra "
+            "nelle statistiche; la campagna completa usa 16 CPU ammesse, almeno quante i task applicativi.",
+            "Il punto 4 e' coperto per la matrice OFF/ON con taskset descritta nel metodo. "
+            "Se il requisito del professore e' un core dedicato a ciascun worker, resta necessaria "
+            "una campagna con affinita' individuale e numero sufficiente di core fisici.",
+            "Questa relazione sostituisce l'analisi esplorativa. I vecchi dati non sono mescolati "
+            "ai nuovi: avevano poche ripetizioni, ordine H/S fisso e seed di avvio differenti. "
+            "Ora il checksum e' quello realmente osservato e il rapporto e' ricalcolato dai tempi. "
+            "I file temporanei /tmp non alimentano il report.",
+        ])
     print(f"Creato {OUTPUT}")
+    for row in summary:
+        print(row)
 
 
 if __name__ == "__main__":

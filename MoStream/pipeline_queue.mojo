@@ -13,6 +13,7 @@ from MoStream.Padded_FAA_queue import PaddedFAAQueue
 from MoStream.SCQ_queue import SCQQueue
 from MoStream.Micheal_Scott import MichaelScottQueue
 from MoStream.NBLFQ_queue import NBLFQQueue
+from MoStream.Cooperative_FAA_queue import CooperativeFAAQueue, PushOperation, PopOperation
 
 
 comptime USE_PADDED_FAA = get_defined_bool[
@@ -21,6 +22,7 @@ comptime USE_PADDED_FAA = get_defined_bool[
 comptime USE_NBLFQ = get_defined_bool["MOSTREAM_NBLFQ", False]()
 comptime USE_MICHAEL_SCOTT = get_defined_bool["MOSTREAM_MICHAEL_SCOTT", False]()
 comptime USE_SCQ = get_defined_bool["MOSTREAM_SCQ", False]()
+comptime USE_COOPERATIVE_FAA = get_defined_bool["MOSTREAM_COOPERATIVE_FAA", False]()
 
 
 struct PipelineQueue[T: Copyable & Deinitable](Movable):
@@ -31,14 +33,20 @@ struct PipelineQueue[T: Copyable & Deinitable](Movable):
     # size across benchmark builds.
     var storage: Pointer[UInt8, MutUntrackedOrigin]
 
-    def __init__(out self, size: Int = 1024) raises:
+    def __init__(out self, size: Int = 1024, producers: Int = 1) raises:
         comptime assert (
             Int(USE_PADDED_FAA) + Int(USE_SCQ) + Int(USE_MICHAEL_SCOTT)
-            + Int(USE_NBLFQ)
+            + Int(USE_NBLFQ) + Int(USE_COOPERATIVE_FAA)
         ) <= 1, (
             "Select at most one MoStream pipeline queue backend"
         )
-        comptime if USE_NBLFQ:
+        comptime if USE_COOPERATIVE_FAA:
+            var queue = unsafe_alloc[CooperativeFAAQueue[Self.T]](1)
+            queue.unsafe_write(CooperativeFAAQueue[Self.T](size, max(producers, 1)))
+            if producers == 0:
+                queue[].producer_finished()
+            self.storage = rebind[Pointer[UInt8, MutUntrackedOrigin]](queue)
+        elif USE_NBLFQ:
             var queue = unsafe_alloc[NBLFQQueue[Self.T]](1)
             queue.unsafe_write(NBLFQQueue[Self.T](size=size))
             self.storage = rebind[
@@ -73,7 +81,11 @@ struct PipelineQueue[T: Copyable & Deinitable](Movable):
         self.storage = move.storage
 
     def __deinit__(deinit self):
-        comptime if USE_NBLFQ:
+        comptime if USE_COOPERATIVE_FAA:
+            var queue = rebind[Pointer[CooperativeFAAQueue[Self.T], MutUntrackedOrigin]](self.storage)
+            queue.unsafe_deinit_pointee()
+            queue.unsafe_free()
+        elif USE_NBLFQ:
             var queue = rebind[
                 Pointer[NBLFQQueue[Self.T], MutUntrackedOrigin]
             ](self.storage)
@@ -106,7 +118,9 @@ struct PipelineQueue[T: Copyable & Deinitable](Movable):
 
     @always_inline
     def push(mut self, var item: Self.T):
-        comptime if USE_NBLFQ:
+        comptime if USE_COOPERATIVE_FAA:
+            self.cooperative_ref()[].ring.push(item^)
+        elif USE_NBLFQ:
             rebind[
                 Pointer[NBLFQQueue[Self.T], MutUntrackedOrigin]
             ](self.storage)[].push(item^)
@@ -129,7 +143,9 @@ struct PipelineQueue[T: Copyable & Deinitable](Movable):
 
     @always_inline
     def try_push(mut self, var item: Self.T) -> Optional[Self.T]:
-        comptime if USE_NBLFQ:
+        comptime if USE_COOPERATIVE_FAA:
+            return self.cooperative_ref()[].ring.try_push(item^)
+        elif USE_NBLFQ:
             return rebind[
                 Pointer[NBLFQQueue[Self.T], MutUntrackedOrigin]
             ](self.storage)[].try_push(item^)
@@ -152,7 +168,9 @@ struct PipelineQueue[T: Copyable & Deinitable](Movable):
 
     @always_inline
     def pop(mut self) -> Self.T:
-        comptime if USE_NBLFQ:
+        comptime if USE_COOPERATIVE_FAA:
+            return self.cooperative_ref()[].ring.pop()
+        elif USE_NBLFQ:
             return rebind[
                 Pointer[NBLFQQueue[Self.T], MutUntrackedOrigin]
             ](self.storage)[].pop()
@@ -175,7 +193,9 @@ struct PipelineQueue[T: Copyable & Deinitable](Movable):
 
     @always_inline
     def try_pop(mut self) -> Optional[Self.T]:
-        comptime if USE_NBLFQ:
+        comptime if USE_COOPERATIVE_FAA:
+            return self.cooperative_ref()[].ring.try_pop()
+        elif USE_NBLFQ:
             return rebind[
                 Pointer[NBLFQQueue[Self.T], MutUntrackedOrigin]
             ](self.storage)[].try_pop()
@@ -198,7 +218,9 @@ struct PipelineQueue[T: Copyable & Deinitable](Movable):
 
     @always_inline
     def estimated_len(self) -> Int:
-        comptime if USE_NBLFQ:
+        comptime if USE_COOPERATIVE_FAA:
+            return self.cooperative_ref()[].ring.estimated_len()
+        elif USE_NBLFQ:
             return rebind[
                 Pointer[NBLFQQueue[Self.T], MutUntrackedOrigin]
             ](self.storage)[].estimated_len()
@@ -218,3 +240,8 @@ struct PipelineQueue[T: Copyable & Deinitable](Movable):
             return rebind[
                 Pointer[MPMCQueue[Self.T], MutUntrackedOrigin]
             ](self.storage)[].estimated_len()
+
+    @always_inline
+    def cooperative_ref(self) -> Pointer[CooperativeFAAQueue[Self.T], MutUntrackedOrigin]:
+        comptime assert USE_COOPERATIVE_FAA, "Requires the cooperative FAA backend"
+        return rebind[Pointer[CooperativeFAAQueue[Self.T], MutUntrackedOrigin]](self.storage)

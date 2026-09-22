@@ -6,10 +6,15 @@ from __future__ import annotations
 import argparse
 import csv
 import itertools
+import hashlib
+import json
 import os
+import platform
+import random
 import shutil
 import statistics
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -116,6 +121,7 @@ def run_case(
             capture_output=True,
             text=True,
             check=False,
+            timeout=120,
         )
         if completed.returncode != 0:
             raise RuntimeError(
@@ -129,6 +135,8 @@ def run_case(
                 f"unexpected output: messages={messages} producers={producers} "
                 f"consumers={consumers} capacity={capacity} rep={rep}\n{completed.stdout}"
             )
+        if not parsed.get("hybrid_valid") or not parsed.get("spin_valid"):
+            raise RuntimeError(f"Invalid count/checksum: {completed.stdout}")
         item = {
             "messages": messages,
             "producers": producers,
@@ -140,8 +148,8 @@ def run_case(
             "spin_time_ms": float(parsed["spin_time_ms"]),
             "hybrid_valid": bool(parsed["hybrid_valid"]),
             "spin_valid": bool(parsed["spin_valid"]),
-            "ratio_spin_hybrid": float(parsed.get("sleep0_cost_ratio", 1.0)),
-            "pct_spin_vs_hybrid": float(parsed.get("spin_vs_hybrid_pct", 0.0)),
+            "ratio_spin_hybrid": float(parsed["spin_time_ms"]) / float(parsed["hybrid_time_ms"]),
+            "pct_spin_vs_hybrid": 100 * (float(parsed["spin_time_ms"]) / float(parsed["hybrid_time_ms"]) - 1),
         }
         results.append(item)
     return results
@@ -220,8 +228,12 @@ def main() -> None:
     parser.add_argument("--output", type=str, default=str(DEFAULT_OUTPUT))
     parser.add_argument("--no-compile", action="store_true")
     parser.add_argument("--pinning", action="store_true", help="Run each benchmark under taskset CPU pinning")
+    parser.add_argument("--point4", action="store_true", help="Run 2P/2C, 4P/2C, 8P/2C, 8P/8C with process affinity OFF/ON in shuffled paired blocks")
     parser.add_argument("--cpus", type=str, default="0,1,2,3,4,5,6,7", help="Comma-separated CPU list for taskset when --pinning is enabled")
     args = parser.parse_args()
+
+    if args.repetitions < 2:
+        parser.error("at least two repetitions are required")
 
     configs = config_grid(args)
     if not configs:
@@ -233,6 +245,43 @@ def main() -> None:
         raise SystemExit(f"Binary not found: {BINARY_PATH}")
 
     rows: list[dict[str, float | bool | int | str]] = []
+    if args.point4:
+        configs = [(m, p, c, cap) for m in parse_csv_ints(args.messages)
+                   for p, c in [(2, 2), (4, 2), (8, 2), (8, 8)]
+                   for cap in parse_csv_ints(args.capacity)]
+        cases = [(config, pin) for config in configs for pin in (False, True)]
+        rng = random.Random(args.seed)
+        output_path = Path(args.output)
+        manifest = {
+            "started_utc": datetime.now(timezone.utc).isoformat(),
+            "args": vars(args), "system": platform.platform(),
+            "compiler": subprocess.check_output(["mojo", "--version"], text=True).strip(),
+            "cpu": subprocess.check_output(["lscpu"], text=True),
+            "affinity_off": sorted(os.sched_getaffinity(0)),
+            "affinity_on": parse_csv_ints(args.cpus),
+            "policy": "20 paired repetitions recommended; two unrecorded warmups per case; shuffled case blocks; same worker submission seed in each pair; H/S order alternates with seed parity. taskset is process affinity, not dedicated worker pinning. No outlier removal.",
+            "source_sha256": {str(path.relative_to(ROOT)): hashlib.sha256(path.read_bytes()).hexdigest()
+                              for path in [Path(__file__), SOURCE_DIR / "PaddedFAA_spin.mojo", ROOT / "MoStream/Padded_FAA_queue.mojo"]},
+            "binary_sha256": hashlib.sha256(BINARY_PATH.read_bytes()).hexdigest(),
+            "status": "running",
+        }
+        manifest_path = output_path.with_suffix(".manifest.json")
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+        for config, pin in cases:
+            run_case(*config, 2, args.seed, pin, args.cpus)
+        for rep in range(args.repetitions):
+            rng.shuffle(cases)
+            for config, pin in cases:
+                samples = run_case(*config, 1, args.seed + rep, pin, args.cpus)
+                samples[0]["rep"] = rep
+                rows.extend(samples)
+                write_csv(rows, output_path)
+            print(f"Block {rep + 1}/{args.repetitions} complete", flush=True)
+        manifest.update(status="complete", finished_utc=datetime.now(timezone.utc).isoformat(),
+                        samples=len(rows), csv_sha256=hashlib.sha256(output_path.read_bytes()).hexdigest())
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+        print_summary(rows, args)
+        return
     for messages, producers, consumers, capacity in configs:
         rows.extend(
             run_case(

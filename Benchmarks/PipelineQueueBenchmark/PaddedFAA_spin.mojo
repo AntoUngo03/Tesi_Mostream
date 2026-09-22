@@ -100,7 +100,7 @@ struct PaddedFAASpinQueue[T: Copyable & Deinitable](Movable):
         self.size = UInt64(size)
         self.mask = UInt64(size - 1)
 
-        self.slots = alloc[PaddedFAASpinSlot[Self.T]](
+        self.slots = unsafe_alloc[PaddedFAASpinSlot[Self.T]](
             size, alignment=64
         )
 
@@ -299,7 +299,7 @@ def run_padded_faa_benchmark(
     consumers: Int,
     capacity: Int,
     seed: UInt64,
-) raises -> Tuple[Float64, UInt64, UInt64]:
+) raises -> Tuple[Float64, UInt64, UInt64, UInt64]:
     var queue = PaddedFAAQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
     var counts = unsafe_alloc[UInt64](consumers)
@@ -356,7 +356,7 @@ def run_padded_faa_benchmark(
 
     counts.unsafe_free()
     checksums.unsafe_free()
-    return (Float64(elapsed_ns) / 1_000_000.0, total, actual_count)
+    return (Float64(elapsed_ns) / 1_000_000.0, total, actual_count, actual_checksum)
 
 
 def run_padded_faa_spin_benchmark(
@@ -365,7 +365,7 @@ def run_padded_faa_spin_benchmark(
     consumers: Int,
     capacity: Int,
     seed: UInt64,
-) raises -> Tuple[Float64, UInt64, UInt64]:
+) raises -> Tuple[Float64, UInt64, UInt64, UInt64]:
     var queue = PaddedFAASpinQueue[Int](capacity)
     var finished = Atomic[DType.uint64](0)
     var counts = unsafe_alloc[UInt64](consumers)
@@ -377,7 +377,7 @@ def run_padded_faa_spin_benchmark(
     var order = List[Int]()
     for i in range(producers + consumers):
         order.append(i)
-    shuffle_list(order, seed ^ UInt64(0xA5A5A5A5A5A5A5A5))
+    shuffle_list(order, seed)
 
     var start = perf_counter_ns()
 
@@ -422,7 +422,7 @@ def run_padded_faa_spin_benchmark(
 
     counts.unsafe_free()
     checksums.unsafe_free()
-    return (Float64(elapsed_ns) / 1_000_000.0, total, actual_count)
+    return (Float64(elapsed_ns) / 1_000_000.0, total, actual_count, actual_checksum)
 
 
 def main() raises:
@@ -448,12 +448,14 @@ def main() raises:
         print("Usage: PaddedFAA_spin <messages> <producers> <consumers> <capacity> [seed]")
         raise Error("invalid benchmark parameters")
 
-    var baseline = run_padded_faa_benchmark(
-        messages, producers, consumers, capacity, seed
-    )
-    var spin = run_padded_faa_spin_benchmark(
-        messages, producers, consumers, capacity, seed
-    )
+    var baseline: Tuple[Float64, UInt64, UInt64, UInt64]
+    var spin: Tuple[Float64, UInt64, UInt64, UInt64]
+    if seed % 2 == 0:
+        baseline = run_padded_faa_benchmark(messages, producers, consumers, capacity, seed)
+        spin = run_padded_faa_spin_benchmark(messages, producers, consumers, capacity, seed)
+    else:
+        spin = run_padded_faa_spin_benchmark(messages, producers, consumers, capacity, seed)
+        baseline = run_padded_faa_benchmark(messages, producers, consumers, capacity, seed)
 
     var baseline_ms = baseline[0]
     var spin_ms = spin[0]
@@ -464,14 +466,14 @@ def main() raises:
         Int(baseline_ms * 1_000_000.0),
         expected,
         baseline[2],
-        expected * (expected - 1) // 2,
+        baseline[3],
     )
     print_queue_result(
         "PaddedFAASpinQueue",
         Int(spin_ms * 1_000_000.0),
         expected,
         spin[2],
-        expected * (expected - 1) // 2,
+        spin[3],
     )
 
     var ratio = 1.0
