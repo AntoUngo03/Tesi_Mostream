@@ -1,10 +1,2 @@
 # .DS_Store are banished
 .DS_Store
-
-# Compiled files
-*.o
-*.so
-
-# File compilati
-*.o
-*.so
