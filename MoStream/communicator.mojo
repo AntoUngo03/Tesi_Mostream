@@ -13,13 +13,12 @@
 #  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # ===------------------------------------------------------------------------=== #
 
-from std.memory.alloc import unsafe_alloc
-from MoStream.pipeline_queue import PipelineQueue, USE_COOPERATIVE_FAA
-from MoStream.Cooperative_FAA_queue import PushOperation, PopOperation, PollStatus
+from MoStream.MPMC_queue import MPMCQueue
 from std.collections import Optional
 from std.sys.info import size_of
 from std.atomic import Atomic, Ordering
-from std.memory import Reference
+from std.memory.alloc import unsafe_alloc
+from std.memory import Pointer
 from MoStream.utils import print_red_color
 
 # Trait of messages that can be sent through the Communicator
@@ -42,7 +41,7 @@ struct MessageWrapper[T: MessageTrait](Copyable):
 
 # Communicator that uses a lock-free MPMC queue to send messages between threads
 struct Communicator[T: MessageTrait](Movable):
-    var queue: PipelineQueue[MessageWrapper[Self.T]]
+    var queue: Pointer[MPMCQueue[MessageWrapper[Self.T]], MutUntrackedOrigin]
     var prodNum: Int # number of producers
     var consNum: Int # number of consumers
     var destroyCount: Pointer[Atomic[DType.int64], MutUntrackedOrigin]
@@ -51,7 +50,8 @@ struct Communicator[T: MessageTrait](Movable):
 
     # constructor
     def __init__(out self, pN: Int, cN: Int, queue_size: Int) raises:
-        self.queue = PipelineQueue[MessageWrapper[Self.T]](size=queue_size, producers=pN)
+        self.queue = unsafe_alloc[MPMCQueue[MessageWrapper[Self.T]]](1)
+        self.queue.unsafe_write(MPMCQueue[MessageWrapper[Self.T]](size=queue_size))
         self.prodNum = pN
         self.consNum = cN
         self.destroyCount = unsafe_alloc[Atomic[DType.int64]](1)
@@ -66,7 +66,7 @@ struct Communicator[T: MessageTrait](Movable):
 
     # move constructor
     def __init__(out self, *, deinit move: Self):
-        self.queue = move.queue^
+        self.queue = move.queue
         self.prodNum = move.prodNum
         self.consNum = move.consNum
         self.destroyCount = move.destroyCount
@@ -75,6 +75,8 @@ struct Communicator[T: MessageTrait](Movable):
 
     # destructor
     def __deinit__(deinit self):
+        self.queue.unsafe_deinit_pointee()
+        self.queue.unsafe_free()
         self.destroyCount.unsafe_deinit_pointee()
         self.destroyCount.unsafe_free()
         self.remainingProducers.unsafe_deinit_pointee()
@@ -84,15 +86,10 @@ struct Communicator[T: MessageTrait](Movable):
 
     # check if the communicator is closed (i.e., no more messages will be sent)
     def is_closed(mut self) -> Bool:
-        comptime if USE_COOPERATIVE_FAA:
-            return self.queue.cooperative_ref()[].is_closed()
         return self.closed[].load[ordering=Ordering.ACQUIRE]() == Int64(1)
 
     # signaling that a producer has finished sending messages (to coordinate the sending of end-of-stream messages)
     def producer_finished(mut self):
-        comptime if USE_COOPERATIVE_FAA:
-            self.queue.cooperative_ref()[].producer_finished()
-            return
         var old_count = self.remainingProducers[].fetch_sub[ordering=Ordering.ACQUIRE_RELEASE](1)
         if old_count == Int64(1):
             Atomic[DType.int64].store[ordering=Ordering.RELEASE](Pointer(to=self.closed[].value), Int64(1))
@@ -104,11 +101,11 @@ struct Communicator[T: MessageTrait](Movable):
 
     # push (continuous retry until a message has been successfully pushed)
     def push(mut self, var msg: MessageWrapper[Self.T]):
-        _ = self.queue.push(msg^)
+        _ = self.queue[].push(msg^)
 
     # try_push (returns None if the message has been successfully pushed, or the message itself if the queue is currently full)
     def try_push(mut self, var msg: MessageWrapper[Self.T]) -> Optional[MessageWrapper[Self.T]]:
-        return self.queue.try_push(msg^)
+        return self.queue[].try_push(msg^)
 
     # pop (continuous retry until a message is available)
     def pop(mut self) -> MessageWrapper[Self.T]:
@@ -120,29 +117,15 @@ struct Communicator[T: MessageTrait](Movable):
     # try_pop (returns None when no message is currently available)
     def try_pop(mut self) -> Optional[MessageWrapper[Self.T]]:
         # first try_pop
-        var maybe_msg = self.queue.try_pop()
+        var maybe_msg = self.queue[].try_pop()
         if maybe_msg:
             return maybe_msg^
         # if the queue looked empty, check whether producers are finished
         if not self.is_closed():
             return None
         # critical recheck
-        maybe_msg = self.queue.try_pop()
+        maybe_msg = self.queue[].try_pop()
         if maybe_msg:
             return maybe_msg^
         # closed and still empty after the synchronized recheck
         return Optional(MessageWrapper[Self.T](eos=True))
-
-    # get the estimated number of messages currently in the communicator
-    def estimated_len(self) -> Int:
-        return self.queue.estimated_len()
-
-    def poll_push(mut self, mut operation: PushOperation[MessageWrapper[Self.T]]) -> Int:
-        return self.queue.cooperative_ref()[].poll_push(operation)
-
-    def poll_pop(mut self, mut operation: PopOperation[MessageWrapper[Self.T]]) -> Int:
-        var status = self.queue.cooperative_ref()[].poll_pop(operation)
-        if status == PollStatus.CLOSED:
-            operation.item = Optional(MessageWrapper[Self.T](eos=True))
-            return PollStatus.SUCCESS
-        return status

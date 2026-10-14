@@ -17,8 +17,6 @@ from MoStream.stage import StageKind, StageTrait
 from MoStream.communicator import MessageTrait, Communicator, MessageWrapper
 from MoStream.utils import print_red_color
 from MoStream.emitter import Emitter
-from MoStream.pipeline_queue import USE_COOPERATIVE_FAA
-from MoStream.Cooperative_FAA_queue import PushOperation, PopOperation, PollStatus
 
 # The actor activation might produce one of the following statuses:
 struct ActorStatus:
@@ -34,48 +32,43 @@ struct Actor[StageT: StageTrait](Movable & Deinitable):
     var stage: Self.StageT
     var in_comm: Pointer[Communicator[Self.StageT.InType], MutUntrackedOrigin]
     var out_comm: Pointer[Communicator[Self.StageT.OutType], MutUntrackedOrigin]
-    var input_operation: PopOperation[MessageWrapper[Self.StageT.InType]]
-    var output_operation: PushOperation[MessageWrapper[Self.StageT.OutType]]
+    var pending_input: Optional[MessageWrapper[Self.StageT.InType]]
+    var pending_output: Optional[MessageWrapper[Self.StageT.OutType]]
     var done: Bool
 
     # constructor
     def __init__(out self,
                 stage: Self.StageT,
-                in_comm: Pointer[mut=True, Communicator[Self.StageT.InType], _],
-                out_comm: Pointer[mut=True, Communicator[Self.StageT.OutType], _]):
+                in_comm: Pointer[mut=True, Communicator[Self.StageT.InType], MutUntrackedOrigin],
+                out_comm: Pointer[mut=True, Communicator[Self.StageT.OutType], MutUntrackedOrigin]):
         self.stage = stage.copy()
-        # Communicators are heap allocated by Pipeline and released only by
-        # the last consumer after EOS; they outlive these actor accesses.
-        self.in_comm = in_comm.unsafe_origin_cast[MutUntrackedOrigin]()
-        self.out_comm = out_comm.unsafe_origin_cast[MutUntrackedOrigin]()
-        self.input_operation = PopOperation[MessageWrapper[Self.StageT.InType]]()
-        self.output_operation = PushOperation[MessageWrapper[Self.StageT.OutType]]()
+        self.in_comm = in_comm
+        self.out_comm = out_comm
+        self.pending_input = None
+        self.pending_output = None
         self.done = False
 
     # get a new input (the pending one or try to pop from the input communicator)
     def take_or_try_pop_input(mut self) -> Optional[MessageWrapper[Self.StageT.InType]]:
-        if self.try_pop_input_for_parking():
-            return Optional(self.input_operation.item.take())
-        return None
+        if self.pending_input:
+            return Optional(self.pending_input.take())
+        return self.in_comm[].try_pop()
 
     # try to pop an input for parking, returns true if successful
     def try_pop_input_for_parking(mut self) -> Bool:
-        if self.input_operation.item:
+        var maybe_msg = self.in_comm[].try_pop()
+        if maybe_msg:
+            self.pending_input = maybe_msg^
             return True
-        comptime if USE_COOPERATIVE_FAA:
-            return self.in_comm[].poll_pop(self.input_operation) == PollStatus.SUCCESS
-        else:
-            self.input_operation.item = self.in_comm[].try_pop()
-            return Bool(self.input_operation.item)
+        return False
 
     # retry pushing the pending output
     def retry_push_pending_output(mut self) -> Bool:
-        if self.output_operation.item:
-            comptime if USE_COOPERATIVE_FAA:
-                return self.out_comm[].poll_push(self.output_operation) == PollStatus.SUCCESS
-            else:
-                self.output_operation.item = self.out_comm[].try_push(self.output_operation.item.take())
-                return not self.output_operation.item
+        if self.pending_output:
+            var not_delivered = self.out_comm[].try_push(self.pending_output.take())
+            if not_delivered:
+                self.pending_output = not_delivered^
+                return False
         return True
 
     # actor process (SOURCE)
@@ -91,8 +84,9 @@ struct Actor[StageT: StageTrait](Movable & Deinitable):
             self.stage.received_eos()
             return ActorStatus.DONE
         var msg = MessageWrapper[Self.StageT.OutType](data=rebind[Optional[Self.StageT.OutType]](maybe_output).take(), eos=False)
-        self.output_operation.item = Optional(msg^)
-        if not self.retry_push_pending_output():
+        var not_delivered = self.out_comm[].try_push(msg^)
+        if not_delivered:
+            self.pending_output = not_delivered^
             return ActorStatus.BLOCKED_OUTPUT
         return ActorStatus.READY
 
@@ -110,13 +104,17 @@ struct Actor[StageT: StageTrait](Movable & Deinitable):
             self.done = True
             self.out_comm[].producer_finished()
             self.stage.received_eos()
-            # Pipeline releases communicators after all scheduler notifications.
+            # try to destroy the input communicator
+            if (self.in_comm[].check_isDestroyable()):
+                self.in_comm.unsafe_deinit_pointee()
+                self.in_comm.unsafe_free()
             return ActorStatus.DONE
         var maybe_output = self.stage.compute(rebind[MessageWrapper[Self.StageT.InType]](input).data.take())
         if maybe_output:
             var output = MessageWrapper[Self.StageT.OutType](data=rebind[Optional[Self.StageT.OutType]](maybe_output).take(), eos=False)
-            self.output_operation.item = Optional(output^)
-            if not self.retry_push_pending_output():
+            var not_delivered = self.out_comm[].try_push(output^)
+            if not_delivered:
+                self.pending_output = not_delivered^
                 return ActorStatus.BLOCKED_OUTPUT
         return ActorStatus.READY
 
@@ -131,7 +129,10 @@ struct Actor[StageT: StageTrait](Movable & Deinitable):
         if input.eos:
             self.done = True
             self.stage.received_eos()
-            # Pipeline releases communicators after all scheduler notifications.
+            # try to destroy the input communicator
+            if (self.in_comm[].check_isDestroyable()):
+                self.in_comm.unsafe_deinit_pointee()
+                self.in_comm.unsafe_free()
             return ActorStatus.DONE
         self.stage.consume_element(rebind[MessageWrapper[Self.StageT.InType]](input).data.take())
         return ActorStatus.READY

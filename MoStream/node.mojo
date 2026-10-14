@@ -13,11 +13,12 @@
 #  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # ===------------------------------------------------------------------------=== #
 
-from std.memory.alloc import unsafe_alloc
 from MoStream.stage import StageTrait
 from MoStream.communicator import MessageTrait
 from MoStream.actor import Actor
 from MoStream.utils import print_red_color
+from std.memory.alloc import unsafe_alloc
+from std.memory import Pointer
 
 # General trait of a pipeline node
 trait NodeTrait(Movable & Deinitable):
@@ -55,7 +56,7 @@ struct SeqNode[st: StageTrait](NodeTrait):
     # destructor
     def __deinit__(deinit self):
         for i in range(self.actor_count):
-            (self.actors.unsafe_offset(i)).unsafe_deinit_pointee()
+            self.actors.unsafe_offset(i).unsafe_deinit_pointee()
         self.actors.unsafe_free()
 
     # return the parallelism degree
@@ -71,7 +72,7 @@ struct SeqNode[st: StageTrait](NodeTrait):
         if self.actor_count >= 1:
             print_red_color("{MoStream} Error: SeqNode can only have one actor!")
             raise Error("error in add_actor()")
-        (self.actors.unsafe_offset(self.actor_count)).unsafe_write(actor^)
+        self.actors.unsafe_offset(self.actor_count).unsafe_write(actor^)
         self.actor_count += 1
 
     # return a pointer to the actor with the given replica index (used by the cooperative runtime)
@@ -99,7 +100,7 @@ struct ParallelNode[st: StageTrait](NodeTrait):
     # destructor
     def __deinit__(deinit self):
         for i in range(self.actor_count):
-            (self.actors.unsafe_offset(i)).unsafe_deinit_pointee()
+            self.actors.unsafe_offset(i).unsafe_deinit_pointee()
         self.actors.unsafe_free()
 
     # return the parallelism degree
@@ -112,7 +113,10 @@ struct ParallelNode[st: StageTrait](NodeTrait):
 
     # add an actor running this node (used by the cooperative runtime)
     def add_actor(mut self, var actor: Actor[Self.StageT]) raises:
-        (self.actors.unsafe_offset(self.actor_count)).unsafe_write(actor^)
+        if self.actor_count >= self.parDegree:
+            print_red_color("{MoStream} Error: ParallelNode can only have " + String(self.parDegree) + " actors!")
+            raise Error("error in add_actor()")
+        self.actors.unsafe_offset(self.actor_count).unsafe_write(actor^)
         self.actor_count += 1
 
     # return a pointer to the actor with the given replica index (used by the cooperative runtime)
@@ -120,7 +124,7 @@ struct ParallelNode[st: StageTrait](NodeTrait):
         if replica_idx >= self.actor_count:
             print_red_color("{MoStream} Error: invalid replica index accessed with actor_ref()!")
             raise Error("error in actor_ref()")
-        return (self.actors.unsafe_offset(replica_idx))
+        return self.actors.unsafe_offset(replica_idx)
 
 # Helper function to create a SeqNode
 def seq[StageT: StageTrait](stage: StageT) -> SeqNode[StageT]:

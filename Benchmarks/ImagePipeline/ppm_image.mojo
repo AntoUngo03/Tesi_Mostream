@@ -13,8 +13,9 @@
 #  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # ===------------------------------------------------------------------------=== #
 
-from std.memory.alloc import unsafe_alloc
 from std.memory import unsafe_memcpy, unsafe_memset
+from std.memory.alloc import unsafe_alloc
+from std.memory import Pointer
 
 # A simple PPM image class with planar RGB data layout (Struct of Arrays)
 struct PPMImage(Copyable & Deinitable):
@@ -103,9 +104,9 @@ struct PPMImage(Copyable & Deinitable):
     @always_inline
     def set_pixel(mut self, x: Int, y: Int, r: UInt8, g: UInt8, b: UInt8):
         var idx = y * self.width + x
-        (self.r_ptr().unsafe_offset(idx)).unsafe_store(0, r)
-        (self.g_ptr().unsafe_offset(idx)).unsafe_store(0, g)
-        (self.b_ptr().unsafe_offset(idx)).unsafe_store(0, b)
+        self.r_ptr().unsafe_offset(idx).unsafe_store(0, r)
+        self.g_ptr().unsafe_offset(idx).unsafe_store(0, g)
+        self.b_ptr().unsafe_offset(idx).unsafe_store(0, b)
 
     # compute a simple checksum by summing all bytes as UInt64
     @always_inline

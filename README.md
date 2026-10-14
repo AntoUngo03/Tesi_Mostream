@@ -23,12 +23,13 @@ running a replica of the stage).
 - Source, transform, one-to-many transform, and sink stages.
 - Sequential nodes with `seq(stage)`.
 - Replicated parallel nodes with `parallel(stage, degree)`.
+- Standard and cooperative runtime backends.
 - Optional CPU pinning through a small C helper library.
 - Configurable communicators (e.g., customizable queue size).
 
 ## Requirements
 
-- Mojo 1.0.0 (the tested toolchain for this version).
+- Mojo toolchain (version >= 1.0.0)
 - A C compiler such as `gcc` for the CPU-affinity helper.
 - Linux-style pthread CPU affinity support for thread pinning.
 
@@ -54,35 +55,6 @@ mojo -O3 -I. Tests/test_pipe_1.mojo
 ```
 
 If `MOSTREAM_HOME` is not set, MoStream falls back to the current directory.
-
-### Mojo 1.0 migration and validation
-
-The library, tests, and benchmarks use Mojo 1.0's `Pointer`, `Array`,
-`Deinitable`, `__deinit__`, and `deinit move` APIs. Manually managed allocations
-use `MutUntrackedOrigin` and explicit `unsafe_*` operations; their owners must
-remain alive until all pointer accesses and asynchronous tasks have finished.
-Timer values use `Int`, matching `perf_counter_ns()`.
-
-The CPU queue tests and benchmarks use `TaskGroup` from Mojo's runtime, so they
-do not require MAX's relocated `parallelize` API. See the
-[Mojo 1.0 release notes](https://mojolang.org/releases/v1.0.0/) for language changes.
-
-Build with warnings treated as errors and run all tests, including image
-copy/move and filter checks:
-
-```sh
-python3 Tests/run_tests.py
-```
-
-To also compile every benchmark entry point:
-
-```sh
-python3 Tests/run_tests.py --benchmarks
-```
-
-The runner builds the C helpers, links the native wCQ object where required,
-and supplies the worker count to the cooperative pipeline test. Benchmark
-compilation does not execute the timed performance workloads.
 
 ## Quick Example
 
@@ -209,10 +181,6 @@ The source stage must be the first pipeline stage, and the sink stage must be
 the last. The total number of node replicas must fit within Mojo's available
 async runtime parallelism.
 
-The source stage must be the first pipeline stage, and the sink stage must be
-the last. The total number of node replicas must fit within Mojo's available
-async runtime parallelism.
-
 ## Runtime Backends
 
 MoStream provides two execution runtimes: the standard runtime and the
@@ -244,10 +212,12 @@ creates one task for the source, two tasks for `stage_a`, four tasks for
 `stage_b`, and one task for the sink.
 
 Each task repeatedly executes the logic of its stage and communicates with the
-next/previous stage through bounded communicators. This runtime is simple
-and direct, but each node replica occupies one task for the whole lifetime of
-the pipeline. Therefore, the total number of node replicas should not exceed the
-parallelism available in Mojo's async runtime.
+next/previous stage through bounded communicators. Communication primitives
+perform busy-waiting with tight spin loops. This runtime is simple and direct
+but each node replica occupies one task for the whole lifetime of the pipeline,
+and the number of tasks cannot exceed the available parallelism (numer of threads)
+available in Mojo's async runtime. Therefore, conceptually we have a one-to-one
+mapping between nodes <-> tasks <-> threads.
 
 Use the standard runtime when the pipeline parallelism degree naturally matches
 the number of available runtime threads.
@@ -263,21 +233,11 @@ pipeline.run_cooperative(n_workers)
 where `n_workers` is the number of scheduler workers used to execute the
 pipeline actors.
 
-An optional `batch_size` limits the number of stage processing steps per
-activation, stopping early when an actor blocks or finishes:
-
-```mojo
-pipeline.run_cooperative(4, batch_size=8)
-```
-
-The default batch size is one. Completed runs expose
-`cooperative_execution_ns`, `cooperative_activations`,
-`cooperative_input_parks`, and `cooperative_output_parks` on the pipeline.
-
-In this runtime, each node replica is represented as an actor. Actors do not own
-a runtime thread permanently. Instead, a smaller number of scheduler workers
-repeatedly pick ready actors, run one non-blocking activation, and then either
-reschedule the actor or park it if it cannot make progress.
+In this runtime, each node replica is represented as an actor. MoStream creates
+one task for each thread in the Mojo asynchronous runtime, and each task is
+expected to remain bound to the same thread throughout its execution. However,
+MoStream dynamically schedules actors onto this pool of tasks, allowing each task
+to execute different actors over its lifetime.
 
 For example:
 
@@ -292,31 +252,22 @@ var pipeline = Pipeline((
 pipeline.run_cooperative(4)
 ```
 
-creates many logical actors, but only four scheduler workers execute them. This
+creates many logical actors, but only four scheduler threads execute them. This
 allows MoStream to experiment with pipeline configurations where the number of
-logical stage replicas is larger than the number of runtime worker threads.
+logical stage replicas is larger than the available parallelism degree.
 
 The cooperative runtime is especially useful when some stages frequently block
 on input or output. In that case, blocked actors do not need to occupy a worker
-thread while waiting. Please, note that TRANSFORM_MANY stages are currently
+thread while waiting. Please, note that `TRANSFORM_MANY` stages are currently
 not supported with the cooperative runtime.
 
 ## Runtime Configuration
 
 ### Queue Size
 
-MoStream uses bounded MPMC queues between stages. The default backend is the
-original CAS queue; a build can select the experimental Padded-FAA backend for
-the inter-stage communicators with `-DMOSTREAM_PADDED_FAA=1`. The cooperative
-scheduler's internal ready/wait queues remain CAS-based. The default queue size
-is `1024`. Queue sizes must be powers of two and at least `2`.
-
-`-DMOSTREAM_COOPERATIVE_FAA=1` selects an experimental backend whose cooperative
-actors retain FAA tickets while parked. It uses broadcast wakeups for blocked
-actors on the affected connection; the ready queue remains CAS-based. Select
-only one data queue backend per build. See the
-[real cooperative pipeline comparison](Benchmarks/RealCooperativeQueueBenchmark/README.md)
-for measurements, correctness checks, and limitations.
+MoStream currently adopts just one communicator type. This uses bounded MPMC queues
+between stages. The default queue size is `1024`. Queue sizes must be powers of two
+and at least `2`.
 
 ```mojo
 pipeline.setQueueSize(2048)
@@ -348,7 +299,7 @@ TimedImageSource -> Grayscale -> GaussianBlur -> Sharpen -> ImageSink
 Run it with the parallelism degree for each transform stage:
 
 ```sh
-mojo -I. Benchmarks/ImagePipeline/test_image_1.mojo 1 2 4 2 1
+mojo Benchmarks/ImagePipeline/test_image_pipeline.mojo 2 4 2
 ```
 
 ## License

@@ -4,3 +4,7 @@
 # Compiled files
 *.o
 *.so
+
+# File compilati
+*.o
+*.so

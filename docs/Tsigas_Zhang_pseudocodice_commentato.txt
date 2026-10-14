@@ -1,0 +1,117 @@
+Appunti personali di lettura e pseudocodice commentato
+
+Fonte: Philippas Tsigas e Yi Zhang, "A Simple, Fast and Scalable
+Non-Blocking Concurrent FIFO Queue for Shared Memory Multiprocessor
+Systems", SPAA '01, 2001, pp. 134-143, DOI 10.1145/378580.378611.
+Figure di riferimento: 5, 6 e 7, pp. 138-140 del paper.
+Il documento originale reca copyright ACM 2001. Il suo avviso consente
+copie personali o didattiche alle condizioni indicate nella prima pagina;
+per ripubblicazione e distribuzione si applicano le condizioni originali.
+
+Questa e una riscrittura didattica, NON codice C/C++/Mojo eseguibile.
+Le operazioni condivise sono quelle del modello astratto del paper;
+non sono specificati ordini di memoria per un'implementazione moderna.
+Il paper alterna MAXNUM e MAX_NODES: qui uso un solo nome MASK.
+L e il numero di celle dell'anello, potenza di due; MASK = L - 1.
+I due marcatori EMPTY0 e EMPTY1 rappresentano NULL(0) e NULL(1).
+Non sono puntatori a oggetti da dereferenziare.
+Il codice delle figure usa m = 2, con aggiornamenti sugli indici pari.
+La protezione ABA e subordinata all'ipotesi del Teorema 1 del paper.
+
+INIZIALIZZAZIONE (Figura 5)
+
+head = 0                         # Indice guida prima del primo candidato alla lettura.
+tail = 1                         # Indice guida del primo candidato alla scrittura.
+vnull = EMPTY1                   # Colore di vuoto della generazione iniziale di consumo.
+for i in 0 .. L-1:               # Visita tutte le celle realmente appartenenti all'anello.
+    nodes[i] = EMPTY0            # Le celle non contengono puntatori a dati.
+nodes[0] = EMPTY1                # La cella zero conserva il colore di riferimento iniziale.
+
+ENQUEUE(newnode) (Figura 6)
+
+loop:                           # Riprova in caso di interferenza o dopo un aggiornamento di aiuto.
+    te = tail                   # Salva l'indice guida condiviso di scrittura.
+    ate = te                    # Candidato locale alla posizione effettiva di inserimento.
+    tt = nodes[ate]             # Legge il contenuto atteso dalla futura CAS.
+    temp = (ate + 1) & MASK     # Indice successivo, con ritorno a zero alla fine dell'anello.
+    while tt != EMPTY0 and tt != EMPTY1: # Una cella occupata indica che tail puo essere arretrato.
+        if te != tail: break    # Se cambia la guida, interrompe la scansione e poi ricomincia.
+        if temp == head: break  # Non supera il confine indicato da head senza verificarlo.
+        tt = nodes[temp]        # Legge la cella successiva per cercare una posizione vuota.
+        ate = temp              # Aggiorna il candidato locale di inserimento.
+        temp = (ate + 1) & MASK # Prepara il prossimo indice della scansione.
+    if te != tail: continue     # Scarta la scansione basata su una guida non piu valida.
+    if temp == head:            # Possibile coda piena, oppure head arretrato.
+        ate = (temp + 1) & MASK # Controlla la cella successiva alla guida di lettura.
+        tt = nodes[ate]         # Legge se quel confine e ancora occupato.
+        if tt != EMPTY0 and tt != EMPTY1:
+            return FAILURE      # Il confine e occupato: l'inserimento segnala coda piena.
+        if ate == 0:            # L'aiuto alla lettura attraverserebbe la cella zero.
+            vnull = tt          # Aggiorna il colore di riferimento dal marcatore osservato.
+        CAS(head, temp, ate)    # Aiuta ad avanzare head se vale ancora temp.
+        continue                # Ricalcola la posizione dopo l'aiuto, anche se la CAS fallisce.
+    if te != tail: continue     # Verifica ancora la coerenza prima di modificare una cella.
+    if CAS(nodes[ate], tt, newnode): # Sostituisce atomicamente il marcatore osservato con il dato.
+        if temp % 2 == 0:       # Aggiornamento periodico della guida: m = 2 nel paper.
+            CAS(tail, te, temp) # Prova ad avanzare tail; il fallimento non annulla l'inserimento.
+        return SUCCESS          # Il dato e gia pubblicato nella cella dalla CAS riuscita.
+
+DEQUEUE(oldnode) (Figura 7)
+
+loop:                           # Riprova se la scansione diventa obsoleta o perde la CAS.
+    th = head                   # Salva la guida condivisa di lettura.
+    temp = (th + 1) & MASK      # La lettura parte dalla cella successiva alla guida.
+    tt = nodes[temp]            # Legge il contenuto del candidato.
+    while tt == EMPTY0 or tt == EMPTY1: # Salta celle gia svuotate, se head e arretrato.
+        if th != head: break    # La guida e cambiata: la scansione deve essere rifatta.
+        if temp == tail:        # Ha raggiunto il confine di scrittura su una cella vuota.
+            return 1            # Convenzione della figura: 1 significa coda vuota.
+        temp = (temp + 1) & MASK # Passa alla cella successiva nell'anello.
+        tt = nodes[temp]         # Legge il prossimo candidato.
+    if th != head: continue     # Verifica che la guida di lettura sia ancora quella salvata.
+    if temp == tail:            # La cella e occupata ma tail non ne ha ancora registrato l'inserimento.
+        CAS(tail, temp, (temp + 1) & MASK) # Aiuta il produttore ad avanzare la guida di scrittura.
+        continue                # Riparte dalla struttura aggiornata.
+    if temp != 0:              # Caso in cui non si sta consumando la cella zero.
+        if temp < th:           # La scansione locale ha attraversato la fine dell'anello.
+            tnull = nodes[0]    # Recupera il colore associato al passaggio per la cella zero.
+        else:
+            tnull = vnull       # Usa il colore di vuoto condiviso corrente.
+    else:                      # Consumo della cella zero: inizia una nuova fase del colore.
+        tnull = flip(vnull)     # Equivale concettualmente all'XOR con 1 della figura originale.
+    if th != head: continue     # Scarta il tentativo se nel frattempo cambia la guida di lettura.
+    if CAS(nodes[temp], tt, tnull): # Sostituisce il dato atteso con il marcatore di vuoto scelto.
+        if temp == 0:
+            vnull = tnull       # Pubblica il colore associato al nuovo passaggio per zero.
+        if temp % 2 == 0:       # Aggiorna periodicamente head, con m = 2.
+            CAS(head, th, temp) # Il fallimento della CAS di aiuto non annulla l'estrazione riuscita.
+        oldnode = tt            # Restituisce il puntatore estratto; nell'originale si scrive *oldnode.
+        return 0                # Convenzione della figura: 0 significa estrazione riuscita.
+
+ESEMPIO SENZA CONCORRENZA, L = 8
+
+Stato iniziale: head = 0, tail = 1, nodes[0] = EMPTY1, altre celle EMPTY0.
+Enqueue(A): scrive nella cella 1 e porta tail a 2, perche 2 e pari.
+Enqueue(B): scrive nella cella 2 e lascia tail a 2, perche 3 e dispari.
+Enqueue(C): vede la cella 2 occupata, scrive nella cella 3 e porta tail a 4.
+Dequeue: estrae A dalla cella 1 e lascia head a 0, perche 1 e dispari.
+Dequeue: salta la cella 1 vuota, estrae B dalla cella 2 e porta head a 2.
+Dequeue: estrae C dalla cella 3 e lascia head a 2.
+Dequeue: salta la cella 3, trova la cella 4 vuota con tail = 4, restituisce 1.
+
+OSSERVAZIONI
+
+- La cella viene modificata prima dell'eventuale aggiornamento della guida.
+- Le CAS su head e tail sono aggiornamenti ausiliari e possono essere aiutati.
+- Nel normale schema non conteso il costo previsto e circa 1 + 1/m CAS
+  per operazione, compensato da ulteriori letture per cercare il confine reale.
+  Non e un limite sul numero di tentativi CAS quando c'e contesa.
+- Due marcatori evitano l'ABA breve EMPTY0 -> dato -> EMPTY0, sostituendolo
+  con EMPTY0 -> dato -> EMPTY1; dopo abbastanza giri il colore si ripete.
+- Il Teorema 1 assume che un'operazione non venga sospesa mentre si completano
+  piu di l operazioni, con l collegato alla lunghezza dell'anello nel paper.
+  Non e una protezione universale contro pause arbitrarie.
+- Gli elementi sono puntatori: l'algoritmo non definisce la distruzione o
+  il recupero della memoria degli oggetti puntati.
+- Questa trascrizione non risolve i problemi di atomiche, memory ordering,
+  conversioni puntatore-intero o reclamation di un porting C++/Mojo reale.

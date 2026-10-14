@@ -1,0 +1,165 @@
+Appunti personali e pseudocodice commentato riga per riga
+
+Fonte: Maged M. Michael e Michael L. Scott, "Simple, Fast, and Practical
+Non-Blocking and Blocking Concurrent Queue Algorithms", PODC '96,
+1996, pp. 267-275, DOI 10.1145/248052.248106.
+Figure 1 e 2, pp. 270-271 del paper (pagine 4-5 del PDF).
+Copyright ACM 1996. Il documento originale autorizza copie personali o
+didattiche alle condizioni del suo avviso nella prima pagina. Per altre
+forme di pubblicazione o distribuzione valgono le condizioni originali.
+
+Trascrizione didattica: NON e codice C++, C o Mojo eseguibile.
+Corregge i refusi come nella pagina ufficiale degli autori:
+https://www.cs.rochester.edu/research/synchronization/pseudocode/queues.html
+In particolare: Head.ptr/Tail.ptr nell'inizializzazione, head.ptr->next
+in D4, e next semplice nella versione a due lock.
+Le coppie <ptr, count> vengono lette e confrontate atomicamente insieme.
+Il modello non specifica gli ordini di memoria di un porting moderno.
+I contatori devono essere inizializzati validamente dall'implementazione;
+il pseudocodice originale non ne descrive tutti i dettagli di allocazione.
+Il free della coda non-blocking dipende dalle ipotesi di gestione memoria:
+non va interpretato come un normale free() immediatamente sicuro in C++.
+
+ALGORITMO NON-BLOCKING (Figura 1)
+
+structure pointer_t:                  # Riferimento con versione per rilevare alcuni riutilizzi ABA.
+    ptr: pointer to node_t            # Indirizzo del nodo.
+    count: unsigned integer           # Versione della specifica posizione che contiene la coppia.
+structure node_t:                     # Nodo della lista semplicemente collegata.
+    value: data type                  # Dato inserito, ignorato quando il nodo funge da sentinella.
+    next: pointer_t                   # Coppia atomica che identifica il successore.
+structure queue_t:                    # Stato condiviso della coda.
+    Head: pointer_t                   # Punta sempre alla sentinella attuale.
+    Tail: pointer_t                   # Punta all'ultimo nodo o al penultimo durante un inserimento.
+
+initialize(Q):                       # Eseguita prima di pubblicare la coda ai thread.
+    node = new_node()                 # Ottiene un nodo secondo il protocollo dell'allocator.
+    node->next.ptr = NULL             # La sentinella iniziale non ha successori.
+    Q->Head.ptr = Q->Tail.ptr = node  # Entrambi i riferimenti puntano alla sentinella; coda vuota.
+
+enqueue(Q, value):                    # Inserisce un nuovo nodo alla fine della lista.
+E1: node = new_node()                 # Alloca prima di iniziare le CAS sulla lista condivisa.
+E2: node->value = value               # Prepara il dato quando il nodo non e ancora pubblicato.
+E3: node->next.ptr = NULL             # Il nuovo nodo dovra diventare l'ultimo.
+E4: loop                             # Riprova se altri thread cambiano la situazione osservata.
+E5:     tail = Q->Tail                # Legge insieme indirizzo e versione della coda di scrittura.
+E6:     next = tail.ptr->next        # Legge insieme indirizzo e versione del successore.
+E7:     if tail == Q->Tail           # Ricontrolla l'intera coppia Tail prima di agire.
+E8:         if next.ptr == NULL      # Il nodo osservato e ancora candidato a ultimo nodo.
+E9:             if CAS(&tail.ptr->next, next, <node, next.count + 1>)
+                    # Collega atomicamente il nuovo nodo: punto di linearizzazione dell'inserimento.
+E10:                break            # L'inserimento e riuscito anche se Tail non e ancora avanzato.
+E11:            endif                # Se la CAS fallisce, il ciclo riprova.
+E12:        else                     # Tail e arretrato: il successore e gia stato collegato.
+E13:            CAS(&Q->Tail, tail, <next.ptr, tail.count + 1>)
+                    # Aiuta l'inserimento precedente ad avanzare Tail; puo perdere la CAS senza danni.
+E14:        endif                    # Fine distinzione tra ultimo nodo e Tail arretrato.
+E15:    endif                        # Se Tail e cambiato, non modifica i link osservati.
+E16: endloop                         # Esce solo dopo aver collegato il proprio nodo.
+E17: CAS(&Q->Tail, tail, <node, tail.count + 1>)
+        # Aggiornamento ausiliario: se fallisce, un altro thread ha gia fatto avanzare Tail.
+
+dequeue(Q, pvalue): boolean           # Restituisce TRUE se estrae, FALSE se osserva la coda vuota.
+D1: loop                             # Riprova finche vince una CAS o osserva vuoto validamente.
+D2:     head = Q->Head                # Legge insieme ptr e count della sentinella corrente.
+D3:     tail = Q->Tail                # Legge insieme ptr e count della guida di scrittura.
+D4:     next = head.ptr->next        # Legge il successore della sentinella, non il valore della sentinella.
+D5:     if head == Q->Head           # Verifica che la coppia Head non sia cambiata.
+D6:         if head.ptr == tail.ptr  # Puo significare vuoto oppure inserimento con Tail arretrato.
+D7:             if next.ptr == NULL  # Nessun successore: coda vuota nello stato validato.
+D8:                 return FALSE     # Nessun elemento estratto.
+D9:             endif                # Con next non nullo, Head == Tail non implica vuoto.
+D10:            CAS(&Q->Tail, tail, <next.ptr, tail.count + 1>)
+                    # Aiuta il produttore ad avanzare Tail prima di rimuovere la sentinella.
+D11:        else                     # Tail e oltre la sentinella: procede con il primo elemento.
+D12:            *pvalue = next.ptr->value
+                    # Copia PRIMA della CAS; un'estrazione successiva potrebbe poi ritirare questo nodo.
+                    # Il risultato e definitivo solo se la CAS D13 riesce; il parametro puo essere
+                    # sovrascritto durante tentativi persi anche se poi dequeue restituisce FALSE.
+D13:            if CAS(&Q->Head, head, <next.ptr, head.count + 1>)
+                    # Punto di linearizzazione dell'estrazione: il primo nodo dati diventa sentinella.
+D14:                break            # Solo il vincitore possiede questa estrazione riuscita.
+D15:            endif                # Il perdente riprova dalla nuova sentinella.
+D16:        endif                    # Fine distinzione tra vuoto/Tail arretrato ed estrazione.
+D17:    endif                        # Se Head e cambiato, riparte senza usare la fotografia obsoleta.
+D18: endloop                         # Esce dopo aver avanzato Head con successo.
+D19: free(head.ptr)                  # Ritira la VECCHIA sentinella, non il nodo da cui ha copiato value.
+        # Nel modello originale usa la gestione memoria prevista dagli autori.
+        # In un porting serve una strategia sicura rispetto ai lettori ancora attivi.
+D20: return TRUE                     # Il valore copiato dal tentativo vincente e l'elemento estratto.
+
+ALGORITMO CON DUE LOCK (Figura 2)
+
+structure node_t:                    # Qui next e un puntatore semplice nel modello astratto.
+    value: data type                 # Valore dell'elemento.
+    next: pointer to node_t          # Nodo successivo oppure NULL.
+structure queue_t:                   # Separazione delle estremita della coda.
+    Head: pointer to node_t          # Sentinella corrente.
+    Tail: pointer to node_t          # Ultimo nodo.
+    H_lock: lock type                # Serializza le estrazioni tra loro.
+    T_lock: lock type                # Serializza gli inserimenti tra loro.
+
+initialize(Q):                      # Eseguita prima degli accessi concorrenti.
+    node = new_node()                # Costruisce la sentinella iniziale.
+    node->next = NULL               # Non esistono elementi successivi.
+    Q->Head = Q->Tail = node        # Coda vuota con una sola sentinella.
+    Q->H_lock = Q->T_lock = FREE    # I due lock partono liberi.
+
+enqueue(Q, value):                   # Preparazione privata seguita da breve sezione critica.
+    node = new_node()               # Ottiene memoria prima di prendere T_lock.
+    node->value = value             # Inizializza il valore del nuovo nodo.
+    node->next = NULL               # Il nuovo nodo non ha successori.
+    lock(&Q->T_lock)                # Esclude altri produttori, ma non acquisisce H_lock.
+    Q->Tail->next = node            # Pubblica il nuovo nodo: punto logico dell'inserimento.
+    Q->Tail = node                  # Aggiorna la coda di scrittura prima di rilasciare il lock.
+    unlock(&Q->T_lock)              # Permette al produttore successivo di operare.
+
+dequeue(Q, pvalue): boolean          # Una sola estrazione alla volta, indipendente dai produttori.
+    lock(&Q->H_lock)                # Esclude altri consumatori.
+    node = Q->Head                  # Salva la vecchia sentinella.
+    new_head = node->next           # Cerca il primo nodo dati.
+    if new_head == NULL:            # Nessun successore: coda vuota.
+        unlock(&Q->H_lock)          # Rilascia il lock anche nel percorso di fallimento.
+        return FALSE               # Non ha estratto un elemento.
+    *pvalue = new_head->value       # Copia il dato prima di permettere altre estrazioni.
+    Q->Head = new_head              # Il primo nodo dati diventa la nuova sentinella.
+    unlock(&Q->H_lock)              # Libera l'estremita di lettura.
+    free(node)                     # Rilascia la vecchia sentinella.
+    return TRUE                    # Estrazione completata.
+
+NOTA SU UN PORTING MODERNO A DUE LOCK
+
+I produttori scrivono node->next sotto T_lock e i consumatori possono
+leggere lo stesso campo sotto H_lock. I lock sono diversi: da soli non
+sincronizzano questo accesso. In C++ il collegamento condiviso deve quindi
+essere pubblicato e letto con la sincronizzazione appropriata, per esempio
+un next atomico con store release e load acquire. Non basta copiare il
+pseudocodice usando next ordinario e due std::mutex distinti.
+
+ESEMPIO DELLA SENTINELLA
+
+Inizio: Head = Tail = S, lista S -> NULL.
+Enqueue(A): S -> A -> NULL, Head = S, Tail = A.
+Enqueue(B): S -> A -> B -> NULL, Head = S, Tail = B.
+Dequeue: restituisce A.value; Head diventa A; la vecchia sentinella S e ritirata.
+La lista residua e A(sentinella) -> B -> NULL: A.value non e piu un elemento.
+Dequeue: restituisce B.value; Head diventa B; il vecchio nodo A e ritirato.
+Ora Head = Tail = B e B.next = NULL: coda vuota, con sentinella B.
+
+LIMITI DA DISTINGUERE
+
+- Non-blocking/lock-free garantisce progresso globale, non che ogni thread
+  finisca in un numero limitato di tentativi (wait-free).
+- La garanzia della struttura non rende automaticamente non-blocking
+  l'allocator, il costruttore o la copia del tipo di dato scelto.
+- I contatori mitigano ABA finche non si ripetono; larghezza e wraparound contano.
+- Una coppia atomica <ptr,count> puo richiedere una CAS piu larga di un puntatore.
+  Non significa CAS su due indirizzi arbitrari distinti.
+- Versionare un puntatore non protegge da dereferenziazioni di memoria liberata.
+  La pagina degli autori richiede un allocator type-preserving che non
+  restituisce memoria al sistema operativo, oppure un adattamento con
+  hazard pointers, epoch-based reclamation o altre strategie equivalenti.
+- L'algoritmo originale copia il valore prima della CAS di Head: non e
+  direttamente una procedura sicura di move per elementi move-only.
+- Non esiste una capacita fissa del buffer: ogni inserimento richiede un nodo,
+  e la quantita totale di memoria resta limitata dalle risorse disponibili.
