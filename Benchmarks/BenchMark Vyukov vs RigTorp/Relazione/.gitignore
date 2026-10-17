@@ -1,0 +1,3 @@
+# Relazione richiesta esclusivamente in locale: escludere PDF, fonti e generatore.
+*
+!.gitignore

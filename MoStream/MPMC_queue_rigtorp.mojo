@@ -18,7 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# Porting del protocollo Rigtorp, per la toolchain Mojo >= 1.0 del progetto.
+# Porting del protocollo Rigtorp, per la toolchain Mojo 1.1 del progetto.
 # Ticket t: indice t % capacity; generazione g = t // capacity.
 # turn = 2*g: libero; turn = 2*g+1: pubblicato; turn = 2*g+2: libero al giro successivo.
 # Optional sostituisce storage grezzo, placement new e distruzione esplicita di T.
@@ -36,27 +36,43 @@ from std.collections import Optional
 from std.memory import Pointer
 # Importa l'allocazione di celle ancora da inizializzare.
 from std.memory.alloc import unsafe_alloc
-# Riusa il contatore con padding; padding non significa allineamento a 64 byte.
-from .MPMC_queue import PaddedAtomicU64
+# Importa il calcolo della dimensione per il padding dei contatori.
+from std.sys.info import size_of
+
+# Distanza i contatori; il padding non impone allineamento a una cache line.
+struct RigtorpPaddedAtomic:
+    # Assume cache line da 64 byte, senza rilevazione della CPU.
+    comptime PAD_BYTES = 64 - size_of[Atomic[UInt64]]()
+    # Contatore atomico parametrizzato sul tipo scalare in Mojo 1.1.
+    var atomicVal: Atomic[UInt64]
+    # Byte aggiuntivi per distanziare head e tail.
+    var pad: Array[UInt8, Self.PAD_BYTES]
+
+    # Inizializza un contatore al valore ricevuto.
+    def __init__(out self, initial: UInt64):
+        # Costruisce l'atomico senza copiarlo.
+        self.atomicVal = Atomic[UInt64](initial)
+        # I byte di padding non vengono mai letti.
+        self.pad = Array[UInt8, Self.PAD_BYTES](uninitialized=True)
 
 # Una cella contiene lo stato atomico e un valore gestito dal protocollo.
 struct RigtorpSlot[T: Copyable & Deinitable](Movable):
     # Il turno sincronizza accessi al dato, che non è atomico.
-    var turn: Atomic[DType.uint64]
+    var turn: Atomic[UInt64]
     # L'assenza di valore rappresenta una cella libera.
     var data: Optional[Self.T]
 
     # Costruisce una cella nella generazione iniziale.
     def __init__(out self):
         # Zero significa disponibile al primo produttore assegnato alla cella.
-        self.turn = Atomic[DType.uint64](0)
+        self.turn = Atomic[UInt64](0)
         # Nessun T viene costruito finché non arriva un inserimento.
         self.data = None
 
     # Rende spostabile la cella; non usarlo durante accessi concorrenti.
     def __init__(out self, *, deinit move: Self):
         # Ricrea l'atomico preservandone lo stato.
-        self.turn = Atomic[DType.uint64](move.turn.load())
+        self.turn = Atomic[UInt64](move.turn.load())
         # Trasferisce anche la proprietà dell'eventuale valore.
         self.data = move.data^
 
@@ -69,9 +85,9 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
     # Conserva l'indirizzo del buffer, liberato dal distruttore.
     var slots: Self.SlotPointer
     # Il prossimo ticket da assegnare a un produttore.
-    var head: PaddedAtomicU64
+    var head: RigtorpPaddedAtomic
     # Il prossimo ticket da assegnare a un consumatore.
-    var tail: PaddedAtomicU64
+    var tail: RigtorpPaddedAtomic
 
     # Costruisce la coda; soltanto questa operazione può sollevare Error.
     def __init__(out self, capacity: Int = 1024) raises:
@@ -84,9 +100,9 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
         # Alloca esattamente le celle usate; non promette l'allineamento del C++.
         self.slots = unsafe_alloc[RigtorpSlot[Self.T]](capacity)
         # Inizia ad assegnare ticket di scrittura da zero.
-        self.head = PaddedAtomicU64(0)
+        self.head = RigtorpPaddedAtomic(0)
         # Inizia ad assegnare ticket di lettura da zero.
-        self.tail = PaddedAtomicU64(0)
+        self.tail = RigtorpPaddedAtomic(0)
         # Visita tutte le celle allocate.
         for i in range(capacity):
             # Costruisce una cella vuota nella memoria prima non inizializzata.
@@ -99,9 +115,9 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
         # Trasferisce la proprietà del buffer dalla sorgente consumata.
         self.slots = move.slots
         # Preserva il ticket di scrittura: azzerarlo corromperebbe una coda usata.
-        self.head = PaddedAtomicU64(move.head.atomicVal.load())
+        self.head = RigtorpPaddedAtomic(move.head.atomicVal.load())
         # Preserva anche il ticket di lettura e quindi la generazione corrente.
-        self.tail = PaddedAtomicU64(move.tail.atomicVal.load())
+        self.tail = RigtorpPaddedAtomic(move.tail.atomicVal.load())
 
     # Distrugge la coda soltanto dopo la fine di tutti gli accessi.
     def __deinit__(deinit self):
@@ -121,13 +137,13 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
         # Il quoziente identifica il giro; lo stato pari atteso indica cella libera.
         var expected = (ticket // self.capacity) * 2
         # Acquire osserva la liberazione della cella da parte del consumatore.
-        while slot[].turn.load[ordering=Ordering.ACQUIRE]() != expected:
+        while (slot[].turn.load[ordering=Ordering.ACQUIRE]() != expected):
             # Attesa attiva: la lettura atomica viene ripetuta, senza sospendere il thread.
             pass
         # Il ticket e il turno danno accesso esclusivo al contenuto.
         slot[].data = Optional(item^)
         # Release pubblica il dato prima dello stato dispari visibile ai consumatori.
-        Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=slot[].turn.value), expected + 1)
+        slot[].turn.store[ordering=Ordering.RELEASE](expected + 1)
 
     # Estrae prenotando subito un ticket; può attendere a coda vuota.
     def pop(mut self) -> Self.T:
@@ -138,13 +154,13 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
         # Il turno dispari identifica il dato della generazione richiesta.
         var expected = (ticket // self.capacity) * 2 + 1
         # Acquire rende visibile il valore scritto prima del Release del produttore.
-        while slot[].turn.load[ordering=Ordering.ACQUIRE]() != expected:
+        while (slot[].turn.load[ordering=Ordering.ACQUIRE]() != expected):
             # Continua finché il produttore non pubblica quel ticket.
             pass
         # Trasferisce il dato e lascia l'Optional della cella vuoto.
         var item = slot[].data.take()
         # Release permette il riuso solo dopo che l'estrazione è completa.
-        Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=slot[].turn.value), expected + 1)
+        slot[].turn.store[ordering=Ordering.RELEASE](expected + 1)
         # Restituisce il valore trasferendone la proprietà.
         return item^
 
@@ -165,7 +181,7 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
                     # Solo il vincitore sposta il valore nella cella.
                     slot[].data = Optional(item^)
                     # Pubblica il dato con il turno dispari.
-                    Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=slot[].turn.value), expected + 1)
+                    slot[].turn.store[ordering=Ordering.RELEASE](expected + 1)
                     # Nessun valore restituito significa inserimento riuscito.
                     return None
             # Se il turno non è disponibile, controlla se esiste un nuovo candidato.
@@ -196,7 +212,7 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
                     # Solo il vincitore estrae il dato, svuotando la cella.
                     var item = slot[].data.take()
                     # Pubblica lo stato libero della generazione successiva.
-                    Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=slot[].turn.value), expected + 1)
+                    slot[].turn.store[ordering=Ordering.RELEASE](expected + 1)
                     # Restituisce un Optional presente anche quando il dato vale zero.
                     return Optional(item^)
             # Se il turno non è disponibile, controlla se esiste un nuovo candidato.

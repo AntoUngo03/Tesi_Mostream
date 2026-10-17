@@ -302,6 +302,19 @@ Run it with the parallelism degree for each transform stage:
 mojo Benchmarks/ImagePipeline/test_image_pipeline.mojo 2 4 2
 ```
 
+## Experimental Tsigas–Zhang queue
+
+The standalone Mojo 1.1 port and its Italian explanation are documented in
+[Tsigas_Zhang_Mojo.md](docs/Tsigas_Zhang_Mojo.md). It transports UInt64 values,
+uses an L-cell ring with L−2 usable positions, and retains the original paper's
+conditional ABA protection. It is not selected by the runtime.
+The three experiments and the 50-repetition campaign are in
+[BenchMark Tsigas vs Vyukov](<Benchmarks/BenchMark Tsigas vs Vyukov/README.md>).
+
+```sh
+python3 Tests/run_tsigas_zhang_tests.py
+```
+
 ## License
 
 Source file headers state that MoStream is distributed under the GNU Lesser

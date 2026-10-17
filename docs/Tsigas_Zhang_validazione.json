@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-16",
+  "host": "ungolo@131.114.2.95",
+  "mojo": "1.1.0 (8189361e)",
+  "command": "python3 Tests/run_tsigas_zhang_tests.py --ssh ungolo@131.114.2.95",
+  "result": "passed",
+  "sequential_ring_lengths": [
+    4,
+    8,
+    16,
+    64
+  ],
+  "concurrent_scenarios": 7,
+  "producers": 4,
+  "consumers": 4,
+  "concurrent_values": 18032,
+  "isolation": "one subprocess per concurrent scenario",
+  "scope": "functional checks under bounded concurrent histories; no general ABA/linearizability proof; no performance measurement",
+  "sha256": {
+    "MoStream/MPMC_queue_tsigas_zhang.mojo": "f5d33a58ea925e2fa149d54fae76500f1ae4d830f9d0cd183bb7b9e80d18e874",
+    "Tests/test_tsigas_zhang.mojo": "88d07c460f98366bf210dbc2ebf726525c0f3f85578da0d941360a7d65ccf3fc",
+    "Tests/test_tsigas_zhang_concurrent.mojo": "7368955702035a5e7fff33b7e35c108c0a09b6c6e9724a736b031dd0ea30ab62",
+    "Tests/run_tsigas_zhang_tests.py": "b90b5525544760bc6574d235d0b7ce9874adc2c57206b09ee868151014d00d8d"
+  },
+  "optimization": "-O3",
+  "spsc_fifo_values": 2000,
+  "dequeue_correction": "tail snapshot precedes cell read; restart if head or tail changed"
+}
