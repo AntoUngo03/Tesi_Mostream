@@ -1,0 +1,15 @@
+{
+  "campagna": "20261016-campagna-50",
+  "misure": 5550,
+  "sha256_fonti": {
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/PipelineGrain/raw.csv": "75f3130c69da9ce1d54ac2f9b6c4d5078056a49251e9166a77dee9ca0824413a",
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/PipelineGrain/summary.csv": "7cdd01f45d42f0f0c3d1a16279d072512da32a3ab345c94e8bb4f88bad94f7de",
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/PipelineGrain/metadata.json": "a3db1cf3f0a89115c554f8a8729c615203afb848aae304b577dd6412dfa45827",
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/FarmThroughput/raw.csv": "ba0c80c0f80acaa7473741554b26f913efa23a8525dcd3ab622a154cd39bf810",
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/FarmThroughput/summary.csv": "7bea864f52969e8a13f0a1b7a1c2d14973dd2f930d604af73c5f5ed307402e10",
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/FarmThroughput/metadata.json": "d2d6faf9500aeb80c5291d223bf81d76560e374ec468418673051d6c4b163e31",
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/ImageTiles/raw.csv": "d5c4a5438d9bfae74f40e029015e17ef38cedd283ab7ffe2956002bea3fbcb66",
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/ImageTiles/summary.csv": "d8b7382f5be4c2cc6f54bedbc8d4dbd685984678c0860b84dff60310eb2450ca",
+    "Benchmarks/BenchMark Tsigas vs Vyukov/Campagna_50_ripetizioni/risultati/20261016-campagna-50/ImageTiles/metadata.json": "0441aeeab6a776dbe29f1757a8b6d26131c8d1cdd19ff7e64fe342713a1599ea"
+  }
+}

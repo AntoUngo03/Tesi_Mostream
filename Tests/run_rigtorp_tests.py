@@ -12,11 +12,8 @@ import tempfile
 def main():
     # __file__ è questo script; resolve rende il percorso assoluto e parents[1] trova la radice del progetto.
     root = Path(__file__).resolve().parents[1]
-    # L'operatore / unisce i percorsi; read_text legge il sorgente Mojo come stringa.
     module = (root / "MoStream/MPMC_queue_rigtorp.mojo").read_text()
-    # Il package MoStream importa il runtime: qui verifichiamo soltanto la coda.
-    # Uniamo modulo e test in una directory temporanea, senza modificare il package.
-    # Crea una directory unica; with la elimina all'uscita, anche se un test solleva un errore.
+
     with tempfile.TemporaryDirectory(prefix="mostream-rigtorp-") as directory:
         # Visita prima i test sequenziali e poi quelli con produttori e consumatori concorrenti.
         for name in ("test_rigtorp", "test_rigtorp_concurrent"):

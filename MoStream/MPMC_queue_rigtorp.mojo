@@ -41,23 +41,19 @@ from std.sys.info import size_of
 
 # Distanza i contatori; il padding non impone allineamento a una cache line.
 struct RigtorpPaddedAtomic:
-    # Assume cache line da 64 byte, senza rilevazione della CPU.
+    # Assume cache line da 64 byte
     comptime PAD_BYTES = 64 - size_of[Atomic[UInt64]]()
-    # Contatore atomico parametrizzato sul tipo scalare in Mojo 1.1.
     var atomicVal: Atomic[UInt64]
-    # Byte aggiuntivi per distanziare head e tail.
+    # Byte aggiuntivi per distanziare head e tail
     var pad: Array[UInt8, Self.PAD_BYTES]
 
     # Inizializza un contatore al valore ricevuto.
     def __init__(out self, initial: UInt64):
-        # Costruisce l'atomico senza copiarlo.
         self.atomicVal = Atomic[UInt64](initial)
-        # I byte di padding non vengono mai letti.
         self.pad = Array[UInt8, Self.PAD_BYTES](uninitialized=True)
 
 # Una cella contiene lo stato atomico e un valore gestito dal protocollo.
 struct RigtorpSlot[T: Copyable & Deinitable](Movable):
-    # Il turno sincronizza accessi al dato, che non è atomico.
     var turn: Atomic[UInt64]
     # L'assenza di valore rappresenta una cella libera.
     var data: Optional[Self.T]
@@ -97,7 +93,7 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
             raise Error("RigtorpMPMCQueue: capacity deve essere almeno 1")
         # Converte la capacità validata al tipo dei ticket.
         self.capacity = UInt64(capacity)
-        # Alloca esattamente le celle usate; non promette l'allineamento del C++.
+        # Alloca esattamente le celle usate
         self.slots = unsafe_alloc[RigtorpSlot[Self.T]](capacity)
         # Inizia ad assegnare ticket di scrittura da zero.
         self.head = RigtorpPaddedAtomic(0)
@@ -108,7 +104,7 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
             # Costruisce una cella vuota nella memoria prima non inizializzata.
             self.slots.unsafe_offset(i).unsafe_write(RigtorpSlot[Self.T]())
 
-    # Trasferisce la coda senza copiare le celle; richiede accessi quiescenti.
+    # Trasferisce la coda senza copiare le celle
     def __init__(out self, *, deinit move: Self):
         # Mantiene la capacità originale.
         self.capacity = move.capacity
@@ -130,7 +126,7 @@ struct RigtorpMPMCQueue[T: Copyable & Deinitable](Movable):
 
     # Inserisce prenotando subito un ticket; può attendere a coda piena.
     def push(mut self, var item: Self.T):
-        # Fetch-add assegna un ticket esclusivo, come emplace nel C++.
+        # Fetch-add assegna un ticket esclusivo
         var ticket = self.head.atomicVal.fetch_add[ordering=Ordering.SEQUENTIAL](1)
         # Il modulo individua la cella anche con capacità non potenza di due.
         var slot = self.slots.unsafe_offset(ticket % self.capacity)

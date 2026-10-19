@@ -27,7 +27,6 @@ async def producer(queue: QueuePointer, first: Int, count: Int, nonblocking: Boo
 
 # Definisce il task consumatore: seen conta atomicamente le occorrenze di ciascun valore.
 async def consumer(queue: QueuePointer, seen: Pointer[Atomic[UInt64], MutUntrackedOrigin], count: Int, nonblocking: Bool):
-    # Estrae count valori; _ indica che l’indice dell’iterazione non serve.
     for _ in range(count):
         # Dichiara il valore da assegnare in uno dei due rami prima di usarlo.
         var value: Int
