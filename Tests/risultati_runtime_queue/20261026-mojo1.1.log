@@ -1,0 +1,1153 @@
+vyukov farm standard 1 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 2 standard farm
+vyukov farm standard 1 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 16 standard farm
+vyukov farm standard 1 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 2 standard farm
+vyukov farm standard 1 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 16 standard farm
+vyukov farm standard 1 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 2 standard farm
+vyukov farm standard 1 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 16 standard farm
+vyukov farm standard 2 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 2 standard farm
+vyukov farm standard 2 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 16 standard farm
+vyukov farm standard 2 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 2 standard farm
+vyukov farm standard 2 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 16 standard farm
+vyukov farm standard 2 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 2 standard farm
+vyukov farm standard 2 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 16 standard farm
+vyukov farm standard 4 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 2 standard farm
+vyukov farm standard 4 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 16 standard farm
+vyukov farm standard 4 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 2 standard farm
+vyukov farm standard 4 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 16 standard farm
+vyukov farm standard 4 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 2 standard farm
+vyukov farm standard 4 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 16 standard farm
+vyukov farm cooperative 1 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 2 cooperative farm
+vyukov farm cooperative 1 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 16 cooperative farm
+vyukov farm cooperative 1 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 2 cooperative farm
+vyukov farm cooperative 1 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 16 cooperative farm
+vyukov farm cooperative 1 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 2 cooperative farm
+vyukov farm cooperative 1 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 16 cooperative farm
+vyukov farm cooperative 2 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 2 cooperative farm
+vyukov farm cooperative 2 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 16 cooperative farm
+vyukov farm cooperative 2 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 2 cooperative farm
+vyukov farm cooperative 2 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 16 cooperative farm
+vyukov farm cooperative 2 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 2 cooperative farm
+vyukov farm cooperative 2 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 16 cooperative farm
+vyukov farm cooperative 4 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 2 cooperative farm
+vyukov farm cooperative 4 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 16 cooperative farm
+vyukov farm cooperative 4 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 2 cooperative farm
+vyukov farm cooperative 4 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 16 cooperative farm
+vyukov farm cooperative 4 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 2 cooperative farm
+vyukov farm cooperative 4 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 16 cooperative farm
+vyukov mpmc standard 1 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 2 standard mpmc
+vyukov mpmc standard 1 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 16 standard mpmc
+vyukov mpmc standard 1 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 2 standard mpmc
+vyukov mpmc standard 1 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 16 standard mpmc
+vyukov mpmc standard 1 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 2 standard mpmc
+vyukov mpmc standard 1 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 16 standard mpmc
+vyukov mpmc standard 2 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 2 standard mpmc
+vyukov mpmc standard 2 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 16 standard mpmc
+vyukov mpmc standard 2 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 2 standard mpmc
+vyukov mpmc standard 2 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 16 standard mpmc
+vyukov mpmc standard 2 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 2 standard mpmc
+vyukov mpmc standard 2 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 16 standard mpmc
+vyukov mpmc standard 4 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 2 standard mpmc
+vyukov mpmc standard 4 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 16 standard mpmc
+vyukov mpmc standard 4 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 2 standard mpmc
+vyukov mpmc standard 4 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 16 standard mpmc
+vyukov mpmc standard 4 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 2 standard mpmc
+vyukov mpmc standard 4 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 16 standard mpmc
+vyukov mpmc cooperative 1 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 2 cooperative mpmc
+vyukov mpmc cooperative 1 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 16 cooperative mpmc
+vyukov mpmc cooperative 1 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 2 cooperative mpmc
+vyukov mpmc cooperative 1 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 16 cooperative mpmc
+vyukov mpmc cooperative 1 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 2 cooperative mpmc
+vyukov mpmc cooperative 1 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 16 cooperative mpmc
+vyukov mpmc cooperative 2 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 2 cooperative mpmc
+vyukov mpmc cooperative 2 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 16 cooperative mpmc
+vyukov mpmc cooperative 2 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 2 cooperative mpmc
+vyukov mpmc cooperative 2 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 16 cooperative mpmc
+vyukov mpmc cooperative 2 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 2 cooperative mpmc
+vyukov mpmc cooperative 2 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 16 cooperative mpmc
+vyukov mpmc cooperative 4 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 2 cooperative mpmc
+vyukov mpmc cooperative 4 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 16 cooperative mpmc
+vyukov mpmc cooperative 4 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 2 cooperative mpmc
+vyukov mpmc cooperative 4 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 16 cooperative mpmc
+vyukov mpmc cooperative 4 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 2 cooperative mpmc
+vyukov mpmc cooperative 4 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: vyukov[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 16 cooperative mpmc
+rigtorp farm standard 1 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 2 standard farm
+rigtorp farm standard 1 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 16 standard farm
+rigtorp farm standard 1 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 2 standard farm
+rigtorp farm standard 1 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 16 standard farm
+rigtorp farm standard 1 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 2 standard farm
+rigtorp farm standard 1 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 3 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 16 standard farm
+rigtorp farm standard 2 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 2 standard farm
+rigtorp farm standard 2 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 16 standard farm
+rigtorp farm standard 2 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 2 standard farm
+rigtorp farm standard 2 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 16 standard farm
+rigtorp farm standard 2 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 2 standard farm
+rigtorp farm standard 2 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 16 standard farm
+rigtorp farm standard 4 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 2 standard farm
+rigtorp farm standard 4 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 16 standard farm
+rigtorp farm standard 4 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 2 standard farm
+rigtorp farm standard 4 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 16 standard farm
+rigtorp farm standard 4 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 2 standard farm
+rigtorp farm standard 4 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 16 standard farm
+rigtorp farm cooperative 1 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 2 cooperative farm
+rigtorp farm cooperative 1 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 16 cooperative farm
+rigtorp farm cooperative 1 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 2 cooperative farm
+rigtorp farm cooperative 1 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 16 cooperative farm
+rigtorp farm cooperative 1 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 2 cooperative farm
+rigtorp farm cooperative 1 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 3 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 16 cooperative farm
+rigtorp farm cooperative 2 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 2 cooperative farm
+rigtorp farm cooperative 2 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 16 cooperative farm
+rigtorp farm cooperative 2 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 2 cooperative farm
+rigtorp farm cooperative 2 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 16 cooperative farm
+rigtorp farm cooperative 2 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 2 cooperative farm
+rigtorp farm cooperative 2 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 16 cooperative farm
+rigtorp farm cooperative 4 0 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 2 cooperative farm
+rigtorp farm cooperative 4 0 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 16 cooperative farm
+rigtorp farm cooperative 4 1 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 2 cooperative farm
+rigtorp farm cooperative 4 1 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 16 cooperative farm
+rigtorp farm cooperative 4 2003 2
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 2 cooperative farm
+rigtorp farm cooperative 4 2003 16
+[36m{MoStream} Starting pipeline execution with 3 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 16 cooperative farm
+rigtorp mpmc standard 1 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 2 standard mpmc
+rigtorp mpmc standard 1 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 16 standard mpmc
+rigtorp mpmc standard 1 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 2 standard mpmc
+rigtorp mpmc standard 1 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 16 standard mpmc
+rigtorp mpmc standard 1 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 2 standard mpmc
+rigtorp mpmc standard 1 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 4 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 16 standard mpmc
+rigtorp mpmc standard 2 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 2 standard mpmc
+rigtorp mpmc standard 2 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 16 standard mpmc
+rigtorp mpmc standard 2 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 2 standard mpmc
+rigtorp mpmc standard 2 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 16 standard mpmc
+rigtorp mpmc standard 2 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 2 standard mpmc
+rigtorp mpmc standard 2 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 6 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 16 standard mpmc
+rigtorp mpmc standard 4 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 2 standard mpmc
+rigtorp mpmc standard 4 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 16 standard mpmc
+rigtorp mpmc standard 4 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 2 standard mpmc
+rigtorp mpmc standard 4 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 16 standard mpmc
+rigtorp mpmc standard 4 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 2 standard mpmc
+rigtorp mpmc standard 4 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Standard MoStream runtime is used with 10 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 16 standard mpmc
+rigtorp mpmc cooperative 1 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 2 cooperative mpmc
+rigtorp mpmc cooperative 1 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 1 16 cooperative mpmc
+rigtorp mpmc cooperative 1 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 2 cooperative mpmc
+rigtorp mpmc cooperative 1 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 1 16 cooperative mpmc
+rigtorp mpmc cooperative 1 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 2 cooperative mpmc
+rigtorp mpmc cooperative 1 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 4 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 1 16 cooperative mpmc
+rigtorp mpmc cooperative 2 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 2 cooperative mpmc
+rigtorp mpmc cooperative 2 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 2 16 cooperative mpmc
+rigtorp mpmc cooperative 2 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 2 cooperative mpmc
+rigtorp mpmc cooperative 2 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 2 16 cooperative mpmc
+rigtorp mpmc cooperative 2 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 2 cooperative mpmc
+rigtorp mpmc cooperative 2 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 6 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 2 16 cooperative mpmc
+rigtorp mpmc cooperative 4 0 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 2 cooperative mpmc
+rigtorp mpmc cooperative 4 0 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 0 4 16 cooperative mpmc
+rigtorp mpmc cooperative 4 1 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 2 cooperative mpmc
+rigtorp mpmc cooperative 4 1 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 1 4 16 cooperative mpmc
+rigtorp mpmc cooperative 4 2003 2
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 2 cooperative mpmc
+rigtorp mpmc cooperative 4 2003 16
+[36m{MoStream} Starting pipeline execution with 4 stages and total parallelism of 10 nodes[0m
+[36m{MoStream} Cooperative MoStream runtime is used with 2 threads[0m
+[36m{MoStream} CPU pinning is disabled[0m
+[36m{MoStream} Inter-stage queue: rigtorp[0m
+[36m{MoStream} Pipeline starts...[0m
+[36m{MoStream} ...terminated successfully![0m
+PASS runtime queue 2003 4 16 cooperative mpmc
+PASS: 144 integration configurations across both backends

@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "path": ".",
+      "samples": 672,
+      "configurations": 48,
+      "source_hashes": "PASS",
+      "throughput_and_medians": "PASS"
+    },
+    {
+      "path": "conferma",
+      "samples": 120,
+      "configurations": 2,
+      "source_hashes": "PASS",
+      "throughput_and_medians": "PASS"
+    }
+  ],
+  "total_measured_executions": 792
+}

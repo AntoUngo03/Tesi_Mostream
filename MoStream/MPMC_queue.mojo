@@ -34,9 +34,9 @@ struct PaddedAtomicU64:
     # Costante risolta a compilazione: assume cache line da 64 byte, non le rileva dalla CPU.
     comptime CACHE_LINE_SIZE_BYTES = 64
     # Calcola quanti byte aggiungere alla dimensione dell'atomico; Self indica il tipo corrente.
-    comptime PAD_BYTES = Self.CACHE_LINE_SIZE_BYTES - size_of[Atomic[DType.uint64]]()
+    comptime PAD_BYTES = Self.CACHE_LINE_SIZE_BYTES - size_of[Atomic[UInt64]]()
     # Contatore intero senza segno a 64 bit, accessibile con operazioni atomiche.
-    var atomicVal: Atomic[DType.uint64]
+    var atomicVal: Atomic[UInt64]
     # Array di padding: distanzia i contatori, ma non impone da solo allineamento a 64 byte.
     var pad: Array[UInt8, Self.PAD_BYTES]
 
@@ -44,7 +44,7 @@ struct PaddedAtomicU64:
     # Costruttore: out self indica che l'oggetto viene inizializzato; initial e il valore di partenza.
     def __init__(out self, initial: UInt64):
         # Costruisce l'atomico con il valore iniziale ricevuto.
-        self.atomicVal = Atomic[DType.uint64](initial)
+        self.atomicVal = Atomic[UInt64](initial)
         # Riserva il padding senza inizializzarne i byte: il programma non ne legge il contenuto.
         self.pad = Array[UInt8, Self.PAD_BYTES](uninitialized=True)
 
@@ -52,7 +52,7 @@ struct PaddedAtomicU64:
 # Cella generica: T deve essere copiabile e distruggibile; Movable consente il trasferimento della cella.
 struct Cell[T: Copyable & Deinitable](Movable):
     # Numero di sequenza atomico: identifica la generazione della cella e se il dato e pubblicato.
-    var sequence: Atomic[DType.uint64]
+    var sequence: Atomic[UInt64]
     # Contenuto non atomico: l'accesso e protetto dal protocollo di prenotazione e dalla sequenza.
     var data: Optional[Self.T]
 
@@ -60,7 +60,7 @@ struct Cell[T: Copyable & Deinitable](Movable):
     # Costruisce una cella con il numero di sequenza ricevuto.
     def __init__(out self, seq: UInt64):
         # Inizializza l'atomico che descrive lo stato della cella.
-        self.sequence = Atomic[DType.uint64](seq)
+        self.sequence = Atomic[UInt64](seq)
         # Inizialmente la cella non contiene alcun elemento T.
         self.data = Optional[Self.T](None)
 
@@ -70,7 +70,7 @@ struct Cell[T: Copyable & Deinitable](Movable):
         # Legge il valore dell'atomico sorgente con l'ordine predefinito della libreria.
         var val = move.sequence.load()
         # Ricostruisce l'atomico destinazione con lo stesso numero di sequenza.
-        self.sequence = Atomic[DType.uint64](val)
+        self.sequence = Atomic[UInt64](val)
         # L'operatore postfix ^ trasferisce il contenuto Optional dalla sorgente alla destinazione.
         self.data = move.data^
 
@@ -167,7 +167,7 @@ struct MPMCQueue[T: Copyable & Deinitable](Movable):
                     # Dopo la prenotazione esclusiva trasferisce item nell'Optional della cella; ^ indica un move.
                     cell_ptr[].data = Optional(item^)
                     # Pubblica il dato: store atomico RELEASE di sequence = pw + 1, osservabile dai consumatori.
-                    Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=cell_ptr[].sequence.value), pw + 1)
+                    cell_ptr[].sequence.store[ordering=Ordering.RELEASE](pw + 1)
                     # Termina dopo aver pubblicato l'elemento.
                     return  # successfully pushed
                 # Dopo una CAS fallita tenta un'attesa con bk iterazioni; _ indica un indice non utilizzato.
@@ -201,7 +201,7 @@ struct MPMCQueue[T: Copyable & Deinitable](Movable):
         # Trasferisce il dato nella cella prenotata dal produttore.
         cell_ptr[].data = Optional(item^)
         # Pubblica sequence = pw + 1 con RELEASE, rendendo il dato leggibile tramite ACQUIRE.
-        Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=cell_ptr[].sequence.value), pw + 1)
+        cell_ptr[].sequence.store[ordering=Ordering.RELEASE](pw + 1)
         # Nessun elemento restituito: item e stato inserito correttamente.
         return None # successfully pushed
 
@@ -245,7 +245,7 @@ struct MPMCQueue[T: Copyable & Deinitable](Movable):
                     # Estrae il dato dall'Optional della cella, lasciandolo vuoto.
                     var item = cell_ptr[].data.take()
                     # Libera la cella con RELEASE: pr + mask + 1 = pr + size, la prossima generazione di scrittura.
-                    Atomic[DType.uint64].store[ordering=Ordering.RELEASE](Pointer(to=cell_ptr[].sequence.value), pr + self.mask + 1)
+                    cell_ptr[].sequence.store[ordering=Ordering.RELEASE](pr + self.mask + 1)
                     # Trasferisce il dato in un Optional presente e lo restituisce.
                     return Optional(item^)
                 # CAS failed, another consumer might have claimed this item, retry

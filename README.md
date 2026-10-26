@@ -29,7 +29,7 @@ running a replica of the stage).
 
 ## Requirements
 
-- Mojo toolchain (version >= 1.0.0)
+- Mojo 1.1 toolchain (the runtime uses its private `_asyncrt` API)
 - A C compiler such as `gcc` for the CPU-affinity helper.
 - Linux-style pthread CPU affinity support for thread pinning.
 
@@ -301,6 +301,22 @@ Run it with the parallelism degree for each transform stage:
 ```sh
 mojo Benchmarks/ImagePipeline/test_image_pipeline.mojo 2 4 2
 ```
+
+## Rigtorp inter-stage queues
+
+Compile the same MoStream program with `-D MOSTREAM_RIGTORP=1` to use
+Rigtorp in inter-stage communicators. Omit this definition for the default
+Vyukov backend. This applies to both runtimes; cooperative scheduler queues
+remain Vyukov. The runtime prints the selected communication backend.
+
+```sh
+mojo build -I . -D MOSTREAM_RIGTORP=1 Tests/test_pipe_1.mojo -o /tmp/pipeline-rigtorp
+python3 Tests/run_runtime_queue_tests.py --mojo /path/to/mojo-1.1
+```
+
+The integration tests require a compatible Mojo 1.1 toolchain and at least ten
+runtime workers. Validation status, scope and comparison methodology are in
+[Rigtorp_integrazione_runtime.md](docs/Rigtorp_integrazione_runtime.md).
 
 ## Experimental Tsigas–Zhang queue
 

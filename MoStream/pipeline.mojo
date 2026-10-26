@@ -13,8 +13,10 @@
 #  Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 # ===------------------------------------------------------------------------=== #
 
-from std.runtime.asyncrt import create_task, TaskGroup, parallelism_level
+from std.runtime._asyncrt import TaskGroup
+from std.runtime import parallelism_level
 from MoStream.communicator import MessageTrait, Communicator
+from MoStream.communication_queue import COMMUNICATION_QUEUE_NAME
 from MoStream.node import NodeTrait, seq, parallel
 from MoStream.emitter import Emitter
 from MoStream.standard_runtime import executor_task
@@ -144,6 +146,7 @@ struct Pipeline[*Ts: NodeTrait]:
         print_cyan_color("{MoStream} Starting pipeline execution with " + String(Self.N) + " stages and total parallelism of " + String(self.getNumNodes()) + " nodes")
         print_cyan_color("{MoStream} Standard MoStream runtime is used with " + String(self.getNumNodes()) + " threads")
         print_cyan_color("{MoStream} CPU pinning is " + pinning)
+        print_cyan_color("{MoStream} Inter-stage queue: " + String(COMMUNICATION_QUEUE_NAME))
         print_cyan_color("{MoStream} Pipeline starts...")
         var tg = TaskGroup()
         var first_comm = Pointer[Communicator[Self.Ts[0].StageT.InType], MutUntrackedOrigin].unsafe_dangling()
@@ -190,6 +193,7 @@ struct Pipeline[*Ts: NodeTrait]:
         print_cyan_color("{MoStream} Starting pipeline execution with " + String(Self.N) + " stages and total parallelism of " + String(self.getNumNodes()) + " nodes")
         print_cyan_color("{MoStream} Cooperative MoStream runtime is used with " + String(n_workers) + " threads")
         print_cyan_color("{MoStream} CPU pinning is " + pinning)
+        print_cyan_color("{MoStream} Inter-stage queue: " + String(COMMUNICATION_QUEUE_NAME))
         print_cyan_color("{MoStream} Pipeline starts...")
         var scheduler = Scheduler(self.nodes)
         scheduler.start(self.nodes, n_workers, self.coreslist)
