@@ -422,10 +422,10 @@ struct ImageSink(StageTrait):
     var count: Int
     var checksum_total: UInt64
     var start_ns: Int
-    var count_ptr: Pointer[Atomic[DType.int64], MutUntrackedOrigin]
+    var count_ptr: Pointer[Atomic[Int64], MutUntrackedOrigin]
 
     # constructor
-    def __init__(out self, count_ptr: Pointer[Atomic[DType.int64], MutUntrackedOrigin]):
+    def __init__(out self, count_ptr: Pointer[Atomic[Int64], MutUntrackedOrigin]):
         self.count = 0
         self.checksum_total = 0
         self.start_ns = 0

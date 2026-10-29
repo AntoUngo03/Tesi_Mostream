@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8">
+<title>ImagePipeline: Rigtorp vs Vyukov — runtime cooperativo e immagini piccole</title>
+<style>
+@page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+body { font-family: "DejaVu Serif", Georgia, serif; font-size: 10.5pt; line-height: 1.45; color: #1a1a1a; }
+h1 { font-family: "DejaVu Sans", sans-serif; font-size: 19pt; margin: 0 0 4px; }
+h2 { font-family: "DejaVu Sans", sans-serif; font-size: 13.5pt; margin: 22px 0 6px; border-bottom: 1px solid #ccc; padding-bottom: 3px; page-break-after: avoid; }
+h3 { font-family: "DejaVu Sans", sans-serif; font-size: 11pt; margin: 14px 0 4px; page-break-after: avoid; }
+.sub { color: #555; font-size: 10pt; margin-bottom: 14px; }
+pre { background: #f4f4f2; border: 1px solid #ddd; border-radius: 3px; padding: 7px 9px; font-size: 8.2pt; line-height: 1.35; white-space: pre-wrap; word-break: break-all; page-break-inside: avoid; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.8pt; background: #f4f4f2; padding: 0 2px; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 6px 0 10px; page-break-inside: avoid; }
+th, td { border: 1px solid #ccc; padding: 3px 6px; text-align: right; }
+th { background: #eee; font-family: "DejaVu Sans", sans-serif; }
+td:first-child, th:first-child, td.l { text-align: left; }
+table.raw { font-size: 7.8pt; }
+.box { border-left: 4px solid #2a6fb0; background: #f0f5fa; padding: 8px 12px; margin: 10px 0; }
+.warn { border-left: 4px solid #c4572a; background: #fbf1ec; padding: 8px 12px; margin: 10px 0; }
+figure { margin: 10px 0; page-break-inside: avoid; }
+figcaption { font-size: 9pt; color: #555; }
+.small { font-size: 9pt; color: #444; }
+.pb { page-break-before: always; }
+</style></head><body>
+
+<h1>Rigtorp vs Vyukov in ImagePipeline: runtime cooperativo e immagini piccole</h1>
+<div class="sub">Seconda parte del confronto delle code nei communicator MoStream — relazione tecnica, 28 ottobre 2026</div>
+
+<div class="box">
+<b>Sintesi.</b> La prima parte aveva mostrato che, con immagini 512×512 e runtime standard, Rigtorp e Vyukov
+sono equivalenti. Questa seconda parte estende il confronto in due direzioni.
+<ul style="margin:6px 0 0">
+<li><b>Runtime cooperativo, 512×512</b> (30 esecuzioni): le due code restano equivalenti, con differenze fra −0,66% e +0,25%.</li>
+<li><b>Immagini piccole</b> (nuovo test con lato configurabile, 200 esecuzioni): nel <b>runtime standard</b> con collegamenti
+16 → 16 Rigtorp è nettamente superiore quando il messaggio è leggero: <b>+30,8%</b> a 16×16, <b>+17,5%</b> a 32×32, +5,5% a 64×64.
+Il vantaggio sparisce da 128×128 in su. Rigtorp è anche molto più <b>stabile</b>: a 16×16 la variabilità di Vyukov è del 38,8%, quella di Rigtorp del 2,4%.
+Con soli 4 thread per stadio, o nel runtime cooperativo, non emerge un vantaggio sistematico di nessuna delle due code.</li>
+</ul>
+In sintesi: <b>Rigtorp conviene nel runtime standard quando molti stadi replicati si scambiano messaggi leggeri</b>;
+negli altri casi la scelta della coda non incide sulle prestazioni.
+</div>
+
+<h2>1. Richiamo della prima parte</h2>
+<p>La scelta della coda dei communicator avviene in compilazione (<code>MoStream/communication_queue.mojo</code>):
+senza definizioni si usa Vyukov, con <code>-D MOSTREAM_RIGTORP=1</code> Rigtorp. Ogni esecuzione stampa
+<code>{MoStream} Inter-stage queue: …</code>, che è stato controllato in tutte le esecuzioni riportate qui.
+Con <code>test_image_1</code> (runtime standard, 512×512, 60 s) le mediane differivano di +0,25% (1-2-4-2-1) e +0,35% (1-8-16-8-1).</p>
+<p>Ambiente invariato: VM <code>ungolo@131.114.2.95</code> (Intel Xeon Gold 5512U, 28 core / 56 thread, 1 nodo NUMA),
+Mojo 1.1.0 (8189361e), copia di lavoro <code>~/mostream-rigtorp-bench</code>, pinning attivo, capacità delle code 1024.
+Gli hash SHA-256 di tutti i sorgenti della libreria coincidono con quelli dei test di integrazione del 26 ottobre
+(<code>Tests/risultati_runtime_queue/20261026-mojo1.1.json</code>).</p>
+
+<h2>2. Runtime cooperativo con immagini 512×512</h2>
+<h3>2.1 Test e condizioni</h3>
+<p>Si usa <code>Benchmarks/ImagePipeline/test_image_1_coop.mojo</code>, identico a <code>test_image_1</code> tranne che
+per <code>pipeline.run_cooperative(n_workers)</code> al posto di <code>pipeline.run()</code>. Nel runtime cooperativo i
+communicator usano solo <code>try_push</code>/<code>try_pop</code>. Sono state misurate tre condizioni:</p>
+<ul>
+<li><b>1-2-4-2-1, 10 worker</b>: un worker per actor, stessa configurazione della prima parte;</li>
+<li><b>1-8-16-8-1, 34 worker</b>: un worker per actor, a 34 thread;</li>
+<li><b>1-8-16-8-1, 8 worker</b>: 34 actor su 8 worker, sovrascrittura 4×, la condizione tipica del runtime cooperativo.</li>
+</ul>
+<pre><code>cd ~/mostream-rigtorp-bench
+mojo build -O3 -I . -I Benchmarks/ImagePipeline \
+    Benchmarks/ImagePipeline/test_image_1_coop.mojo -o bin/img1coop_vyukov
+mojo build -O3 -I . -I Benchmarks/ImagePipeline -D MOSTREAM_RIGTORP=1 \
+    Benchmarks/ImagePipeline/test_image_1_coop.mojo -o bin/img1coop_rigtorp
+# uso: ./bin/img1coop_&lt;coda&gt; Source GrayScale Blur Sharpen Sink n_workers</code></pre>
+
+<h3>2.2 Protocollo</h3>
+<p>5 ripetizioni da 60 s per coda e condizione, con ordine alternato (Vyukov prima nelle ripetizioni dispari, Rigtorp nelle pari).
+Rispetto alla prima parte è stata aggiunta <b>un'esecuzione di riscaldamento scartata</b>, perché nella prima campagna la primissima
+esecuzione era risultata anomala. Script <code>run_coop.sh</code>, lanciato con <code>setsid nohup ./run_coop.sh &gt; run_coop.log 2&gt;&amp;1 &lt; /dev/null &amp;</code>:</p>
+<pre><code>#!/bin/bash
+export MOSTREAM_HOME="$HOME/mostream-rigtorp-bench"
+cd "$MOSTREAM_HOME"
+OUT=results_coop.csv
+echo "config,workers,rep,backend,elapsed_ms,throughput" &gt; $OUT
+timeout 300 ./bin/img1coop_vyukov 1 2 4 2 1 10 &gt; warmup_coop.log 2&gt;&amp;1   # riscaldamento, scartato
+for cw in "1 2 4 2 1|10" "1 8 16 8 1|34" "1 8 16 8 1|8"; do
+  cfg=${cw%|*}; w=${cw#*|}
+  for rep in 1 2 3 4 5; do
+    if (( rep % 2 )); then order="vyukov rigtorp"; else order="rigtorp vyukov"; fi
+    for b in $order; do
+      log=$(timeout 300 ./bin/img1coop_$b $cfg $w 2&gt;&amp;1); rc=$?
+      echo "$log" | grep -q "Inter-stage queue: $b" || echo "WARN backend mismatch $b" &gt;&amp;2
+      echo "$log" | grep -q "terminated successfully" || echo "WARN rc=$rc $cfg $w $b" &gt;&amp;2
+      ms=$(echo "$log" | sed -n "s/Elapsed time: \(.*\) ms/\1/p")
+      tp=$(echo "$log" | sed -n "s/Throughput: \(.*\) img\/s/\1/p")
+      echo "${cfg// /-},$w,$rep,$b,$ms,$tp" | tee -a $OUT
+    done
+  done
+done
+echo DONE</code></pre>
+<p>Tutte le 30 esecuzioni sono terminate correttamente, senza avvisi.</p>
+
+<h3>2.3 Risultati</h3>
+<table>
+<tr><th>Config.</th><th>Worker</th><th>Condizione</th><th>Vyukov (img/s)</th><th>Rigtorp (img/s)</th><th>Differenza</th><th>Coppie vinte da Rigtorp</th><th>CV V / R</th></tr>
+<tr><td>1-2-4-2-1</td><td>10</td><td>10 actor su 10 worker</td><td>9.875</td><td>9.900</td><td><b>+0,25%</b></td><td>5/5</td><td>0,2% / 0,2%</td></tr>
+<tr><td>1-8-16-8-1</td><td>34</td><td>34 actor su 34 worker</td><td>18.499</td><td>18.376</td><td><b>−0,66%</b></td><td>0/5</td><td>0,5% / 0,3%</td></tr>
+<tr><td>1-8-16-8-1</td><td>8</td><td>34 actor su 8 worker (4×)</td><td>12.686</td><td>12.690</td><td><b>+0,04%</b></td><td>2/5</td><td>0,1% / 0,1%</td></tr>
+</table>
+<ul>
+<li><b>Le due code sono equivalenti</b>: tutte le differenze sono sotto l'1%.</li>
+<li>Con 10 worker Rigtorp vince 5 coppie su 5, con 34 worker le vince tutte Vyukov. Un 5 su 5 per caso ha probabilità
+1/16 (p ≈ 0,06, test bilaterale), quindi nessuna delle due tendenze è significativa, ed entrambe sono sotto l'1%.</li>
+<li>Con 34 actor su 8 worker, cioè la condizione più cooperativa, la differenza è +0,04%: il limite sono gli 8 worker che
+eseguono 34 actor, non le code.</li>
+</ul>
+<p>Il runtime cooperativo, a parità di thread, è un po' più lento di quello standard per entrambe le code (mediane Vyukov):</p>
+<table style="width:70%">
+<tr><th>Config.</th><th>Standard (parte 1)</th><th>Cooperativo</th><th>Differenza</th></tr>
+<tr><td>1-2-4-2-1</td><td>10.161</td><td>9.875</td><td>−2,8%</td></tr>
+<tr><td>1-8-16-8-1</td><td>19.696</td><td>18.499</td><td>−6,1%</td></tr>
+</table>
+
+<h2>3. Perché provare immagini più piccole</h2>
+<p>Nei benchmark sintetici (<code>Benchmarks/BenchMark Vyukov vs RigTorp/Campagna_50_ripetizioni</code>, 50 ripetizioni) Rigtorp vince
+soprattutto nella <b>farm</b> (1 sorgente → N consumatori sulla stessa coda) con <b>molti consumatori</b> e <b>poco lavoro per messaggio</b>:</p>
+<table style="width:75%">
+<tr><th>FarmThroughput, N consumatori</th><th>T = 0 µs</th><th>1 µs</th><th>2 µs</th><th>5 µs</th></tr>
+<tr><td>4</td><td>0,92</td><td>1,44</td><td>1,09</td><td>1,01</td></tr>
+<tr><td>8</td><td>1,17</td><td>1,56</td><td>1,58</td><td>1,02</td></tr>
+<tr><td>16</td><td>1,46</td><td>1,92</td><td>1,90</td><td>1,33</td></tr>
+</table>
+<p class="small">Rapporto di throughput Rigtorp/Vyukov; un valore maggiore di 1 indica un vantaggio di Rigtorp.</p>
+<p>Con immagini 512×512 ogni stadio impiega circa 0,1–0,5 ms per messaggio, centinaia di volte oltre la soglia di 5 µs
+oltre la quale il vantaggio di Rigtorp quasi scompare. Il costo dei filtri cresce con il numero di pixel: riducendo il lato a 16–64 pixel
+il lavoro per stadio scende nell'ordine dei microsecondi e la comunicazione torna a pesare.</p>
+<div class="warn">Il vantaggio sintetico nasce dalle operazioni <b>bloccanti</b> di Rigtorp: <code>push</code>/<code>pop</code> prendono un
+"biglietto" con un solo <code>fetch_add</code> e poi ogni thread attende sul proprio slot. Il <code>Communicator</code> usa il <code>push</code>
+bloccante ma, per poter rilevare la fine dello stream, usa <code>try_pop</code>, che in Rigtorp è un ciclo CAS simile a quello di Vyukov.
+Nel runtime cooperativo si usano solo <code>try_push</code>/<code>try_pop</code>. Ci si attende quindi un vantaggio minore di quello sintetico,
+e concentrato sul lato produttore nel runtime standard.</div>
+
+<h2>4. Il nuovo test con dimensione configurabile</h2>
+<p>I test originali <b>non sono stati modificati</b>. Sono state create due copie:</p>
+<ul>
+<li><code>Benchmarks/ImagePipeline/test_image_1_small.mojo</code>, copia di <code>test_image_1.mojo</code> (runtime standard);</li>
+<li><code>Benchmarks/ImagePipeline/test_image_1_small_coop.mojo</code>, copia di <code>test_image_1_coop.mojo</code> (runtime cooperativo).</li>
+</ul>
+<p>In entrambe cambiano solo le costanti di dimensione e durata, ora impostabili in compilazione, e viene aggiunta una stampa di controllo.
+Differenze rispetto all'originale:</p>
+<pre><code>-from std.sys import argv
++from std.sys import argv, get_defined_int
+
+-comptime W: Int = 512
+-comptime H: Int = 512
+-comptime DURATION: Int = 60
++comptime W: Int = get_defined_int["IMG_W", 512]()
++comptime H: Int = get_defined_int["IMG_H", 512]()
++comptime DURATION: Int = get_defined_int["IMG_DURATION", 60]()
+
++        print("  Image size: " + String(W) + "x" + String(H) + ", duration: " + String(DURATION) + " s")</code></pre>
+<p>Senza definizioni i valori restano 512×512 e 60 s, quindi il test si comporta come l'originale. In Mojo 1.1 la funzione si chiama
+<code>std.sys.get_defined_int</code>: il nome <code>env_get_int</code>, usato in versioni precedenti, non esiste più. Prima della campagna
+la funzione è stata verificata con un programma di prova (con <code>-D IMG_W=32</code> restituisce 32). Esempio di compilazione ed esecuzione:</p>
+<pre><code>mojo build -O3 -I . -I Benchmarks/ImagePipeline -D MOSTREAM_RIGTORP=1 \
+    -D IMG_W=32 -D IMG_H=32 -D IMG_DURATION=20 \
+    Benchmarks/ImagePipeline/test_image_1_small.mojo -o bin/small/img32-rigtorp
+./bin/small/img32-rigtorp 1 16 16 16 1</code></pre>
+<p>Una prova pilota di 3 s a 32×32 con 1-16-16-16-1 aveva dato 619 k img/s per Vyukov e 701 k per Rigtorp nel runtime standard: un primo indizio,
+da una sola esecuzione, poi confermato dalla campagna.</p>
+
+<h2>5. Campagna con immagini piccole</h2>
+<h3>5.1 Protocollo</h3>
+<ul>
+<li>lati 16, 32, 64, 128 e 512 (riferimento), immagini quadrate;</li>
+<li>configurazioni <b>1-4-4-4-1</b> (14 actor) e <b>1-16-16-16-1</b> (50 actor, entro i 56 thread hardware). Fra Grayscale→Blur e
+Blur→Sharpen i collegamenti sono 4→4 o 16→16, cioè code con molti produttori e molti consumatori;</li>
+<li>runtime standard e cooperativo, quest'ultimo con un worker per actor (14 e 50 worker);</li>
+<li>esecuzioni da 20 s, perché con immagini piccole ogni esecuzione elabora milioni di messaggi; 5 ripetizioni con ordine alternato;
+un riscaldamento scartato; 20 binari, compilati prima delle misure;</li>
+<li>ogni esecuzione controlla la coda stampata, la dimensione (<code>Image size: …</code>) e la terminazione corretta.</li>
+</ul>
+<p>Script <code>run_small.sh</code> (circa 75 minuti in totale):</p>
+<pre><code>#!/bin/bash
+export MOSTREAM_HOME="$HOME/mostream-rigtorp-bench"
+cd "$MOSTREAM_HOME"
+SIZES="16 32 64 128 512"; DUR=20
+mkdir -p bin/small
+for s in $SIZES; do for f in "" _coop; do for q in vyukov rigtorp; do
+  D=""; [ $q = rigtorp ] &amp;&amp; D="-D MOSTREAM_RIGTORP=1"
+  mojo build -O3 -I . -I Benchmarks/ImagePipeline $D -D IMG_W=$s -D IMG_H=$s -D IMG_DURATION=$DUR \
+    Benchmarks/ImagePipeline/test_image_1_small$f.mojo -o bin/small/img$s$f-$q || { echo "BUILD FAIL $s$f-$q"; exit 1; }
+done; done; done
+echo BUILD_OK
+sha256sum bin/small/* &gt; bin_small.sha256
+OUT=results_small.csv
+echo "size,runtime,config,workers,rep,backend,elapsed_ms,throughput" &gt; $OUT
+timeout 120 ./bin/small/img32-vyukov 1 16 16 16 1 &gt; warmup_small.log 2&gt;&amp;1   # riscaldamento, scartato
+for s in $SIZES; do
+  for cw in "1 4 4 4 1|14" "1 16 16 16 1|50"; do
+    cfg=${cw%|*}; w=${cw#*|}
+    for rt in std coop; do
+      if [ $rt = coop ]; then suf=_coop; args="$cfg $w"; else suf=""; args="$cfg"; fi
+      for rep in 1 2 3 4 5; do
+        if (( rep % 2 )); then order="vyukov rigtorp"; else order="rigtorp vyukov"; fi
+        for b in $order; do
+          log=$(timeout 120 ./bin/small/img$s$suf-$b $args 2&gt;&amp;1); rc=$?
+          echo "$log" | grep -q "Inter-stage queue: $b" || echo "WARN backend mismatch $s $rt $b" &gt;&amp;2
+          echo "$log" | grep -q "Image size: ${s}x${s}" || echo "WARN size mismatch $s $rt $b" &gt;&amp;2
+          echo "$log" | grep -q "terminated successfully" || echo "WARN rc=$rc $s $rt $cfg $b" &gt;&amp;2
+          ms=$(echo "$log" | sed -n "s/Elapsed time: \(.*\) ms/\1/p")
+          tp=$(echo "$log" | sed -n "s/Throughput: \(.*\) img\/s/\1/p")
+          echo "$s,$rt,${cfg// /-},$w,$rep,$b,$ms,$tp" | tee -a $OUT
+        done
+      done
+    done
+  done
+done
+echo DONE</code></pre>
+<p>Tutti i 20 binari sono stati compilati e tutte le 200 esecuzioni sono terminate correttamente, senza avvisi.</p>
+
+<h3>5.2 Risultati: runtime standard, 1-16-16-16-1</h3>
+<table>
+<tr><th>Lato</th><th>Vyukov (mediana, img/s)</th><th>Rigtorp (mediana, img/s)</th><th>Differenza</th><th>Coppie vinte da Rigtorp</th><th>CV V / R</th></tr>
+<tr><td>16×16</td><td>1,91 M</td><td>2,50 M</td><td><b>+30,83%</b></td><td>5/5</td><td>38,8% / 2,4%</td></tr>
+<tr><td>32×32</td><td>1,53 M</td><td>1,80 M</td><td><b>+17,49%</b></td><td>5/5</td><td>18,7% / 0,3%</td></tr>
+<tr><td>64×64</td><td>783,2 k</td><td>826,2 k</td><td><b>+5,49%</b></td><td>3/5</td><td>7,3% / 0,1%</td></tr>
+<tr><td>128×128</td><td>278,0 k</td><td>281,2 k</td><td>+1,14%</td><td>5/5</td><td>1,6% / 0,7%</td></tr>
+<tr><td>512×512</td><td>20,2 k</td><td>20,3 k</td><td>+0,65%</td><td>5/5</td><td>2,7% / 0,6%</td></tr>
+</table>
+
+<figure>
+<svg viewBox="0 0 680 290" width="100%" xmlns="http://www.w3.org/2000/svg"><style>.t{font:9px sans-serif;fill:#555}.tt{font:600 11px sans-serif;fill:#222}.lg{font:10px sans-serif;fill:#333}.ax{stroke:#999}.gr{stroke:#e6e6e6}</style>
+<text x="55" y="14" class="tt">Differenza delle mediane, Rigtorp rispetto a Vyukov</text>
+<line x1="55" y1="250.0" x2="500" y2="250.0" class="gr"/><text x="50" y="253.0" text-anchor="end" class="t">-10%</text>
+<line x1="55" y1="225.0" x2="500" y2="225.0" class="gr"/><text x="50" y="228.0" text-anchor="end" class="t">-5%</text>
+<line x1="55" y1="200.0" x2="500" y2="200.0" class="gr"/><text x="50" y="203.0" text-anchor="end" class="t">0%</text>
+<line x1="55" y1="175.0" x2="500" y2="175.0" class="gr"/><text x="50" y="178.0" text-anchor="end" class="t">+5%</text>
+<line x1="55" y1="150.0" x2="500" y2="150.0" class="gr"/><text x="50" y="153.0" text-anchor="end" class="t">+10%</text>
+<line x1="55" y1="125.0" x2="500" y2="125.0" class="gr"/><text x="50" y="128.0" text-anchor="end" class="t">+15%</text>
+<line x1="55" y1="100.0" x2="500" y2="100.0" class="gr"/><text x="50" y="103.0" text-anchor="end" class="t">+20%</text>
+<line x1="55" y1="75.0" x2="500" y2="75.0" class="gr"/><text x="50" y="78.0" text-anchor="end" class="t">+25%</text>
+<line x1="55" y1="50.0" x2="500" y2="50.0" class="gr"/><text x="50" y="53.0" text-anchor="end" class="t">+30%</text>
+<line x1="55" y1="25.0" x2="500" y2="25.0" class="gr"/><text x="50" y="28.0" text-anchor="end" class="t">+35%</text>
+<line x1="55" y1="200.0" x2="500" y2="200.0" stroke="#666" stroke-width="1"/>
+<text x="55.0" y="264" text-anchor="middle" class="t">16×16</text>
+<text x="144.0" y="264" text-anchor="middle" class="t">32×32</text>
+<text x="233.0" y="264" text-anchor="middle" class="t">64×64</text>
+<text x="322.0" y="264" text-anchor="middle" class="t">128×128</text>
+<text x="500.0" y="264" text-anchor="middle" class="t">512×512</text>
+<text x="277.5" y="280" text-anchor="middle" class="t">lato dell'immagine (scala logaritmica)</text>
+<polyline points="55.0,45.9 144.0,112.6 233.0,172.6 322.0,194.3 500.0,196.8" fill="none" stroke="#c4572a" stroke-width="2" stroke-dasharray=""/>
+<circle cx="55.0" cy="45.9" r="3" fill="#c4572a"/>
+<circle cx="144.0" cy="112.6" r="3" fill="#c4572a"/>
+<circle cx="233.0" cy="172.6" r="3" fill="#c4572a"/>
+<circle cx="322.0" cy="194.3" r="3" fill="#c4572a"/>
+<circle cx="500.0" cy="196.8" r="3" fill="#c4572a"/>
+<line x1="515" y1="35" x2="540" y2="35" stroke="#c4572a" stroke-width="2" stroke-dasharray=""/><text x="545" y="38" class="lg">1-16-16-16-1 standard</text>
+<polyline points="55.0,201.2 144.0,198.0 233.0,185.2 322.0,185.0 500.0,200.8" fill="none" stroke="#c4572a" stroke-width="2" stroke-dasharray="5,4"/>
+<circle cx="55.0" cy="201.2" r="3" fill="#c4572a"/>
+<circle cx="144.0" cy="198.0" r="3" fill="#c4572a"/>
+<circle cx="233.0" cy="185.2" r="3" fill="#c4572a"/>
+<circle cx="322.0" cy="185.0" r="3" fill="#c4572a"/>
+<circle cx="500.0" cy="200.8" r="3" fill="#c4572a"/>
+<line x1="515" y1="51" x2="540" y2="51" stroke="#c4572a" stroke-width="2" stroke-dasharray="5,4"/><text x="545" y="54" class="lg">1-16-16-16-1 cooperativo</text>
+<polyline points="55.0,191.9 144.0,197.0 233.0,197.5 322.0,198.8 500.0,203.9" fill="none" stroke="#2a6fb0" stroke-width="2" stroke-dasharray=""/>
+<circle cx="55.0" cy="191.9" r="3" fill="#2a6fb0"/>
+<circle cx="144.0" cy="197.0" r="3" fill="#2a6fb0"/>
+<circle cx="233.0" cy="197.5" r="3" fill="#2a6fb0"/>
+<circle cx="322.0" cy="198.8" r="3" fill="#2a6fb0"/>
+<circle cx="500.0" cy="203.9" r="3" fill="#2a6fb0"/>
+<line x1="515" y1="67" x2="540" y2="67" stroke="#2a6fb0" stroke-width="2" stroke-dasharray=""/><text x="545" y="70" class="lg">1-4-4-4-1 standard</text>
+<polyline points="55.0,183.4 144.0,228.3 233.0,200.0 322.0,201.7 500.0,199.0" fill="none" stroke="#2a6fb0" stroke-width="2" stroke-dasharray="5,4"/>
+<circle cx="55.0" cy="183.4" r="3" fill="#2a6fb0"/>
+<circle cx="144.0" cy="228.3" r="3" fill="#2a6fb0"/>
+<circle cx="233.0" cy="200.0" r="3" fill="#2a6fb0"/>
+<circle cx="322.0" cy="201.7" r="3" fill="#2a6fb0"/>
+<circle cx="500.0" cy="199.0" r="3" fill="#2a6fb0"/>
+<line x1="515" y1="83" x2="540" y2="83" stroke="#2a6fb0" stroke-width="2" stroke-dasharray="5,4"/><text x="545" y="86" class="lg">1-4-4-4-1 cooperativo</text>
+</svg>
+<figcaption>Figura 1 — Differenza percentuale fra le mediane di Rigtorp e Vyukov, per lato dell'immagine, configurazione e runtime.
+Valori positivi indicano un vantaggio di Rigtorp. Solo la configurazione 1-16-16-16-1 con runtime standard si discosta in modo netto dallo zero.</figcaption>
+</figure>
+
+<h3>5.3 Stabilità: le singole ripetizioni</h3>
+<figure>
+<svg viewBox="0 0 680 250" width="100%" xmlns="http://www.w3.org/2000/svg"><style>.t{font:9px sans-serif;fill:#555}.tt{font:600 11px sans-serif;fill:#222}.lg{font:10px sans-serif;fill:#333}.ax{stroke:#999}.gr{stroke:#e6e6e6}</style>
+<text x="195" y="16" text-anchor="middle" class="tt">16×16, 1-16-16-16-1, standard</text>
+<line x1="60" y1="210.0" x2="330" y2="210.0" class="gr"/><text x="55" y="213.0" text-anchor="end" class="t">0</text>
+<line x1="60" y1="180.0" x2="330" y2="180.0" class="gr"/><text x="55" y="183.0" text-anchor="end" class="t">500,0 k</text>
+<line x1="60" y1="150.0" x2="330" y2="150.0" class="gr"/><text x="55" y="153.0" text-anchor="end" class="t">1,00 M</text>
+<line x1="60" y1="120.0" x2="330" y2="120.0" class="gr"/><text x="55" y="123.0" text-anchor="end" class="t">1,50 M</text>
+<line x1="60" y1="90.0" x2="330" y2="90.0" class="gr"/><text x="55" y="93.0" text-anchor="end" class="t">2,00 M</text>
+<line x1="60" y1="60.0" x2="330" y2="60.0" class="gr"/><text x="55" y="63.0" text-anchor="end" class="t">2,50 M</text>
+<line x1="60" y1="30.0" x2="330" y2="30.0" class="gr"/><text x="55" y="33.0" text-anchor="end" class="t">3,00 M</text>
+<circle cx="117.6" cy="159.5" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<circle cx="126.6" cy="157.3" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<circle cx="135.6" cy="95.5" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<circle cx="144.6" cy="93.7" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<circle cx="153.6" cy="95.5" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<line x1="105.6" y1="95.5" x2="165.6" y2="95.5" stroke="#2a6fb0" stroke-width="2"/>
+<text x="135.6" y="226" text-anchor="middle" class="lg">Vyukov</text>
+<circle cx="236.4" cy="56.1" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<circle cx="245.4" cy="63.9" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<circle cx="254.4" cy="55.6" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<circle cx="263.4" cy="61.7" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<circle cx="272.4" cy="60.2" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<line x1="224.4" y1="60.2" x2="284.4" y2="60.2" stroke="#c4572a" stroke-width="2"/>
+<text x="254.4" y="226" text-anchor="middle" class="lg">Rigtorp</text>
+<text x="535" y="16" text-anchor="middle" class="tt">32×32, 1-16-16-16-1, standard</text>
+<line x1="400" y1="210.0" x2="670" y2="210.0" class="gr"/><text x="395" y="213.0" text-anchor="end" class="t">0</text>
+<line x1="400" y1="165.0" x2="670" y2="165.0" class="gr"/><text x="395" y="168.0" text-anchor="end" class="t">550,0 k</text>
+<line x1="400" y1="120.0" x2="670" y2="120.0" class="gr"/><text x="395" y="123.0" text-anchor="end" class="t">1,10 M</text>
+<line x1="400" y1="75.0" x2="670" y2="75.0" class="gr"/><text x="395" y="78.0" text-anchor="end" class="t">1,65 M</text>
+<line x1="400" y1="30.0" x2="670" y2="30.0" class="gr"/><text x="395" y="33.0" text-anchor="end" class="t">2,20 M</text>
+<circle cx="457.6" cy="91.0" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<circle cx="466.6" cy="77.2" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<circle cx="475.6" cy="84.8" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<circle cx="484.6" cy="131.7" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<circle cx="493.6" cy="84.1" r="4.5" fill="#2a6fb0" fill-opacity="0.8"/>
+<line x1="445.6" y1="84.8" x2="505.6" y2="84.8" stroke="#2a6fb0" stroke-width="2"/>
+<text x="475.6" y="226" text-anchor="middle" class="lg">Vyukov</text>
+<circle cx="576.4" cy="62.9" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<circle cx="585.4" cy="63.4" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<circle cx="594.4" cy="62.5" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<circle cx="603.4" cy="63.2" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<circle cx="612.4" cy="62.3" r="4.5" fill="#c4572a" fill-opacity="0.8"/>
+<line x1="564.4" y1="62.9" x2="624.4" y2="62.9" stroke="#c4572a" stroke-width="2"/>
+<text x="594.4" y="226" text-anchor="middle" class="lg">Rigtorp</text>
+</svg>
+<figcaption>Figura 2 — Throughput delle 5 ripetizioni (punti) e mediana (segmento) per 1-16-16-16-1, runtime standard. Asse verticale da zero.</figcaption>
+</figure>
+<p>A 16×16 Vyukov ha un comportamento <b>bimodale</b>: due esecuzioni intorno a 859,6 k img/s e tre intorno a 1,92 M img/s.
+Rigtorp resta fra 2,44 M e 2,57 M img/s in tutte le ripetizioni, e la sua mediana supera di +29% anche
+la <i>migliore</i> esecuzione di Vyukov. Anche a 32×32 Vyukov ha un'esecuzione molto più lenta delle altre. Una spiegazione plausibile,
+non verificata con strumenti di profilazione, è la diversa gestione della contesa con 16 produttori sulla stessa coda: in Vyukov ogni
+<code>push</code> ritenta un CAS su <code>enqueue_pos</code> finché non ha successo, mentre in Rigtorp ogni <code>push</code> prende il proprio
+slot con un solo <code>fetch_add</code> e non ritenta.</p>
+
+<h3>5.4 Risultati: gli altri casi</h3>
+<p><b>Runtime cooperativo, 1-16-16-16-1 (50 worker)</b></p>
+<table>
+<tr><th>Lato</th><th>Vyukov (mediana, img/s)</th><th>Rigtorp (mediana, img/s)</th><th>Differenza</th><th>Coppie vinte da Rigtorp</th><th>CV V / R</th></tr>
+<tr><td>16×16</td><td>151,9 k</td><td>151,5 k</td><td>−0,24%</td><td>2/5</td><td>1,7% / 0,8%</td></tr>
+<tr><td>32×32</td><td>152,4 k</td><td>153,0 k</td><td>+0,40%</td><td>3/5</td><td>1,4% / 1,9%</td></tr>
+<tr><td>64×64</td><td>149,6 k</td><td>154,0 k</td><td>+2,96%</td><td>5/5</td><td>1,3% / 1,3%</td></tr>
+<tr><td>128×128</td><td>150,5 k</td><td>155,0 k</td><td>+2,99%</td><td>3/5</td><td>2,2% / 2,2%</td></tr>
+<tr><td>512×512</td><td>15,9 k</td><td>15,8 k</td><td>−0,16%</td><td>2/5</td><td>0,2% / 0,2%</td></tr>
+</table>
+<p><b>Runtime standard, 1-4-4-4-1</b></p>
+<table>
+<tr><th>Lato</th><th>Vyukov (mediana, img/s)</th><th>Rigtorp (mediana, img/s)</th><th>Differenza</th><th>Coppie vinte da Rigtorp</th><th>CV V / R</th></tr>
+<tr><td>16×16</td><td>1,45 M</td><td>1,48 M</td><td>+1,62%</td><td>5/5</td><td>0,4% / 0,2%</td></tr>
+<tr><td>32×32</td><td>737,4 k</td><td>741,8 k</td><td>+0,61%</td><td>4/5</td><td>0,1% / 0,3%</td></tr>
+<tr><td>64×64</td><td>331,5 k</td><td>333,1 k</td><td>+0,50%</td><td>5/5</td><td>0,2% / 0,1%</td></tr>
+<tr><td>128×128</td><td>127,4 k</td><td>127,7 k</td><td>+0,25%</td><td>3/5</td><td>0,4% / 0,2%</td></tr>
+<tr><td>512×512</td><td>12,0 k</td><td>11,9 k</td><td>−0,78%</td><td>0/5</td><td>0,2% / 0,3%</td></tr>
+</table>
+<p><b>Runtime cooperativo, 1-4-4-4-1 (14 worker)</b></p>
+<p class="small">A 16×16 e 32×32 questa condizione è rumorosa per entrambe le code: a 32×32 sia Vyukov sia Rigtorp hanno un'esecuzione intorno a 410 k img/s contro circa 280 k delle altre (CV 17–20%). Il −5,7% a 32×32, con 2 coppie su 5, non indica quindi una tendenza.</p>
+<table>
+<tr><th>Lato</th><th>Vyukov (mediana, img/s)</th><th>Rigtorp (mediana, img/s)</th><th>Differenza</th><th>Coppie vinte da Rigtorp</th><th>CV V / R</th></tr>
+<tr><td>16×16</td><td>262,3 k</td><td>271,0 k</td><td>+3,33%</td><td>4/5</td><td>4,6% / 3,9%</td></tr>
+<tr><td>32×32</td><td>296,5 k</td><td>279,7 k</td><td><b>−5,65%</b></td><td>2/5</td><td>17,0% / 19,8%</td></tr>
+<tr><td>64×64</td><td>254,5 k</td><td>254,5 k</td><td>+0,01%</td><td>2/5</td><td>0,5% / 0,9%</td></tr>
+<tr><td>128×128</td><td>114,8 k</td><td>114,4 k</td><td>−0,35%</td><td>2/5</td><td>0,4% / 0,3%</td></tr>
+<tr><td>512×512</td><td>11,5 k</td><td>11,5 k</td><td>+0,20%</td><td>3/5</td><td>0,5% / 0,5%</td></tr>
+</table>
+
+<figure>
+<svg viewBox="0 0 680 290" width="100%" xmlns="http://www.w3.org/2000/svg"><style>.t{font:9px sans-serif;fill:#555}.tt{font:600 11px sans-serif;fill:#222}.lg{font:10px sans-serif;fill:#333}.ax{stroke:#999}.gr{stroke:#e6e6e6}</style>
+<text x="55" y="14" class="tt">Throughput mediano di Rigtorp (img/s, scala logaritmica)</text>
+<line x1="55" y1="241.9" x2="500" y2="241.9" class="gr"/><text x="50" y="244.9" text-anchor="end" class="t">10,0 k</text>
+<line x1="55" y1="202.1" x2="500" y2="202.1" class="gr"/><text x="50" y="205.1" text-anchor="end" class="t">30,0 k</text>
+<line x1="55" y1="158.6" x2="500" y2="158.6" class="gr"/><text x="50" y="161.6" text-anchor="end" class="t">100,0 k</text>
+<line x1="55" y1="118.8" x2="500" y2="118.8" class="gr"/><text x="50" y="121.8" text-anchor="end" class="t">300,0 k</text>
+<line x1="55" y1="75.2" x2="500" y2="75.2" class="gr"/><text x="50" y="78.2" text-anchor="end" class="t">1,00 M</text>
+<line x1="55" y1="35.4" x2="500" y2="35.4" class="gr"/><text x="50" y="38.4" text-anchor="end" class="t">3,00 M</text>
+<text x="55.0" y="264" text-anchor="middle" class="t">16×16</text>
+<text x="144.0" y="264" text-anchor="middle" class="t">32×32</text>
+<text x="233.0" y="264" text-anchor="middle" class="t">64×64</text>
+<text x="322.0" y="264" text-anchor="middle" class="t">128×128</text>
+<text x="500.0" y="264" text-anchor="middle" class="t">512×512</text>
+<text x="277.5" y="280" text-anchor="middle" class="t">lato dell'immagine (scala logaritmica)</text>
+<polyline points="55.0,42.1 144.0,54.0 233.0,82.1 322.0,121.1 500.0,216.3" fill="none" stroke="#c4572a" stroke-width="2" stroke-dasharray=""/>
+<circle cx="55.0" cy="42.1" r="3" fill="#c4572a"/>
+<circle cx="144.0" cy="54.0" r="3" fill="#c4572a"/>
+<circle cx="233.0" cy="82.1" r="3" fill="#c4572a"/>
+<circle cx="322.0" cy="121.1" r="3" fill="#c4572a"/>
+<circle cx="500.0" cy="216.3" r="3" fill="#c4572a"/>
+<line x1="515" y1="35" x2="540" y2="35" stroke="#c4572a" stroke-width="2" stroke-dasharray=""/><text x="545" y="38" class="lg">1-16-16-16-1 standard</text>
+<polyline points="55.0,143.5 144.0,143.2 233.0,142.9 322.0,142.7 500.0,225.2" fill="none" stroke="#c4572a" stroke-width="2" stroke-dasharray="5,4"/>
+<circle cx="55.0" cy="143.5" r="3" fill="#c4572a"/>
+<circle cx="144.0" cy="143.2" r="3" fill="#c4572a"/>
+<circle cx="233.0" cy="142.9" r="3" fill="#c4572a"/>
+<circle cx="322.0" cy="142.7" r="3" fill="#c4572a"/>
+<circle cx="500.0" cy="225.2" r="3" fill="#c4572a"/>
+<line x1="515" y1="51" x2="540" y2="51" stroke="#c4572a" stroke-width="2" stroke-dasharray="5,4"/><text x="545" y="54" class="lg">1-16-16-16-1 cooperativo</text>
+<polyline points="55.0,61.1 144.0,86.0 233.0,115.0 322.0,149.7 500.0,235.6" fill="none" stroke="#2a6fb0" stroke-width="2" stroke-dasharray=""/>
+<circle cx="55.0" cy="61.1" r="3" fill="#2a6fb0"/>
+<circle cx="144.0" cy="86.0" r="3" fill="#2a6fb0"/>
+<circle cx="233.0" cy="115.0" r="3" fill="#2a6fb0"/>
+<circle cx="322.0" cy="149.7" r="3" fill="#2a6fb0"/>
+<circle cx="500.0" cy="235.6" r="3" fill="#2a6fb0"/>
+<line x1="515" y1="67" x2="540" y2="67" stroke="#2a6fb0" stroke-width="2" stroke-dasharray=""/><text x="545" y="70" class="lg">1-4-4-4-1 standard</text>
+<polyline points="55.0,122.5 144.0,121.3 233.0,124.7 322.0,153.7 500.0,236.7" fill="none" stroke="#2a6fb0" stroke-width="2" stroke-dasharray="5,4"/>
+<circle cx="55.0" cy="122.5" r="3" fill="#2a6fb0"/>
+<circle cx="144.0" cy="121.3" r="3" fill="#2a6fb0"/>
+<circle cx="233.0" cy="124.7" r="3" fill="#2a6fb0"/>
+<circle cx="322.0" cy="153.7" r="3" fill="#2a6fb0"/>
+<circle cx="500.0" cy="236.7" r="3" fill="#2a6fb0"/>
+<line x1="515" y1="83" x2="540" y2="83" stroke="#2a6fb0" stroke-width="2" stroke-dasharray="5,4"/><text x="545" y="86" class="lg">1-4-4-4-1 cooperativo</text>
+</svg>
+<figcaption>Figura 3 — Throughput mediano di Rigtorp per lato dell'immagine (le curve di Vyukov sono quasi sovrapposte, tranne
+1-16-16-16-1 standard a 16 e 32). Il runtime cooperativo con 50 worker si ferma intorno a 150 k img/s qualunque sia la dimensione fino a 128×128.</figcaption>
+</figure>
+
+<h2>6. Analisi</h2>
+<h3>6.1 Quando vince Rigtorp</h3>
+<p>Rigtorp ha un vantaggio netto solo quando valgono <b>tutte</b> queste condizioni:</p>
+<ol>
+<li><b>molti thread sulla stessa coda</b>: 16 produttori e 16 consumatori. Con 4→4, nel runtime standard, le differenze restano fra −0,8% e +1,6% a tutte le dimensioni;</li>
+<li><b>messaggi leggeri</b>: il vantaggio è +30,8% a 16×16, +17,5% a 32×32, +5,5% a 64×64, poi scende sotto l'1,2%;</li>
+<li><b>runtime standard</b>: è quello in cui il <code>Communicator</code> usa il <code>push</code> bloccante di Rigtorp.</li>
+</ol>
+<p>L'andamento ricalca quello della farm sintetica: il vantaggio cresce con la contesa e diminuisce con il lavoro per messaggio.
+L'entità massima osservata (+31%) è inferiore a quella sintetica (fino a 1,9×), coerentemente con l'uso di <code>try_pop</code> sul lato consumatore.
+Oltre al throughput, Rigtorp offre una <b>prevedibilità</b> molto maggiore: nelle condizioni di forte contesa la sua variabilità resta fra 0,1% e 2,4%,
+mentre quella di Vyukov arriva al 38,8%.</p>
+
+<h3>6.2 Perché il runtime cooperativo non mostra differenze</h3>
+<p>Con 50 worker il throughput cooperativo resta intorno a 150 k img/s a 16, 32, 64 e 128 pixel, mentre il runtime standard nelle stesse condizioni
+arriva a 2,5 M img/s a 16×16. Se il throughput non aumenta quando il lavoro per immagine diminuisce, il collo di bottiglia è altrove: con ogni
+probabilità nello scheduler cooperativo, cioè nella gestione delle ready/wait queue e nel cambio fra actor, che resta Vyukov per entrambe le
+configurazioni. In queste condizioni la coda dei communicator incide pochissimo, e infatti le differenze sono fra −0,2% e +3%. L'unico gruppo
+con una tendenza ripetuta è 64×64 (+3,0%, 5 coppie su 5), un vantaggio piccolo.</p>
+
+<h3>6.3 Le immagini 512×512 come controllo</h3>
+<p>A 512×512 le quattro condizioni danno differenze fra −0,8% e +0,7%, coerenti con la prima parte (+0,25% e +0,35%) e con la campagna cooperativa.
+La riproducibilità del risultato di parità, con test, durate e configurazioni diverse, rafforza la conclusione che le differenze osservate a 16–64 pixel
+dipendono dal peso relativo della comunicazione, non da altri fattori della campagna.</p>
+
+<h2>7. Conclusioni</h2>
+<ul>
+<li><b>Runtime standard, molti stadi replicati, messaggi leggeri</b> (lavoro per messaggio nell'ordine dei microsecondi): conviene <b>Rigtorp</b>.
+È fino al 31% più veloce e molto più stabile.</li>
+<li><b>Messaggi pesanti</b> (immagini da 128×128 in su), <b>poca contesa</b> (4 thread per lato) oppure <b>runtime cooperativo</b>: le due code sono
+<b>equivalenti</b>. Rigtorp non introduce regressioni misurabili in nessuno dei casi provati.</li>
+<li>Rigtorp è quindi una scelta sicura come coda dei communicator: dove non migliora le prestazioni non le peggiora.</li>
+</ul>
+
+<h2>8. Limiti</h2>
+<ul>
+<li><b>Campione piccolo:</b> 5 ripetizioni per gruppo bastano per le differenze nette (+31%, +17%), non per quelle sotto il 3%.
+Sono 20 gruppi confrontati senza correzione per confronti multipli.</li>
+<li><b>Spiegazioni non verificate:</b> il ruolo dei CAS ripetuti in Vyukov e quello dello scheduler cooperativo sono ipotesi coerenti con i dati,
+non misurate con contatori hardware o strumenti di profilazione.</li>
+<li><b>Correttezza:</b> il sink conta le immagini ma non verifica unicità né contenuto. La correttezza dei communicator è coperta dai test di integrazione
+(<code>Tests/run_runtime_queue_tests.py</code>), non da queste campagne.</li>
+<li><b>Ambito:</b> un solo workload (<code>test_image_1</code> e la variante cooperativa), immagini quadrate, capacità delle code 1024, una sola macchina.
+Nel runtime cooperativo è stato misurato solo un worker per actor nella campagna con immagini piccole.</li>
+<li><b>Allocazione:</b> ogni immagine è un buffer allocato sull'heap dalla sorgente e liberato da un altro thread. Con immagini piccole anche l'allocatore
+contribuisce al costo per messaggio, allo stesso modo per entrambe le code.</li>
+</ul>
+
+<h2>9. File</h2>
+<table>
+<tr><th>Percorso</th><th>Contenuto</th></tr>
+<tr><td>Benchmarks/ImagePipeline/test_image_1_small.mojo</td><td>nuovo test, runtime standard, dimensione e durata configurabili</td></tr>
+<tr><td>Benchmarks/ImagePipeline/test_image_1_small_coop.mojo</td><td>nuovo test, runtime cooperativo</td></tr>
+<tr><td>docs/Relazione_ImagePipeline_Rigtorp/results_coop.csv</td><td>dati grezzi della campagna cooperativa (30 esecuzioni)</td></tr>
+<tr><td>docs/Relazione_ImagePipeline_Rigtorp/results_small.csv</td><td>dati grezzi della campagna immagini piccole (200 esecuzioni)</td></tr>
+<tr><td>docs/Relazione_ImagePipeline_Rigtorp/ImagePipeline_Rigtorp_vs_Vyukov.pdf</td><td>prima parte (runtime standard, 512×512)</td></tr>
+<tr><td>VM: ~/mostream-rigtorp-bench/</td><td><code>run_coop.sh</code>, <code>run_small.sh</code>, log, CSV, binari in <code>bin/</code> e <code>bin/small/</code>, hash in <code>bin_small.sha256</code></td></tr>
+</table>
+
+<h2 class="pb">Appendice A — Dati grezzi della campagna cooperativa (512×512)</h2>
+<table class="raw">
+<tr><th>Config.</th><th>Worker</th><th>Rip.</th><th>Prima in ordine</th><th>Vyukov (img/s)</th><th>Rigtorp (img/s)</th><th>R vs V</th></tr>
+<tr><td>1-2-4-2-1</td><td>10</td><td>1</td><td>Vyukov</td><td>9.896</td><td>9.900</td><td>+0,04%</td></tr>
+<tr><td>1-2-4-2-1</td><td>10</td><td>2</td><td>Rigtorp</td><td>9.875</td><td>9.937</td><td>+0,63%</td></tr>
+<tr><td>1-2-4-2-1</td><td>10</td><td>3</td><td>Vyukov</td><td>9.891</td><td>9.905</td><td>+0,14%</td></tr>
+<tr><td>1-2-4-2-1</td><td>10</td><td>4</td><td>Rigtorp</td><td>9.844</td><td>9.891</td><td>+0,48%</td></tr>
+<tr><td>1-2-4-2-1</td><td>10</td><td>5</td><td>Vyukov</td><td>9.847</td><td>9.897</td><td>+0,50%</td></tr>
+<tr><td>1-8-16-8-1</td><td>34</td><td>1</td><td>Vyukov</td><td>18.439</td><td>18.372</td><td>−0,37%</td></tr>
+<tr><td>1-8-16-8-1</td><td>34</td><td>2</td><td>Rigtorp</td><td>18.499</td><td>18.422</td><td>−0,41%</td></tr>
+<tr><td>1-8-16-8-1</td><td>34</td><td>3</td><td>Vyukov</td><td>18.505</td><td>18.388</td><td>−0,63%</td></tr>
+<tr><td>1-8-16-8-1</td><td>34</td><td>4</td><td>Rigtorp</td><td>18.570</td><td>18.376</td><td>−1,04%</td></tr>
+<tr><td>1-8-16-8-1</td><td>34</td><td>5</td><td>Vyukov</td><td>18.322</td><td>18.279</td><td>−0,24%</td></tr>
+<tr><td>1-8-16-8-1</td><td>8</td><td>1</td><td>Vyukov</td><td>12.710</td><td>12.690</td><td>−0,15%</td></tr>
+<tr><td>1-8-16-8-1</td><td>8</td><td>2</td><td>Rigtorp</td><td>12.673</td><td>12.700</td><td>+0,22%</td></tr>
+<tr><td>1-8-16-8-1</td><td>8</td><td>3</td><td>Vyukov</td><td>12.686</td><td>12.676</td><td>−0,08%</td></tr>
+<tr><td>1-8-16-8-1</td><td>8</td><td>4</td><td>Rigtorp</td><td>12.671</td><td>12.722</td><td>+0,40%</td></tr>
+<tr><td>1-8-16-8-1</td><td>8</td><td>5</td><td>Vyukov</td><td>12.691</td><td>12.679</td><td>−0,10%</td></tr>
+</table>
+
+<h2>Appendice B — Dati grezzi della campagna con immagini piccole</h2>
+<p class="small">Throughput delle ripetizioni 1–5, in ordine, in img/s. Nelle ripetizioni dispari è stata eseguita prima Vyukov, nelle pari prima Rigtorp.
+Tempi di esecuzione e valori a piena precisione sono in <code>results_small.csv</code>.</p>
+<table class="raw">
+<tr><th>Lato</th><th>Config.</th><th>Runtime</th><th>Vyukov, rip. 1–5</th><th>Rigtorp, rip. 1–5</th></tr>
+<tr><td>16</td><td>1-16-16-16-1</td><td>standard</td><td class='l'>841,1 k · 878,1 k · 1,91 M · 1,94 M · 1,91 M</td><td class='l'>2,56 M · 2,44 M · 2,57 M · 2,47 M · 2,50 M</td></tr>
+<tr><td>16</td><td>1-16-16-16-1</td><td>cooperativo</td><td class='l'>148,7 k · 154,9 k · 153,9 k · 151,9 k · 150,0 k</td><td class='l'>149,1 k · 152,1 k · 150,5 k · 151,5 k · 152,0 k</td></tr>
+<tr><td>16</td><td>1-4-4-4-1</td><td>standard</td><td class='l'>1,45 M · 1,45 M · 1,45 M · 1,44 M · 1,45 M</td><td class='l'>1,48 M · 1,48 M · 1,48 M · 1,47 M · 1,48 M</td></tr>
+<tr><td>16</td><td>1-4-4-4-1</td><td>cooperativo</td><td class='l'>262,3 k · 269,5 k · 259,3 k · 262,2 k · 289,6 k</td><td class='l'>268,3 k · 287,0 k · 287,6 k · 265,4 k · 271,0 k</td></tr>
+<tr><td>32</td><td>1-16-16-16-1</td><td>standard</td><td class='l'>1,45 M · 1,62 M · 1,53 M · 957,4 k · 1,54 M</td><td class='l'>1,80 M · 1,79 M · 1,80 M · 1,79 M · 1,80 M</td></tr>
+<tr><td>32</td><td>1-16-16-16-1</td><td>cooperativo</td><td class='l'>151,4 k · 151,6 k · 152,4 k · 156,2 k · 154,9 k</td><td class='l'>153,0 k · 155,2 k · 149,2 k · 152,0 k · 156,6 k</td></tr>
+<tr><td>32</td><td>1-4-4-4-1</td><td>standard</td><td class='l'>737,4 k · 739,1 k · 738,2 k · 736,6 k · 736,9 k</td><td class='l'>737,3 k · 739,9 k · 741,8 k · 743,3 k · 743,0 k</td></tr>
+<tr><td>32</td><td>1-4-4-4-1</td><td>cooperativo</td><td class='l'>276,4 k · 296,5 k · 410,2 k · 299,8 k · 295,4 k</td><td class='l'>301,0 k · 265,1 k · 279,7 k · 276,7 k · 413,9 k</td></tr>
+<tr><td>64</td><td>1-16-16-16-1</td><td>standard</td><td class='l'>744,7 k · 874,5 k · 779,8 k · 873,9 k · 783,2 k</td><td class='l'>826,5 k · 826,1 k · 826,2 k · 825,3 k · 827,1 k</td></tr>
+<tr><td>64</td><td>1-16-16-16-1</td><td>cooperativo</td><td class='l'>149,7 k · 149,2 k · 153,9 k · 149,4 k · 149,6 k</td><td class='l'>153,4 k · 154,0 k · 157,8 k · 152,7 k · 154,1 k</td></tr>
+<tr><td>64</td><td>1-4-4-4-1</td><td>standard</td><td class='l'>332,1 k · 330,5 k · 331,5 k · 330,7 k · 331,7 k</td><td class='l'>333,1 k · 333,7 k · 333,1 k · 333,1 k · 333,0 k</td></tr>
+<tr><td>64</td><td>1-4-4-4-1</td><td>cooperativo</td><td class='l'>255,9 k · 254,0 k · 254,5 k · 254,8 k · 252,5 k</td><td class='l'>250,5 k · 252,5 k · 255,1 k · 254,5 k · 255,8 k</td></tr>
+<tr><td>128</td><td>1-16-16-16-1</td><td>standard</td><td class='l'>269,6 k · 280,2 k · 280,1 k · 278,0 k · 277,6 k</td><td class='l'>276,9 k · 280,8 k · 281,9 k · 281,3 k · 281,2 k</td></tr>
+<tr><td>128</td><td>1-16-16-16-1</td><td>cooperativo</td><td class='l'>155,4 k · 149,1 k · 150,5 k · 148,5 k · 155,1 k</td><td class='l'>150,5 k · 155,2 k · 157,1 k · 155,0 k · 149,0 k</td></tr>
+<tr><td>128</td><td>1-4-4-4-1</td><td>standard</td><td class='l'>127,4 k · 127,6 k · 127,9 k · 126,7 k · 127,3 k</td><td class='l'>127,7 k · 127,9 k · 127,8 k · 127,4 k · 127,2 k</td></tr>
+<tr><td>128</td><td>1-4-4-4-1</td><td>cooperativo</td><td class='l'>114,0 k · 115,2 k · 114,8 k · 114,7 k · 114,8 k</td><td class='l'>114,3 k · 114,3 k · 114,5 k · 115,1 k · 114,4 k</td></tr>
+<tr><td>512</td><td>1-16-16-16-1</td><td>standard</td><td class='l'>20,4 k · 19,0 k · 20,2 k · 20,1 k · 20,2 k</td><td class='l'>20,5 k · 20,3 k · 20,3 k · 20,2 k · 20,4 k</td></tr>
+<tr><td>512</td><td>1-16-16-16-1</td><td>cooperativo</td><td class='l'>15,8 k · 15,9 k · 15,8 k · 15,9 k · 15,9 k</td><td class='l'>15,8 k · 15,9 k · 15,8 k · 15,9 k · 15,8 k</td></tr>
+<tr><td>512</td><td>1-4-4-4-1</td><td>standard</td><td class='l'>12,0 k · 12,0 k · 12,0 k · 12,0 k · 12,0 k</td><td class='l'>11,9 k · 11,9 k · 11,8 k · 11,9 k · 11,9 k</td></tr>
+<tr><td>512</td><td>1-4-4-4-1</td><td>cooperativo</td><td class='l'>11,6 k · 11,4 k · 11,5 k · 11,5 k · 11,6 k</td><td class='l'>11,5 k · 11,6 k · 11,5 k · 11,5 k · 11,6 k</td></tr>
+</table>
+</body></html>

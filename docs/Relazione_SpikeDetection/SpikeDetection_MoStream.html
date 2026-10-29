@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8">
+<title>Spike Detection in MoStream — relazione</title>
+<style>
+@page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+body { font-family: "DejaVu Serif", Georgia, serif; font-size: 10.5pt; line-height: 1.45; color: #1a1a1a; }
+h1 { font-family: "DejaVu Sans", sans-serif; font-size: 19pt; margin: 0 0 4px; }
+h2 { font-family: "DejaVu Sans", sans-serif; font-size: 13.5pt; margin: 22px 0 6px; border-bottom: 1px solid #ccc; padding-bottom: 3px; page-break-after: avoid; }
+h3 { font-family: "DejaVu Sans", sans-serif; font-size: 11pt; margin: 14px 0 4px; page-break-after: avoid; }
+.sub { color: #555; font-size: 10pt; margin-bottom: 14px; }
+pre { background: #f4f4f2; border: 1px solid #ddd; border-radius: 3px; padding: 7px 9px; font-size: 8.2pt; line-height: 1.35; white-space: pre-wrap; word-break: break-all; page-break-inside: avoid; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.8pt; background: #f4f4f2; padding: 0 2px; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 6px 0 10px; page-break-inside: avoid; }
+th, td { border: 1px solid #ccc; padding: 3px 6px; text-align: right; }
+th { background: #eee; font-family: "DejaVu Sans", sans-serif; }
+td:first-child, th:first-child, td.l, th.l { text-align: left; }
+.box { border-left: 4px solid #2a6fb0; background: #f0f5fa; padding: 8px 12px; margin: 10px 0; }
+.kid { border: 1px solid #e3c86b; border-left: 5px solid #e0a800; background: #fffaea; padding: 8px 12px; margin: 10px 0; page-break-inside: avoid; }
+.kid b.t { font-family: "DejaVu Sans", sans-serif; color: #8a6400; display: block; margin-bottom: 3px; }
+.warn { border-left: 4px solid #c4572a; background: #fbf1ec; padding: 8px 12px; margin: 10px 0; }
+blockquote { border-left: 3px solid #aaa; margin: 8px 0; padding: 4px 12px; color: #333; font-style: italic; background: #fafafa; }
+figure { margin: 10px 0; page-break-inside: avoid; }
+figcaption { font-size: 9pt; color: #555; }
+.small { font-size: 9pt; color: #444; }
+.ok { color: #1d7a3a; font-weight: bold; }
+.pb { page-break-before: always; }
+</style></head><body>
+
+<h1>Spike Detection in MoStream</h1>
+<div class="sub">Porting di un'applicazione di DSPBench, verifica di correttezza, branch cooperative-runtime-v2 e campagna di misure — relazione tecnica, 29 ottobre 2026</div>
+
+<div class="box">
+<b>Sintesi.</b>
+<ul style="margin:4px 0 0">
+<li>È stata portata in MoStream l'applicazione <b>Spike Detection</b> di DSPBench (Source → MovingAverage → SpikeDetector → Sink),
+seguendo riga per riga la versione Storm, in una cartella nuova (<code>Benchmarks/SpikeDetection/</code>) senza modificare la libreria.</li>
+<li>Lo stato per sensore di MovingAverage è gestito con la <b>prima soluzione proposta dal professore</b>: un'unica coda fra gli stadi e un
+lock per ogni sensore. Il programma misura anche il prezzo di questa scelta: letture elaborate fuori ordine e attese sui lock.</li>
+<li><b>Correttezza:</b> con MovingAverage a una replica, 30 esecuzioni su 30 (26 configurazioni: 2 code × 5 runtime × varie repliche)
+producono esattamente gli stessi spike dell'implementazione di riferimento. Con MovingAverage replicato si osservano letture fuori ordine,
+ma nelle 18 esecuzioni provate l'insieme degli spike non è cambiato.</li>
+<li>Il branch <b>cooperative-runtime-v2</b> è stato analizzato e reso utilizzabile con entrambe le code (Vyukov e Rigtorp) tramite lo script
+<code>prepare_v2.sh</code>. È emerso un <b>problema nel v2</b>: in modalità <code>coop-mpmc</code> il programma a volte si interrompe con
+"cooperative ready queue is full!". La causa individuata è una <code>try_push</code> che fallisce per contesa e viene trattata come errore fatale.</li>
+<li><b>Campagna di misure</b> (400 esecuzioni, sezione 11): nel runtime standard <b>Rigtorp è più veloce di Vyukov del 24–49%</b> da 4+4 repliche in su,
+con un vantaggio che cresce con la contesa; con 1+4 sono alla pari. Nei runtime cooperativi le code sono alla pari. Il v2 è il cooperativo più veloce
+solo con <code>max_consume_rounds = 8</code> (fino a 1,9 volte); con il valore predefinito 1 è più lento del cooperativo della nostra versione.</li>
+</ul>
+</div>
+
+<h2>1. Da dove partiamo</h2>
+<p>La richiesta del professore:</p>
+<blockquote>Se si riuscisse a scrivere in MoStream 1 o 2 applicazioni nuove avremmo un banco di prova più completo per testare le code e le nuove
+funzionalità che vogliamo introdurre, oltre a confrontare runtime standard vs cooperativo (anche quello nel branch cooperative-runtime-v2 che è
+più efficiente perché decentralizza le code pronti dei thread). […] una possibilità è quella di capire se si riesce a fare qualche applicazione
+in DSPBench.</blockquote>
+
+<div class="kid"><b class="t">Spiegato semplice: cos'è MoStream</b>
+Immagina una fabbrica di biscotti fatta a catena di montaggio. Un operaio prende l'impasto, il secondo lo taglia, il terzo lo cuoce, l'ultimo lo
+mette nella scatola. Fra un operaio e l'altro c'è un <b>nastro trasportatore</b>: chi ha finito ci appoggia il pezzo, il successivo lo prende.
+MoStream serve a costruire fabbriche così, ma dentro il computer: gli "operai" si chiamano <b>stadi</b>, i "biscotti" sono i <b>dati</b>
+(i messaggi), e i "nastri" sono le <b>code</b>. Se un operaio è lento, se ne possono mettere più d'uno a fare lo stesso lavoro: si chiamano
+<b>repliche</b>.</div>
+
+<h3>1.1 Il lavoro precedente, in breve</h3>
+<p>Nelle due relazioni precedenti (<code>docs/Relazione_ImagePipeline_Rigtorp/</code>) abbiamo confrontato due code, Vyukov (quella di serie)
+e Rigtorp, dentro l'applicazione ImagePipeline. Il risultato: con immagini grandi le due code sono equivalenti, perché il tempo è tutto speso
+nei calcoli sulle immagini. Con immagini piccole e molti stadi replicati, nel runtime standard <b>Rigtorp è più veloce fino al 31%</b> e molto
+più stabile. Da qui l'interesse per un'applicazione in cui ogni messaggio richiede pochissimo lavoro, dove le code contano davvero: la Spike
+Detection è esattamente così.</p>
+
+<div class="kid"><b class="t">Spiegato semplice: perché serviva un'altra applicazione</b>
+Se ogni operaio impiega un'ora per decorare un biscotto, non importa quanto sia veloce il nastro: il nastro aspetta sempre gli operai. Per capire
+quale nastro è migliore servono biscotti che si fanno in un secondo, così il nastro diventa importante. Le immagini erano "biscotti da un'ora";
+la Spike Detection è fatta di "biscotti da un secondo".</div>
+
+<h2>2. DSPBench e l'applicazione Spike Detection</h2>
+<p><a href="https://github.com/GMAP/DSPBench">DSPBench</a> (GMAP) raccoglie 16 applicazioni di stream processing, implementate per Storm, Flink e
+Spark. Il repository è stato scaricato in sola lettura e la Spike Detection è stata studiata sul codice della versione <b>Storm</b>, che è la più
+completa:</p>
+<pre><code>dspbench-storm/src/main/java/org/dspbench/applications/spikedetection/
+  SpikeDetectionTopology.java   topologia (chi è collegato a chi e come)
+  SensorParser.java             lettura delle righe del dataset
+  MovingAverageBolt.java        media mobile per sensore
+  SpikeDetectionBolt.java       rilevazione degli spike
+dspbench-storm/src/main/resources/config/spikedetection.properties   parametri</code></pre>
+
+<h3>2.1 La topologia</h3>
+<figure>
+<svg viewBox="0 0 680 120" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>.b{fill:#f0f5fa;stroke:#2a6fb0;stroke-width:1.5}.t{font:600 11px sans-serif;fill:#1a1a1a}.s{font:9.5px sans-serif;fill:#555}.a{stroke:#555;stroke-width:1.5;fill:none;marker-end:url(#m)}</style>
+<defs><marker id="m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#555"/></marker></defs>
+<rect x="5" y="30" width="135" height="50" rx="6" class="b"/><text x="72" y="52" text-anchor="middle" class="t">Source + Parser</text><text x="72" y="68" text-anchor="middle" class="s">1 thread</text>
+<rect x="185" y="30" width="135" height="50" rx="6" class="b"/><text x="252" y="52" text-anchor="middle" class="t">MovingAverage</text><text x="252" y="68" text-anchor="middle" class="s">stato per sensore</text>
+<rect x="365" y="30" width="135" height="50" rx="6" class="b"/><text x="432" y="52" text-anchor="middle" class="t">SpikeDetector</text><text x="432" y="68" text-anchor="middle" class="s">senza stato</text>
+<rect x="545" y="30" width="130" height="50" rx="6" class="b"/><text x="610" y="52" text-anchor="middle" class="t">Sink</text><text x="610" y="68" text-anchor="middle" class="s">1 thread</text>
+<line x1="140" y1="55" x2="183" y2="55" class="a"/><line x1="320" y1="55" x2="363" y2="55" class="a"/><line x1="500" y1="55" x2="543" y2="55" class="a"/>
+<text x="162" y="22" text-anchor="middle" class="s">fieldsGrouping</text><text x="162" y="100" text-anchor="middle" class="s">(per sensore)</text>
+<text x="342" y="22" text-anchor="middle" class="s">shuffle</text><text x="522" y="22" text-anchor="middle" class="s">shuffle</text>
+</svg>
+<figcaption>Figura 1 — Topologia della Spike Detection in DSPBench (Storm).</figcaption>
+</figure>
+<ul>
+<li><b>Source + Parser</b> (<code>SensorParser</code>): legge una riga del dataset, la divide sugli spazi e la accetta solo se ha esattamente 8 campi
+(<code>data ora epoch moteid temperatura umidità luce tensione</code>) e se data e ora sono valide. Emette <code>(deviceID, timestamp, valore)</code>;
+il valore è la temperatura (<code>sd.parser.value_field=temp</code>).</li>
+<li><b>MovingAverage</b> (<code>MovingAverageBolt</code>): per ogni sensore tiene una lista degli ultimi valori e la loro somma. Se la lista ha già
+<code>window = 1000</code> valori toglie il più vecchio e lo sottrae dalla somma, poi aggiunge il nuovo e lo somma. Emette
+<code>(deviceID, media, valore)</code> con <code>media = somma / numero di valori</code>.</li>
+<li><b>SpikeDetector</b> (<code>SpikeDetectionBolt</code>): emette <code>"spike detected"</code> solo se
+<code>|valore − media| &gt; 0,03 × media</code> (<code>sd.spike_detector.threshold=0.03</code>).</li>
+<li><b>Sink</b>: riceve gli spike (in DSPBench li stampa o li conta).</li>
+<li>Il collegamento Source→MovingAverage è un <b><code>fieldsGrouping</code> per deviceID</b>: tutte le letture di uno stesso sensore vanno sempre
+alla stessa replica. Gli altri collegamenti sono <code>shuffleGrouping</code>: ogni messaggio può andare a qualsiasi replica.</li>
+</ul>
+
+<div class="kid"><b class="t">Spiegato semplice: cosa fa la Spike Detection</b>
+In una casa ci sono 52 termometri che ogni tanto mandano la temperatura. Per ogni termometro teniamo un quaderno con le ultime 1000 temperature e
+ne calcoliamo la media. Quando arriva una nuova temperatura la confrontiamo con la media: se è "troppo diversa" (più del 3% sopra o sotto), gridiamo
+"<b>salto!</b>", cioè uno <i>spike</i>. Per esempio, se la media è 20 gradi, il 3% è 0,6 gradi: una lettura di 21 gradi è uno spike, una di 20,3 no.</div>
+
+<h3>2.2 Il dataset</h3>
+<p>Il file <code>dspbench-spark/data/spikedetection/sensors.dat</code> (5 MB) contiene 80 000 righe del dataset del laboratorio Intel Berkeley.
+Dopo il parsing con le regole di DSPBench:</p>
+<table style="width:70%">
+<tr><th>Voce</th><th>Valore</th></tr>
+<tr><td>righe totali</td><td>80 000</td></tr>
+<tr><td>righe scartate (numero di campi ≠ 8)</td><td>2 422</td></tr>
+<tr><td><b>letture valide</b></td><td><b>77 578</b></td></tr>
+<tr><td>sensori distinti</td><td>52 (ID da 1 a 54; mancano 5 e 28)</td></tr>
+<tr><td>letture per sensore</td><td>da 496 (sensore 15) a 2 283 (sensore 48)</td></tr>
+<tr><td>spike su una passata (riferimento)</td><td>59 862 (77% delle letture)</td></tr>
+</table>
+<p>La quota di spike è alta: con una soglia del 3% sulla temperatura, la maggior parte delle letture si discosta dalla media delle ultime 1000.
+Di conseguenza il sink riceve circa tre quarti delle tuple: anche l'ultimo collegamento è molto trafficato.</p>
+
+<h2>3. Il problema della chiave in MoStream</h2>
+<p>In MoStream ogni collegamento fra due stadi è <b>una sola coda MPMC condivisa</b> da tutte le repliche (verificato in
+<code>MoStream/communicator.mojo</code> e <code>MoStream/stage.mojo</code>): qualsiasi replica può prendere qualsiasi messaggio. MoStream offre
+quindi solo l'equivalente dello <code>shuffleGrouping</code>, non del <code>fieldsGrouping</code>.</p>
+<p>Se MovingAverage ha più repliche, le letture dello stesso sensore finiscono su repliche diverse. Se ogni replica avesse il suo stato privato,
+ciascuna calcolerebbe la media di una parte sola delle letture: il risultato sarebbe sbagliato e diverso a ogni esecuzione.</p>
+
+<div class="kid"><b class="t">Spiegato semplice: il problema dei quaderni</b>
+Ora abbiamo quattro bambini che aiutano a calcolare le medie, e un solo nastro da cui ognuno prende la prossima lettura che passa. Se ogni bambino
+avesse il <i>suo</i> quaderno, le temperature del termometro della cucina finirebbero un po' nel quaderno di Anna, un po' in quello di Marco…
+e nessuno avrebbe la media giusta della cucina. In DSPBench il problema non c'è, perché c'è una regola: "le letture della cucina vanno sempre ad Anna".
+MoStream questa regola, per ora, non ce l'ha.</div>
+
+<h3>3.1 Bilanciamento del carico per chiave</h3>
+<p>Assegnando i sensori alle repliche con <code>id % n</code>, come farebbe un instradamento per chiave, il carico non è uniforme:</p>
+<table style="width:60%">
+<tr><th>Repliche</th><th>Replica più carica / media</th></tr>
+<tr><td>4</td><td>1,08</td></tr>
+<tr><td>8</td><td>1,09</td></tr>
+<tr><td>16</td><td>1,27</td></tr>
+</table>
+<p>Con 16 repliche la più carica riceve il 27% di lavoro in più della media. È un costo dell'instradamento per chiave che la coda condivisa non ha.</p>
+
+<h2>4. Le due soluzioni del professore</h2>
+<blockquote>Si mantiene la logica attuale ma i nodi consumatori tengono una lock per stato di chiave, e questo garantisce che lo stato è comunque
+acceduto in modo mutuamente esclusivo. Però non è la stessa cosa esattamente: se la sorgente è sequenziale l'implementazione originale garantisce che
+i dati della stessa chiave siano processati in ordine, cosa che noi non potremmo garantire con le lock. Comunque potremmo accontentarci.</blockquote>
+<blockquote>[…] se nella fase finale della tesi tu riuscissi ad impostare un Comunicatore diverso, potremmo provare e confrontare una soluzione come
+l'originale ma in MoStream. Ovvero fare in modo che se il Comunicatore è configurato opportunamente, consenta di realizzare primitive di
+<code>push_to</code> e <code>try_push_to</code> che consentano di mandare un dato ad uno specifico nodo nello stadio consumatore. […] A quel punto
+potremmo fare i confronti tra questa soluzione con il Comunicatore più complesso, e quella sopra con il comunicatore più semplice (singola coda)
+ma con lock.</blockquote>
+
+<figure>
+<svg viewBox="0 0 680 190" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>.b{fill:#f0f5fa;stroke:#2a6fb0;stroke-width:1.3}.q{fill:#fff3d6;stroke:#c08a00;stroke-width:1.3}.st{fill:#eaf6ec;stroke:#1d7a3a;stroke-width:1.3}.t{font:600 10.5px sans-serif;fill:#1a1a1a}.s{font:9px sans-serif;fill:#555}.a{stroke:#666;stroke-width:1.2;fill:none;marker-end:url(#m2)}</style>
+<defs><marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L10,5L0,10z" fill="#666"/></marker></defs>
+<text x="160" y="14" text-anchor="middle" class="t">Soluzione 1: una coda + lock per chiave</text>
+<rect x="10" y="70" width="60" height="34" rx="5" class="b"/><text x="40" y="91" text-anchor="middle" class="t">Source</text>
+<rect x="95" y="72" width="70" height="30" rx="4" class="q"/><text x="130" y="91" text-anchor="middle" class="s">coda unica</text>
+<line x1="70" y1="87" x2="93" y2="87" class="a"/>
+<rect x="195" y="30" width="60" height="28" rx="5" class="b"/><text x="225" y="48" text-anchor="middle" class="t">MA 1</text>
+<rect x="195" y="73" width="60" height="28" rx="5" class="b"/><text x="225" y="91" text-anchor="middle" class="t">MA 2</text>
+<rect x="195" y="116" width="60" height="28" rx="5" class="b"/><text x="225" y="134" text-anchor="middle" class="t">MA 3</text>
+<line x1="165" y1="87" x2="193" y2="44" class="a"/><line x1="165" y1="87" x2="193" y2="87" class="a"/><line x1="165" y1="87" x2="193" y2="130" class="a"/>
+<rect x="275" y="40" width="50" height="94" rx="4" class="st"/><text x="300" y="80" text-anchor="middle" class="s">stato</text><text x="300" y="92" text-anchor="middle" class="s">+ lock</text><text x="300" y="104" text-anchor="middle" class="s">per</text><text x="300" y="116" text-anchor="middle" class="s">sensore</text>
+<line x1="255" y1="44" x2="273" y2="60" class="a"/><line x1="255" y1="87" x2="273" y2="87" class="a"/><line x1="255" y1="130" x2="273" y2="114" class="a"/>
+<text x="160" y="175" text-anchor="middle" class="s">qualsiasi replica prende qualsiasi lettura</text>
+<text x="510" y="14" text-anchor="middle" class="t">Soluzione 2: una coda per replica + push_to</text>
+<rect x="370" y="70" width="60" height="34" rx="5" class="b"/><text x="400" y="91" text-anchor="middle" class="t">Source</text>
+<rect x="470" y="30" width="70" height="28" rx="4" class="q"/><text x="505" y="48" text-anchor="middle" class="s">coda 1</text>
+<rect x="470" y="73" width="70" height="28" rx="4" class="q"/><text x="505" y="91" text-anchor="middle" class="s">coda 2</text>
+<rect x="470" y="116" width="70" height="28" rx="4" class="q"/><text x="505" y="134" text-anchor="middle" class="s">coda 3</text>
+<line x1="430" y1="87" x2="468" y2="44" class="a"/><line x1="430" y1="87" x2="468" y2="87" class="a"/><line x1="430" y1="87" x2="468" y2="130" class="a"/>
+<text x="449" y="66" text-anchor="middle" class="s">id%3</text>
+<rect x="565" y="30" width="105" height="28" rx="5" class="b"/><text x="617" y="48" text-anchor="middle" class="t">MA 1 + stato</text>
+<rect x="565" y="73" width="105" height="28" rx="5" class="b"/><text x="617" y="91" text-anchor="middle" class="t">MA 2 + stato</text>
+<rect x="565" y="116" width="105" height="28" rx="5" class="b"/><text x="617" y="134" text-anchor="middle" class="t">MA 3 + stato</text>
+<line x1="540" y1="44" x2="563" y2="44" class="a"/><line x1="540" y1="87" x2="563" y2="87" class="a"/><line x1="540" y1="130" x2="563" y2="130" class="a"/>
+<text x="520" y="175" text-anchor="middle" class="s">ogni sensore va sempre alla stessa replica</text>
+</svg>
+<figcaption>Figura 2 — Le due soluzioni proposte. In questa fase è stata realizzata la soluzione 1.</figcaption>
+</figure>
+
+<div class="kid"><b class="t">Spiegato semplice: le due soluzioni</b>
+<b>Soluzione 1:</b> c'è un solo nastro e i bambini prendono quello che passa, ma i quaderni sono uno per termometro, tutti su un tavolo comune, e ogni
+quaderno ha un <b>lucchetto</b>. Chi vuole scrivere nel quaderno della cucina prende il lucchetto; se ce l'ha già un altro aspetta. Così due bambini non
+scrivono mai nello stesso quaderno insieme. Il difetto: se Anna prende la lettura delle 10:00 della cucina e Marco quella delle 10:01, può succedere che
+Marco apra il lucchetto per primo e scriva la 10:01 prima della 10:00. L'ordine si è scambiato.<br>
+<b>Soluzione 2:</b> ogni bambino ha il suo nastro e il suo quaderno, e chi mette le letture sui nastri segue la regola "cucina sempre ad Anna". Niente
+lucchetti e l'ordine è giusto, ma serve un sistema di nastri più complicato, e se la cucina manda tante letture Anna lavora più degli altri.</div>
+
+<h3>4.1 Considerazioni sulla soluzione 1</h3>
+<ul>
+<li><code>parallel(stage, n)</code> crea <i>n</i> copie dello stadio, quindi lo stato deve stare in memoria <b>condivisa</b>, raggiungibile tramite un
+puntatore che tutte le copie possiedono (come già fa <code>ImageSink</code> con il suo contatore).</li>
+<li>Il lock è uno <b>spinlock</b> su un intero atomico: la sezione critica è di pochi nanosecondi (una somma, una sottrazione e una scrittura),
+quindi aspettare "girando" costa meno che sospendere il thread.</li>
+<li>Nel runtime cooperativo uno spinlock è sicuro solo se l'actor non può cedere il controllo mentre lo tiene. <code>compute()</code> non contiene punti
+di cessione, quindi il lock viene sempre rilasciato prima che il worker passi a un altro actor.</li>
+<li>L'ordine per sensore non è garantito con più repliche: il programma conta quante letture arrivano "in ritardo", così il "potremmo accontentarci"
+diventa un dato misurato.</li>
+</ul>
+
+<h3>4.2 Considerazioni sulla soluzione 2 (per la fase successiva)</h3>
+<ul>
+<li>Con una coda per replica consumatrice, ogni coda ha <b>un solo consumatore</b> (MPSC, o SPSC se il produttore è uno). Il <code>pop</code> bloccante di
+Rigtorp, che oggi il communicator non può usare, diventerebbe utilizzabile, e si potrebbero provare code specializzate per un solo consumatore.</li>
+<li>Va progettato l'invio dell'EOS su ogni coda e l'API con cui lo stadio produttore sceglie la destinazione. Per lo schema serve il documento iniziale
+del professore.</li>
+</ul>
+
+<h2>5. Il branch cooperative-runtime-v2</h2>
+<p>Il branch è stato scaricato da <code>https://github.com/ParaGroup/MoStream/tree/cooperative-runtime-v2</code> (ultimo commit <code>423b32b</code>,
+9 ottobre 2026, "Fixed to compile with mojo 1.1.0"). Nel repository esistono anche <code>cooperative-runtime-v3</code> e <code>v4</code>; come indicato
+dal professore si usa il v2.</p>
+<h3>5.1 Cosa cambia</h3>
+<ul>
+<li><b>Code dei pronti per worker</b> (<code>ready_queue.mojo</code>, <code>work_stealing_deque.mojo</code>): invece di un'unica coda degli actor pronti
+condivisa da tutti i worker, ogni worker ha la sua.</li>
+<li><code>run_cooperative(n_workers, ready_queue_kind = ReadyQueueKind.MPMC, max_consume_rounds = 1)</code>:
+  <ul>
+  <li><code>ReadyQueueKind.MPMC</code>: una coda MPMC per worker (è il <b>valore predefinito</b>);</li>
+  <li><code>ReadyQueueKind.WORK_STEALING</code>: una deque per worker, e un worker senza lavoro "ruba" actor agli altri;</li>
+  <li><code>max_consume_rounds</code>: quante volte di fila un actor viene eseguito prima di essere rimesso in coda.</li>
+  </ul></li>
+<li>Usa il modulo Python <code>multiprocessing</code> per contare le CPU, quindi a runtime serve Python (disponibile sulla VM: 3.10.12).</li>
+</ul>
+
+<div class="kid"><b class="t">Spiegato semplice: runtime standard, cooperativo e v2</b>
+<b>Standard:</b> ogni bambino ha la sua postazione e ci resta tutto il tempo, anche quando non ha niente da fare.<br>
+<b>Cooperativo:</b> le postazioni sono tante ma i bambini sono pochi. Una lavagna in mezzo alla stanza elenca le postazioni che hanno lavoro pronto:
+ogni bambino guarda la lavagna, va a una postazione, lavora un po' e poi torna alla lavagna. Se i bambini sono tanti, si accalcano tutti davanti
+all'unica lavagna.<br>
+<b>v2:</b> ogni bambino ha la <b>sua</b> lavagnetta, così non si accalcano. Con il <i>work stealing</i>, chi ha la lavagnetta vuota sbircia quella del vicino
+e gli "ruba" un lavoro. Con <i>max_consume_rounds</i> = 8, un bambino arrivato a una postazione fa fino a 8 lavori di fila prima di tornare alla
+lavagnetta, invece di uno solo: perde meno tempo a camminare.</div>
+
+<h3>5.2 Compatibilità con il nostro lavoro</h3>
+<table>
+<tr><th class="l">File</th><th class="l">Rispetto alla nostra versione</th></tr>
+<tr><td>stage.mojo, emitter.mojo, node.mojo, utils.mojo</td><td class="l">identici: l'API degli stadi non cambia</td></tr>
+<tr><td>MPMC_queue.mojo (Vyukov)</td><td class="l">identico a meno dei commenti</td></tr>
+<tr><td>communicator.mojo</td><td class="l">differisce solo per la scelta della coda (4 righe)</td></tr>
+</table>
+<p>Per usare Rigtorp nel v2 è stato scritto <code>prepare_v2.sh</code>: scarica il branch al commit <code>423b32b</code>, copia
+<code>communication_queue.mojo</code> e <code>MPMC_queue_rigtorp.mojo</code>, sostituisce le 4 righe del communicator (con controllo che il testo atteso sia
+presente esattamente una volta) e compila <code>libpinning.so</code>. Il risultato:</p>
+<pre><code>$ Benchmarks/SpikeDetection/prepare_v2.sh ~/mostream-v2
+ MoStream/communicator.mojo | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+Ready: /home/ungolo/mostream-v2 (commit 423b32b, export MOSTREAM_HOME=/home/ungolo/mostream-v2 before running)</code></pre>
+<p>Il repository del professore non viene modificato: la copia è in una cartella separata sulla VM.</p>
+
+<h2>6. Progetto dell'implementazione</h2>
+<h3>6.1 Scelte generali</h3>
+<ul>
+<li><b>Il parsing avviene una volta, fuori dalla misura.</b> <code>prepare_dataset.py</code> applica le regole di <code>SensorParser</code> e scrive un file
+binario di coppie <code>(int64 sensore, float64 valore)</code>. Così: (a) Mojo e il riferimento Python leggono <i>gli stessi identici numeri</i>, e il
+confronto riguarda solo l'algoritmo; (b) il tempo misurato è quello della pipeline, non del parsing del testo. È una differenza dichiarata rispetto a
+DSPBench, dove il parsing avviene nella sorgente.</li>
+<li><b>La sorgente riproduce il dataset in memoria</b>: per una durata fissa (modalità misura) oppure per un numero esatto di passate (modalità verifica).
+77 578 letture si elaborano in pochi millisecondi, quindi per misurare serve ripeterle.</li>
+<li><b>Ogni lettura riceve un numero di sequenza per sensore</b> (0, 1, 2, … per ciascun sensore), assegnato dalla sorgente. Serve per riconoscere gli
+spike (coppia sensore–sequenza) e per contare le letture fuori ordine.</li>
+<li><b>Il sink calcola un'impronta del risultato</b> indipendente dall'ordine di arrivo: somma modulo 2<sup>64</sup> di un hash (splitmix64) di ogni
+coppia (sensore, sequenza). Due esecuzioni con lo stesso insieme di spike hanno la stessa impronta.</li>
+</ul>
+
+<div class="kid"><b class="t">Spiegato semplice: l'impronta del risultato</b>
+Ogni spike riceve un "numero magico" calcolato dal suo termometro e dal suo numero d'ordine. Alla fine sommiamo tutti i numeri magici. Se due fabbriche
+hanno trovato esattamente gli stessi spike, la somma è identica, anche se li hanno trovati in un ordine diverso. Se anche uno solo è diverso, la somma
+cambia. È come un'impronta digitale del risultato.</div>
+
+<h3>6.2 I file</h3>
+<table>
+<tr><th class="l">File</th><th class="l">Contenuto</th></tr>
+<tr><td>prepare_dataset.py</td><td class="l">da <code>sensors.dat</code> al binario, con le regole di SensorParser</td></tr>
+<tr><td>reference.py</td><td class="l">implementazione sequenziale di riferimento: conteggio, impronta, elenco degli spike</td></tr>
+<tr><td>compare_dump.py</td><td class="l">confronta l'elenco degli spike di MoStream con quello del riferimento</td></tr>
+<tr><td>sd_stages.mojo</td><td class="l">messaggi, stato condiviso con lock per sensore, i quattro stadi</td></tr>
+<tr><td>spike_detection.mojo</td><td class="l">programma per la nostra versione di MoStream (standard e cooperativo)</td></tr>
+<tr><td>spike_detection_v2.mojo</td><td class="l">programma per il v2 (standard, coop-mpmc, coop-ws, rounds)</td></tr>
+<tr><td>prepare_v2.sh</td><td class="l">crea la copia del v2 con la scelta della coda</td></tr>
+<tr><td>README.md</td><td class="l">istruzioni complete</td></tr>
+</table>
+
+<h3>6.3 I messaggi</h3>
+<pre><code>SensorReading  (device, seq, value)            Source → MovingAverage
+AverageReading (device, seq, value, average)   MovingAverage → SpikeDetector
+SpikeEvent     (device, seq, value, average)   SpikeDetector → Sink</code></pre>
+<p>Sono struct piccole di interi e numeri in virgola mobile: il costo di copia è minimo e il peso dell'applicazione è tutto nella comunicazione.</p>
+
+<h3>6.4 Lo stato condiviso e il lock</h3>
+<p>Lo stato di ogni sensore è una <code>DeviceState</code>: il lock, il numero di valori nella finestra, la posizione del più vecchio, la somma, la sequenza
+più alta vista e il puntatore alla finestra circolare di 1000 valori. La struct è <b>riempita fino a 64 byte</b> (una linea di cache), così i lock di
+sensori diversi non condividono la stessa linea (<i>false sharing</i>).</p>
+<pre><code># spinlock acquire, returns the number of failed attempts
+@always_inline
+def acquire(mut self) -> Int:
+    var waits = 0
+    var expected = Int64(0)
+    while not self.lock.compare_exchange[success_ordering=Ordering.ACQUIRE, failure_ordering=Ordering.RELAXED](expected, Int64(1)):
+        expected = Int64(0)
+        waits += 1
+    return waits
+
+# spinlock release
+@always_inline
+def release(mut self):
+    self.lock.store[ordering=Ordering.RELEASE](Int64(0))</code></pre>
+<p>L'acquisizione con ordine <code>ACQUIRE</code> e il rilascio con <code>RELEASE</code> garantiscono che chi prende il lock veda tutte le modifiche fatte da
+chi lo ha rilasciato.</p>
+
+<div class="kid"><b class="t">Spiegato semplice: lo spinlock</b>
+Il lucchetto del quaderno è una porta con una maniglia. Chi vuole entrare prova la maniglia: se la porta si apre entra e la chiude dietro di sé; se è
+chiusa, riprova subito, e poi ancora, finché non si apre. Funziona bene quando chi è dentro esce in un attimo, come qui, dove si scrive solo un numero.
+Ogni tentativo andato a vuoto lo contiamo: sono le "attese sul lock".</div>
+
+<h3>6.5 MovingAverage</h3>
+<p>Esegue le stesse operazioni, nello stesso ordine, di <code>MovingAverageBolt</code>: prima sottrae il valore più vecchio, poi somma il nuovo. In virgola
+mobile l'ordine delle operazioni cambia il risultato nelle ultime cifre, e questo è necessario per avere esattamente gli stessi spike del riferimento.</p>
+<pre><code>def compute(mut self, var input: SensorReading) -> Optional[AverageReading]:
+    var state = self.shared[].states.unsafe_offset(input.device)
+    self.lock_waits += state[].acquire()
+    if input.seq &lt; state[].max_seq:
+        self.late += 1
+    else:
+        state[].max_seq = input.seq
+    if state[].size > WINDOW - 1:
+        var oldest = state[].window.unsafe_offset(state[].head)
+        state[].sum -= oldest[]
+        oldest[] = input.value
+        state[].head = (state[].head + 1) % WINDOW
+    else:
+        state[].window.unsafe_offset((state[].head + state[].size) % WINDOW)[] = input.value
+        state[].size += 1
+    state[].sum += input.value
+    var average = state[].sum / Float64(state[].size)
+    state[].release()
+    self.count += 1
+    return AverageReading(input.device, input.seq, input.value, average)</code></pre>
+<p>Una lettura è "in ritardo" (<code>late</code>) se la sua sequenza è minore della più alta già elaborata per quel sensore. I contatori <code>late</code> e
+<code>lock_waits</code> sono locali a ogni replica e vengono sommati in contatori atomici condivisi alla ricezione dell'EOS.</p>
+
+<h3>6.6 SensorSource, SpikeDetector e SpikeSink</h3>
+<ul>
+<li><b>SensorSource</b> legge il tempo solo ogni 1024 letture, per non spendere tempo nell'orologio; alla fine pubblica quante letture ha emesso.</li>
+<li><b>SpikeDetector</b> è senza stato: applica la soglia e restituisce <code>None</code> se la lettura non è uno spike.</li>
+<li><b>SpikeSink</b> conta gli spike, somma le impronte e, se richiesto, scrive l'elenco <code>sensore sequenza</code> in un file per il confronto puntuale.</li>
+</ul>
+
+<h3>6.7 L'uscita del programma</h3>
+<pre><code>RESULT runtime=std queue=rigtorp ma=4 sd=4 workers=10 tuples=… averaged=… detected=… spikes=… hash=… late=… lock_waits=… elapsed_ms=… throughput=…</code></pre>
+<p><code>tuples</code>, <code>averaged</code> e <code>detected</code> sono le tuple emesse dalla sorgente, elaborate da MovingAverage e da SpikeDetector: devono coincidere,
+altrimenti si è perso qualcosa. Il throughput è in tuple emesse dalla sorgente al secondo.</p>
+
+<h2>7. Errori trovati e corretti durante lo sviluppo</h2>
+<h3>7.1 Data race sul contatore delle attese</h3>
+<p>Nella prima stesura il contatore delle attese sul lock stava dentro lo stato del sensore e veniva incrementato <i>mentre si aspettava</i> il lock. Più thread
+in attesa l'avrebbero scritto contemporaneamente senza protezione: una <i>data race</i>, quindi un conteggio non affidabile. Il contatore è stato spostato
+in una variabile locale di ogni replica, pubblicata con un atomico alla fine.</p>
+<div class="kid"><b class="t">Spiegato semplice</b>
+Avevamo appeso alla porta un foglietto su cui chi aspetta fa una tacca. Ma se tre bambini aspettano insieme e fanno la tacca nello stesso momento,
+qualche tacca si perde. Ora ognuno conta le sue attese sul proprio dito e alla fine le dice ad alta voce.</div>
+<h3>7.2 Frazioni di secondo a una o due cifre</h3>
+<p>Il formato data di DSPBench è <code>appendFractionOfSecond(3, 6)</code> di Joda-Time. All'inizio era stato interpretato come "da 3 a 6 cifre" e 12 righe
+con frazione a 2 cifre (ad esempio <code>2004-02-28 01:15:16.09</code>) venivano scartate. In Joda-Time quei parametri indicano il numero di cifre da
+<i>stampare</i>; in lettura si accettano da 1 a 6 cifre, quindi DSPBench accetta quelle righe. Dopo la correzione le letture valide sono 77 578, con 0
+righe scartate per la data.</p>
+
+<h2>8. Verifica di correttezza</h2>
+<h3>8.1 Prove preliminari</h3>
+<p>Prima di scrivere il codice è stato verificato su Mojo 1.1 che un <code>float64</code> scritto da Python con <code>struct.pack("&lt;d", 19.7336)</code> e riletto in
+Mojo con <code>read_bytes</code> e <code>bitcast[DType.float64]</code> sia identico al valore originale (<code>19.7336 True</code>).</p>
+<h3>8.2 Riferimento Python</h3>
+<pre><code>$ python3 reference.py data/sensors.bin 1
+RESULT tuples=77578 spikes=59862 hash=5331604604058402807
+$ python3 reference.py data/sensors.bin 3
+RESULT tuples=232734 spikes=200774 hash=6159549295451861730</code></pre>
+<h3>8.3 MovingAverage a una replica: risultato esatto</h3>
+<table>
+<tr><th class="l">Libreria</th><th class="l">Code</th><th class="l">Runtime</th><th class="l">Altre variabili</th><th>Esecuzioni</th><th class="l">Esito</th></tr>
+<tr><td>nostra versione</td><td class="l">Vyukov, Rigtorp</td><td class="l">std, coop</td><td class="l">passate 1 e 3; SpikeDetector 1 e 4</td><td>16</td><td class="l ok">tutte identiche</td></tr>
+<tr><td>nostra versione</td><td class="l">Vyukov, Rigtorp</td><td class="l">std, coop</td><td class="l">3 passate, SD=4, con elenco spike</td><td>4</td><td class="l ok">tutte identiche</td></tr>
+<tr><td>v2</td><td class="l">Vyukov, Rigtorp</td><td class="l">std, coop-mpmc, coop-ws</td><td class="l">3 passate, SD=4, rounds 1 e 8</td><td>10</td><td class="l ok">tutte identiche</td></tr>
+</table>
+<p>"Identiche" significa: stesse tuple emesse, elaborate e controllate, stesso numero di spike, stessa impronta, nessuna lettura fuori ordine e, dove
+è stato scritto l'elenco, stesso insieme di coppie (sensore, sequenza) del riferimento.</p>
+<h3>8.4 MovingAverage replicato</h3>
+<table>
+<tr><th class="l">Libreria</th><th class="l">Coda</th><th class="l">Runtime</th><th>MA</th><th>Letture in ritardo</th><th>Attese sul lock</th><th class="l">Insieme degli spike</th></tr>
+<tr><td>nostra</td><td class="l">Vyukov</td><td class="l">std</td><td>4</td><td>17</td><td>127</td><td class="l ok">identico</td></tr>
+<tr><td>nostra</td><td class="l">Vyukov</td><td class="l">std</td><td>16</td><td>0</td><td>31</td><td class="l ok">identico</td></tr>
+<tr><td>nostra</td><td class="l">Vyukov</td><td class="l">coop</td><td>4</td><td>1</td><td>0</td><td class="l ok">identico</td></tr>
+<tr><td>nostra</td><td class="l">Vyukov</td><td class="l">coop</td><td>16</td><td>0</td><td>0</td><td class="l ok">identico</td></tr>
+<tr><td>nostra</td><td class="l">Rigtorp</td><td class="l">std</td><td>4</td><td>10</td><td>102</td><td class="l ok">identico</td></tr>
+<tr><td>nostra</td><td class="l">Rigtorp</td><td class="l">std</td><td>16</td><td>4</td><td>454</td><td class="l ok">identico</td></tr>
+<tr><td>nostra</td><td class="l">Rigtorp</td><td class="l">coop</td><td>4</td><td>1</td><td>0</td><td class="l ok">identico</td></tr>
+<tr><td>nostra</td><td class="l">Rigtorp</td><td class="l">coop</td><td>16</td><td>0</td><td>0</td><td class="l ok">identico</td></tr>
+<tr><td>v2</td><td class="l">Vyukov</td><td class="l">std / coop-mpmc r1, r8 / coop-ws r1, r8</td><td>4</td><td>12 / 1, 12 / 1, 16</td><td>129 / 5, 41 / 0, 21</td><td class="l ok">identico</td></tr>
+<tr><td>v2</td><td class="l">Rigtorp</td><td class="l">std / coop-mpmc r1, r8 / coop-ws r1, r8</td><td>4</td><td>3 / 0, 29 / 3, 19</td><td>107 / 0, 55 / 12, 42</td><td class="l ok">identico</td></tr>
+</table>
+<p class="small">3 passate (232 734 tuple), SpikeDetector a 4 repliche.</p>
+<p>Le letture fuori ordine <b>si verificano davvero</b>, come previsto dal professore. Nelle 18 esecuzioni provate però nessuno scambio ha cambiato una decisione
+spike/non spike: scambiare due letture vicine sposta la media di pochissimo rispetto alla soglia del 3%. Le medie emesse invece possono differire da quelle
+del riferimento. Con esecuzioni più lunghe e più repliche le letture in ritardo crescono molto (sezione 9), quindi non si può concludere che l'insieme degli
+spike resti sempre identico: andrà misurato nella campagna.</p>
+
+<div class="kid"><b class="t">Spiegato semplice: come sappiamo che funziona</b>
+Abbiamo scritto due volte lo stesso programma: una volta "lento e semplice", con un solo bambino che fa tutto in ordine (il riferimento), e una volta con
+la fabbrica MoStream. Poi abbiamo controllato che trovino esattamente gli stessi spike, con la stessa impronta digitale, in 30 prove diverse su 30.
+Quando i bambini che calcolano le medie sono più di uno, ogni tanto due letture si scambiano di posto: le abbiamo contate, e finora non hanno cambiato
+nessuno spike.</div>
+
+<h2>9. Prime misure (indicative)</h2>
+<div class="warn">Una sola esecuzione da 10 secondi per caso, senza riscaldamento né alternanza: servono solo a orientare la campagna, non a trarre conclusioni. I risultati della campagna sono nella sezione 11.
+Il numero di worker cooperativi è pari al numero di actor (MA + SD + 2).</div>
+<h3>9.1 Nostra versione di MoStream</h3>
+<table>
+<tr><th class="l">MA + SD</th><th>Std Vyukov</th><th>Std Rigtorp</th><th>Coop Vyukov</th><th>Coop Rigtorp</th><th>Late / attese std V</th><th>Late / attese std R</th></tr>
+<tr><td>1 + 1</td><td>1,52 M</td><td>2,35 M</td><td>0,51 M</td><td>0,51 M</td><td>0 / 0</td><td>0 / 0</td></tr>
+<tr><td>1 + 4</td><td>2,24 M</td><td>2,18 M</td><td>0,39 M</td><td>0,39 M</td><td>0 / 0</td><td>0 / 0</td></tr>
+<tr><td>4 + 4</td><td>3,51 M</td><td>4,39 M</td><td>0,38 M</td><td>0,39 M</td><td>1 904 / 21 947</td><td>1 880 / 38 895</td></tr>
+<tr><td>8 + 8</td><td>2,72 M</td><td>3,90 M</td><td>0,30 M</td><td>0,31 M</td><td>325 / 4 046</td><td>1 079 / 15 800</td></tr>
+<tr><td>16 + 16</td><td>1,72 M</td><td>2,68 M</td><td>0,27 M</td><td>0,26 M</td><td>204 / 4 217</td><td>414 / 8 354</td></tr>
+</table>
+<p class="small">Throughput in tuple al secondo.</p>
+<h3>9.2 Branch v2</h3>
+<table>
+<tr><th class="l">MA + SD</th><th class="l">Coda</th><th>std</th><th>coop-mpmc r1</th><th>coop-mpmc r8</th><th>coop-ws r1</th><th>coop-ws r8</th></tr>
+<tr><td>1 + 4</td><td class="l">Vyukov</td><td>1,30 M</td><td>0,29 M</td><td><i>errore</i></td><td>0,32 M</td><td>0,66 M</td></tr>
+<tr><td>1 + 4</td><td class="l">Rigtorp</td><td>2,06 M</td><td><i>errore</i></td><td>0,61 M</td><td>0,31 M</td><td>0,68 M</td></tr>
+<tr><td>4 + 4</td><td class="l">Vyukov</td><td>3,02 M</td><td>0,32 M</td><td>0,74 M</td><td>0,36 M</td><td>0,78 M</td></tr>
+<tr><td>4 + 4</td><td class="l">Rigtorp</td><td>4,08 M</td><td>0,27 M</td><td>0,66 M</td><td>0,33 M</td><td>0,75 M</td></tr>
+<tr><td>16 + 16</td><td class="l">Vyukov</td><td>1,49 M</td><td>0,11 M</td><td>0,21 M</td><td>0,12 M</td><td>0,26 M</td></tr>
+<tr><td>16 + 16</td><td class="l">Rigtorp</td><td>2,70 M</td><td>0,11 M</td><td>0,23 M</td><td>0,13 M</td><td>0,26 M</td></tr>
+</table>
+<p class="small">"errore": l'esecuzione si è interrotta con "cooperative ready queue is full!" (sezione 10).</p>
+<h3>9.3 Prime indicazioni</h3>
+<ul>
+<li><b>Runtime standard:</b> Rigtorp avanti in quasi tutte le configurazioni (da +25% a +56%), alla pari con 1+4. Il massimo, circa 4,4 M tuple/s, si raggiunge
+con 4+4; oltre, il throughput scende: più repliche significano più contesa sulle code e sui lock, e la sorgente resta una sola.</li>
+<li><b>Cooperativo:</b> da 4 a 10 volte più lento dello standard, e peggiora aggiungendo repliche, con entrambe le code: il limite è lo scheduler.</li>
+<li><b>v2:</b> <code>max_consume_rounds = 8</code> raddoppia il throughput del cooperativo; il work stealing aggiunge circa il 10–20%.</li>
+<li><b>Da verificare:</b> con 16+16 e <code>rounds = 1</code> il v2 (0,11–0,13 M) sembra più lento del cooperativo della nostra versione (0,26 M); anche il runtime
+standard del v2 risulta più basso in alcuni casi (1,30 M contro 2,24 M con Vyukov a 1+4), anche se il codice del runtime standard è lo stesso. Con una sola
+esecuzione non si può distinguere un effetto reale dal rumore: la campagna lo chiarirà.</li>
+<li>La soluzione 1 ha un costo visibile: con 4+4 nel runtime standard, in 10 secondi, circa 1 900 letture fuori ordine e fino a 39 000 attese sul lock.</li>
+</ul>
+
+<h2>10. Un problema nel v2: "cooperative ready queue is full!"</h2>
+<h3>10.1 Il sintomo</h3>
+<table style="width:85%">
+<tr><th class="l">Prova</th><th>Riuscite</th><th>Fallite</th></tr>
+<tr><td>v2, Rigtorp, coop-mpmc, rounds 1, 1+4, 7 worker, 10 s</td><td>3</td><td>3</td></tr>
+<tr><td>v2, Vyukov, coop-mpmc, rounds 1, 1+4, 7 worker, 3 s</td><td>6</td><td>2</td></tr>
+<tr><td>v2, Vyukov, coop-ws, rounds 1, 1+4, 7 worker, 3 s</td><td>8</td><td>0</td></tr>
+<tr><td>v2 originale, Vyukov, coop-mpmc, 2 s</td><td>17</td><td>3</td></tr>
+<tr><td>v2 con <code>push_local</code> che ritenta, Vyukov, coop-mpmc, 2 s</td><td>20</td><td>0</td></tr>
+</table>
+<p>Il problema si presenta anche con <b>Vyukov</b>, quindi non dipende dall'integrazione di Rigtorp.</p>
+<h3>10.2 La causa</h3>
+<p>Le code dei pronti <code>coop-mpmc</code> sono code Vyukov di capacità pari alla potenza di due successiva a <code>actor + 1</code>: 8 per 7 actor. Una coda
+davvero piena richiederebbe lo stesso actor inserito due volte. Il punto è un altro: la <code>try_push</code> di Vyukov in MoStream fa <b>un solo tentativo</b>.</p>
+<pre><code>def try_push(mut self, var item: Self.T) -> Optional[Self.T]:
+    var pw = self.enqueue_pos.atomicVal.load[ordering=Ordering.RELAXED]()
+    var cell_ptr = self.buffer.unsafe_offset(pw &amp; self.mask)
+    var seq = cell_ptr[].sequence.load[ordering=Ordering.ACQUIRE]()
+    if pw != seq:
+        return Optional(item^) # queue is currently full
+    if not self.enqueue_pos.atomicVal.compare_exchange[...](pw, pw + 1):
+        return Optional(item^) # queue is currently full
+    ...</code></pre>
+<p>Se un altro produttore ha appena inserito un elemento, la CAS fallisce, oppure la sequenza letta non corrisponde più alla posizione, e la funzione restituisce
+l'elemento <b>come se la coda fosse piena</b>. Nell'algoritmo originale di Vyukov in questi casi si rilegge la posizione e si riprova; "piena" si dichiara
+solo quando la sequenza della cella è <i>minore</i> della posizione. Nel communicator questo è innocuo, perché chi chiama riprova più tardi. Nel v2 invece:</p>
+<pre><code>def push_local(mut self, worker_id: Int, actor_id: Int64) -> Bool:
+    var rejected = self.queues.unsafe_offset(worker_id)[].try_push(actor_id)
+    return not rejected
+# scheduler.mojo
+if not self.ready_queues.push_local(worker_id, Int64(actor.flat_id)):
+    print_red_color("{MoStream} Error: cooperative ready queue is full!")</code></pre>
+<p>Quando due worker inseriscono un actor nella stessa coda dei pronti nello stesso momento, uno dei due fallisce per contesa e il programma si interrompe.</p>
+<h3>10.3 Conferma e possibile correzione</h3>
+<p>In una copia separata (<code>~/mostream-v2-retry</code>, solo per diagnosi) <code>push_local</code> ripete <code>try_push</code> finché riesce: 20 esecuzioni su 20 sono
+terminate correttamente. Le correzioni possibili, da valutare con il professore:</p>
+<ul>
+<li>rendere la <code>try_push</code> di Vyukov fedele all'algoritmo originale: riprovare quando la CAS fallisce o la posizione è cambiata, e dichiarare "piena" solo
+se la sequenza è minore della posizione. Migliorerebbe anche il communicator, che oggi può segnalare "piena" a torto;</li>
+<li>oppure, nel v2, ripetere il tentativo in <code>push_local</code>, visto che per costruzione la coda dei pronti ha spazio per tutti gli actor.</li>
+</ul>
+<p>Il branch del professore non è stato modificato. Il modo <code>coop-ws</code> non ha mostrato il problema.</p>
+
+<div class="kid"><b class="t">Spiegato semplice: il guasto del v2</b>
+Ogni bambino ha una cassettina dove si mettono i biglietti dei lavori pronti, e c'è sempre posto per tutti. Ma la cassettina ha una regola strana: se due
+persone provano a infilarci un biglietto <i>nello stesso istante</i>, una delle due viene respinta e pensa "la cassettina è piena!". Nel v2, quando qualcuno
+pensa che la cassettina sia piena, suona l'allarme e la fabbrica si ferma. La cassettina non era piena: bastava riprovare un attimo dopo. Infatti, quando
+abbiamo insegnato a riprovare, la fabbrica non si è più fermata.</div>
+
+<h2>11. Risultati della campagna</h2>
+<div class="box">
+<b>Protocollo.</b> 400 esecuzioni da 10 secondi sulla VM: 4 configurazioni (MA + SD = 1+4, 4+4, 8+8, 16+16) × 5 runtime × 2 code × 10 ripetizioni.
+In ogni ripetizione le due code girano una dopo l'altra, con ordine alternato (Vyukov prima nelle ripetizioni dispari, Rigtorp prima nelle pari); una
+esecuzione di riscaldamento iniziale è scartata. Worker cooperativi = numero di actor (MA + SD + 2). Script: <code>run_campaign.sh</code>; dati grezzi:
+<code>Benchmarks/SpikeDetection/risultati/campagna_20261029.csv</code> e <code>.log</code>.<br>
+<b>Integrità:</b> 400 righe su 400 con risultato, nessun timeout, nessuna coda diversa da quella attesa, e in tutte
+<code>tuples = averaged = detected</code>: nessuna tupla persa.
+</div>
+
+<h3>11.1 Tabella completa</h3>
+<table style="white-space:nowrap;font-size:8.6pt">
+<tr><th class="l">MA + SD</th><th class="l">Runtime</th><th>Vyukov</th><th>CV V</th><th>Rigtorp</th><th>CV R</th><th>R / V</th><th>Coppie vinte da R</th><th>p (segno)</th></tr>
+<tr><td rowspan="5">1 + 4</td><td class="l">Nostra, standard</td><td>2,15</td><td>5,3%</td><td>2,18</td><td>3,2%</td><td>+1,5%</td><td>7/10</td><td>0,344</td></tr>
+<tr><td class="l">v2, standard</td><td>2,11</td><td>4,6%</td><td>2,06</td><td>5,4%</td><td>−2,0%</td><td>5/10</td><td>1,000</td></tr>
+<tr><td class="l">Nostra, cooperativo</td><td>0,40</td><td>1,5%</td><td>0,39</td><td>1,8%</td><td><b>−3,3%</b></td><td>1/10</td><td>0,021</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 1</td><td>0,34</td><td>3,7%</td><td>0,32</td><td>5,5%</td><td>−4,9%</td><td>2/10</td><td>0,109</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 8</td><td>0,63</td><td>3,4%</td><td>0,63</td><td>3,8%</td><td>−0,4%</td><td>5/10</td><td>1,000</td></tr>
+<tr><td rowspan="5">4 + 4</td><td class="l">Nostra, standard</td><td>3,38</td><td>17,9%</td><td>4,28</td><td>4,2%</td><td>+26,6%</td><td>8/10</td><td>0,109</td></tr>
+<tr><td class="l">v2, standard</td><td>3,41</td><td>11,8%</td><td>4,24</td><td>3,8%</td><td><b>+24,3%</b></td><td>9/10</td><td>0,021</td></tr>
+<tr><td class="l">Nostra, cooperativo</td><td>0,39</td><td>1,8%</td><td>0,38</td><td>2,2%</td><td>−0,8%</td><td>6/10</td><td>0,754</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 1</td><td>0,34</td><td>4,7%</td><td>0,33</td><td>7,5%</td><td><b>−4,7%</b></td><td>1/10</td><td>0,021</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 8</td><td>0,72</td><td>6,5%</td><td>0,74</td><td>7,3%</td><td>+1,8%</td><td>5/10</td><td>1,000</td></tr>
+<tr><td rowspan="5">8 + 8</td><td class="l">Nostra, standard</td><td>2,85</td><td>3,0%</td><td>3,68</td><td>5,0%</td><td><b>+29,0%</b></td><td>10/10</td><td>0,002</td></tr>
+<tr><td class="l">v2, standard</td><td>2,85</td><td>1,9%</td><td>3,75</td><td>4,3%</td><td><b>+31,6%</b></td><td>10/10</td><td>0,002</td></tr>
+<tr><td class="l">Nostra, cooperativo</td><td>0,31</td><td>1,0%</td><td>0,30</td><td>1,2%</td><td>−1,6%</td><td>2/10</td><td>0,109</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 1</td><td>0,20</td><td>7,4%</td><td>0,18</td><td>6,4%</td><td><b>−10,1%</b></td><td>1/10</td><td>0,021</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 8</td><td>0,43</td><td>5,6%</td><td>0,43</td><td>6,2%</td><td>+1,1%</td><td>6/10</td><td>0,754</td></tr>
+<tr><td rowspan="5">16 + 16</td><td class="l">Nostra, standard</td><td>1,82</td><td>6,7%</td><td>2,71</td><td>3,1%</td><td><b>+49,0%</b></td><td>10/10</td><td>0,002</td></tr>
+<tr><td class="l">v2, standard</td><td>1,84</td><td>17,8%</td><td>2,69</td><td>0,8%</td><td><b>+45,9%</b></td><td>10/10</td><td>0,002</td></tr>
+<tr><td class="l">Nostra, cooperativo</td><td>0,27</td><td>1,2%</td><td>0,27</td><td>0,8%</td><td>−1,0%</td><td>3/10</td><td>0,344</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 1</td><td>0,13</td><td>6,9%</td><td>0,13</td><td>8,0%</td><td>−0,7%</td><td>6/10</td><td>0,754</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 8</td><td>0,25</td><td>5,3%</td><td>0,26</td><td>6,1%</td><td>+1,2%</td><td>6/10</td><td>0,754</td></tr>
+</table>
+<p class="small">Throughput mediano in milioni di tuple/s su 10 ripetizioni. CV = deviazione standard / media. "Coppie vinte da R": in quante ripetizioni
+Rigtorp ha superato Vyukov nella stessa ripetizione. p = test del segno bilaterale sulle 10 coppie (con 10 coppie il minimo possibile è 0,002);
+in grassetto le differenze con p &lt; 0,05.</p>
+
+<h3>11.2 Runtime standard: Rigtorp vince quando la contesa cresce</h3>
+<figure>
+<svg viewBox="0 0 640 270" width="100%" style="max-width:640px;display:block;margin:6px auto" xmlns="http://www.w3.org/2000/svg">
+<style>.ax{font:10px sans-serif;fill:#52514e}.lg{font:10.5px sans-serif;fill:#0b0b0b}.vl{font:600 10px sans-serif;fill:#0b0b0b}.gl{font:11px sans-serif;fill:#0b0b0b}</style>
+<line x1="46" x2="630" y1="230.0" y2="230.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="233.5" text-anchor="end" class="ax">0,0</text>
+<line x1="46" x2="630" y1="190.0" y2="190.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="193.5" text-anchor="end" class="ax">1,0</text>
+<line x1="46" x2="630" y1="150.0" y2="150.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="153.5" text-anchor="end" class="ax">2,0</text>
+<line x1="46" x2="630" y1="110.0" y2="110.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="113.5" text-anchor="end" class="ax">3,0</text>
+<line x1="46" x2="630" y1="70.0" y2="70.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="73.5" text-anchor="end" class="ax">4,0</text>
+<line x1="46" x2="630" y1="30.0" y2="30.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="33.5" text-anchor="end" class="ax">5,0</text>
+<text x="46" y="15" class="ax">M tuple/s</text>
+<line x1="46" x2="630" y1="230" y2="230" stroke="#8a8984" stroke-width="1"/>
+<rect x="110" y="6" width="10" height="10" rx="2" fill="#2a78d6"/><text x="125" y="15" class="lg">Vyukov</text>
+<rect x="180.2" y="6" width="10" height="10" rx="2" fill="#eb6834"/><text x="195.2" y="15" class="lg">Rigtorp</text>
+<path d="M84.0,230 V148.0 Q84.0,144.0 88.0,144.0 H114.0 Q118.0,144.0 118.0,148.0 V230 Z" fill="#2a78d6"/>
+<line x1="101.0" x2="101.0" y1="149.3" y2="136.4" stroke="#0b0b0b" stroke-width="1.2"/><line x1="97.0" x2="105.0" y1="136.4" y2="136.4" stroke="#0b0b0b" stroke-width="1.2"/><line x1="97.0" x2="105.0" y1="149.3" y2="149.3" stroke="#0b0b0b" stroke-width="1.2"/>
+<path d="M120.0,230 V146.7 Q120.0,142.7 124.0,142.7 H150.0 Q154.0,142.7 154.0,146.7 V230 Z" fill="#eb6834"/>
+<line x1="137.0" x2="137.0" y1="148.6" y2="139.9" stroke="#0b0b0b" stroke-width="1.2"/><line x1="133.0" x2="141.0" y1="139.9" y2="139.9" stroke="#0b0b0b" stroke-width="1.2"/><line x1="133.0" x2="141.0" y1="148.6" y2="148.6" stroke="#0b0b0b" stroke-width="1.2"/>
+<text x="119.0" y="246" text-anchor="middle" class="gl">1 + 4</text>
+<text x="119.0" y="129.4" text-anchor="middle" class="vl">R/V +1,5%</text>
+<path d="M230.0,230 V98.8 Q230.0,94.8 234.0,94.8 H260.0 Q264.0,94.8 264.0,98.8 V230 Z" fill="#2a78d6"/>
+<line x1="247.0" x2="247.0" y1="129.7" y2="61.1" stroke="#0b0b0b" stroke-width="1.2"/><line x1="243.0" x2="251.0" y1="61.1" y2="61.1" stroke="#0b0b0b" stroke-width="1.2"/><line x1="243.0" x2="251.0" y1="129.7" y2="129.7" stroke="#0b0b0b" stroke-width="1.2"/>
+<path d="M266.0,230 V63.0 Q266.0,59.0 270.0,59.0 H296.0 Q300.0,59.0 300.0,63.0 V230 Z" fill="#eb6834"/>
+<line x1="283.0" x2="283.0" y1="69.9" y2="50.1" stroke="#0b0b0b" stroke-width="1.2"/><line x1="279.0" x2="287.0" y1="50.1" y2="50.1" stroke="#0b0b0b" stroke-width="1.2"/><line x1="279.0" x2="287.0" y1="69.9" y2="69.9" stroke="#0b0b0b" stroke-width="1.2"/>
+<text x="265.0" y="246" text-anchor="middle" class="gl">4 + 4</text>
+<text x="265.0" y="43.1" text-anchor="middle" class="vl">R/V +26,6%</text>
+<path d="M376.0,230 V120.0 Q376.0,116.0 380.0,116.0 H406.0 Q410.0,116.0 410.0,120.0 V230 Z" fill="#2a78d6"/>
+<line x1="393.0" x2="393.0" y1="123.6" y2="112.5" stroke="#0b0b0b" stroke-width="1.2"/><line x1="389.0" x2="397.0" y1="112.5" y2="112.5" stroke="#0b0b0b" stroke-width="1.2"/><line x1="389.0" x2="397.0" y1="123.6" y2="123.6" stroke="#0b0b0b" stroke-width="1.2"/>
+<path d="M412.0,230 V86.9 Q412.0,82.9 416.0,82.9 H442.0 Q446.0,82.9 446.0,86.9 V230 Z" fill="#eb6834"/>
+<line x1="429.0" x2="429.0" y1="95.8" y2="71.5" stroke="#0b0b0b" stroke-width="1.2"/><line x1="425.0" x2="433.0" y1="71.5" y2="71.5" stroke="#0b0b0b" stroke-width="1.2"/><line x1="425.0" x2="433.0" y1="95.8" y2="95.8" stroke="#0b0b0b" stroke-width="1.2"/>
+<text x="411.0" y="246" text-anchor="middle" class="gl">8 + 8</text>
+<text x="411.0" y="64.5" text-anchor="middle" class="vl">R/V +29,0%</text>
+<path d="M522.0,230 V161.2 Q522.0,157.2 526.0,157.2 H552.0 Q556.0,157.2 556.0,161.2 V230 Z" fill="#2a78d6"/>
+<line x1="539.0" x2="539.0" y1="169.5" y2="153.6" stroke="#0b0b0b" stroke-width="1.2"/><line x1="535.0" x2="543.0" y1="153.6" y2="153.6" stroke="#0b0b0b" stroke-width="1.2"/><line x1="535.0" x2="543.0" y1="169.5" y2="169.5" stroke="#0b0b0b" stroke-width="1.2"/>
+<path d="M558.0,230 V125.6 Q558.0,121.6 562.0,121.6 H588.0 Q592.0,121.6 592.0,125.6 V230 Z" fill="#eb6834"/>
+<line x1="575.0" x2="575.0" y1="123.3" y2="111.3" stroke="#0b0b0b" stroke-width="1.2"/><line x1="571.0" x2="579.0" y1="111.3" y2="111.3" stroke="#0b0b0b" stroke-width="1.2"/><line x1="571.0" x2="579.0" y1="123.3" y2="123.3" stroke="#0b0b0b" stroke-width="1.2"/>
+<text x="557.0" y="246" text-anchor="middle" class="gl">16 + 16</text>
+<text x="557.0" y="104.3" text-anchor="middle" class="vl">R/V +49,0%</text>
+<text x="338.0" y="266" text-anchor="middle" class="ax">repliche MovingAverage + SpikeDetector</text>
+</svg>
+<figcaption>Runtime standard della nostra versione. Barre: mediana su 10 ripetizioni; linee: minimo–massimo. Il v2 standard dà valori quasi identici (tabella 11.1).</figcaption>
+</figure>
+<ul>
+<li>Con <b>1+4</b> le due code sono alla pari (+1,5% e −2,0%, nessuna differenza significativa): una sola replica di MovingAverage legge dalla prima coda
+e la contesa è bassa.</li>
+<li>Con <b>4+4</b> Rigtorp è avanti del 24–27% sulle mediane. Nella nostra versione la differenza non supera il test del segno (8/10, p = 0,11) perché
+Vyukov è molto instabile (CV 17,9%, contro 4,2% di Rigtorp): in due ripetizioni Vyukov ha fatto meglio. Nel v2 è significativa (9/10).</li>
+<li>Con <b>8+8</b> e <b>16+16</b> Rigtorp vince 10 ripetizioni su 10 in entrambe le librerie, con un vantaggio che cresce: +29–32% e +46–49%.</li>
+<li>Il throughput massimo, circa 4,3 M tuple/s, si ha con 4+4 e Rigtorp. Oltre, scende per entrambe le code (più thread che contendono code e lock,
+un'unica sorgente), ma Vyukov scende di più: −46% da 4+4 a 16+16 contro −37% di Rigtorp.</li>
+<li>Nostra versione e v2 coincidono entro il 2–3% in tutte le configurazioni. Il valore di 1,30 M del v2 standard nelle prime misure (sezione 9.2)
+era rumore: il codice del runtime standard è lo stesso, e ora lo sono anche i numeri.</li>
+</ul>
+<p>Il risultato conferma, su un'applicazione diversa, quanto visto con ImagePipeline: la <code>push</code> bloccante di Rigtorp prende il posto con un
+<code>fetch_add</code> che non fallisce mai, mentre con Vyukov i produttori ripetono CAS fallite tanto più spesso quanti più sono i thread sulla stessa coda.</p>
+
+<h3>11.3 Runtime cooperativi: le code contano poco, lo scheduler molto</h3>
+<figure>
+<svg viewBox="0 0 640 270" width="100%" style="max-width:640px;display:block;margin:6px auto" xmlns="http://www.w3.org/2000/svg">
+<style>.ax{font:10px sans-serif;fill:#52514e}.lg{font:10.5px sans-serif;fill:#0b0b0b}.vl{font:600 10px sans-serif;fill:#0b0b0b}.gl{font:11px sans-serif;fill:#0b0b0b}</style>
+<line x1="46" x2="630" y1="230.0" y2="230.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="233.5" text-anchor="end" class="ax">0,0</text>
+<line x1="46" x2="630" y1="180.0" y2="180.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="183.5" text-anchor="end" class="ax">0,2</text>
+<line x1="46" x2="630" y1="130.0" y2="130.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="133.5" text-anchor="end" class="ax">0,4</text>
+<line x1="46" x2="630" y1="80.0" y2="80.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="83.5" text-anchor="end" class="ax">0,6</text>
+<line x1="46" x2="630" y1="30.0" y2="30.0" stroke="#e4e3df" stroke-width="1"/>
+<text x="40" y="33.5" text-anchor="end" class="ax">0,8</text>
+<text x="46" y="15" class="ax">M tuple/s</text>
+<line x1="46" x2="630" y1="230" y2="230" stroke="#8a8984" stroke-width="1"/>
+<rect x="110" y="6" width="10" height="10" rx="2" fill="#1baf7a"/><text x="125" y="15" class="lg">Nostro cooperativo</text>
+<rect x="254.6" y="6" width="10" height="10" rx="2" fill="#eda100"/><text x="269.6" y="15" class="lg">v2 coop-ws, rounds 1</text>
+<rect x="411.6" y="6" width="10" height="10" rx="2" fill="#6250d6"/><text x="426.6" y="15" class="lg">v2 coop-ws, rounds 8</text>
+<path d="M66.0,230 V135.6 Q66.0,131.6 70.0,131.6 H96.0 Q100.0,131.6 100.0,135.6 V230 Z" fill="#1baf7a"/>
+<path d="M102.0,230 V151.5 Q102.0,147.5 106.0,147.5 H132.0 Q136.0,147.5 136.0,151.5 V230 Z" fill="#eda100"/>
+<path d="M138.0,230 V76.6 Q138.0,72.6 142.0,72.6 H168.0 Q172.0,72.6 172.0,76.6 V230 Z" fill="#6250d6"/>
+<text x="119.0" y="246" text-anchor="middle" class="gl">1 + 4</text>
+<text x="119.0" y="65.6" text-anchor="middle" class="vl">r8 / nostro: 1,60×</text>
+<path d="M212.0,230 V137.6 Q212.0,133.6 216.0,133.6 H242.0 Q246.0,133.6 246.0,137.6 V230 Z" fill="#1baf7a"/>
+<path d="M248.0,230 V149.9 Q248.0,145.9 252.0,145.9 H278.0 Q282.0,145.9 282.0,149.9 V230 Z" fill="#eda100"/>
+<path d="M284.0,230 V51.6 Q284.0,47.6 288.0,47.6 H314.0 Q318.0,47.6 318.0,51.6 V230 Z" fill="#6250d6"/>
+<text x="265.0" y="246" text-anchor="middle" class="gl">4 + 4</text>
+<text x="265.0" y="40.6" text-anchor="middle" class="vl">r8 / nostro: 1,89×</text>
+<path d="M358.0,230 V158.1 Q358.0,154.1 362.0,154.1 H388.0 Q392.0,154.1 392.0,158.1 V230 Z" fill="#1baf7a"/>
+<path d="M394.0,230 V186.7 Q394.0,182.7 398.0,182.7 H424.0 Q428.0,182.7 428.0,186.7 V230 Z" fill="#eda100"/>
+<path d="M430.0,230 V126.2 Q430.0,122.2 434.0,122.2 H460.0 Q464.0,122.2 464.0,126.2 V230 Z" fill="#6250d6"/>
+<text x="411.0" y="246" text-anchor="middle" class="gl">8 + 8</text>
+<text x="411.0" y="115.2" text-anchor="middle" class="vl">r8 / nostro: 1,42×</text>
+<path d="M504.0,230 V167.3 Q504.0,163.3 508.0,163.3 H534.0 Q538.0,163.3 538.0,167.3 V230 Z" fill="#1baf7a"/>
+<path d="M540.0,230 V201.0 Q540.0,197.0 544.0,197.0 H570.0 Q574.0,197.0 574.0,201.0 V230 Z" fill="#eda100"/>
+<path d="M576.0,230 V170.2 Q576.0,166.2 580.0,166.2 H606.0 Q610.0,166.2 610.0,170.2 V230 Z" fill="#6250d6"/>
+<text x="557.0" y="246" text-anchor="middle" class="gl">16 + 16</text>
+<text x="557.0" y="156.3" text-anchor="middle" class="vl">r8 / nostro: 0,96×</text>
+<text x="338.0" y="266" text-anchor="middle" class="ax">repliche MovingAverage + SpikeDetector</text>
+</svg>
+<figcaption>Throughput dei runtime cooperativi: media delle mediane di Vyukov e Rigtorp, che differiscono di pochi punti percentuali (tabella 11.1).
+Sopra ogni gruppo: rapporto fra v2 con rounds 8 e il nostro cooperativo.</figcaption>
+</figure>
+<ul>
+<li><b>Code alla pari o con un lieve vantaggio di Vyukov.</b> Le differenze vanno da −10,1% a +1,8%; quelle significative sono tutte a favore di Vyukov
+(nostro coop 1+4, v2 rounds 1 a 4+4 e 8+8). Nel cooperativo un actor alla volta usa una coda e la contesa è bassa, quindi il vantaggio di Rigtorp
+non si manifesta, mentre la sua <code>try_pop</code> (un ciclo di CAS) costa un po' più di quella di Vyukov.</li>
+<li><b>Il cooperativo è 5–10 volte più lento dello standard</b> con qualsiasi coda: il collo di bottiglia è lo scheduler.</li>
+<li><b>Il v2 migliora solo con <code>max_consume_rounds = 8</code>:</b> 1,6 volte il nostro cooperativo con 1+4, 1,9 volte con 4+4, 1,4 volte con 8+8; con 16+16
+il vantaggio sparisce (0,26 contro 0,27 M).</li>
+<li><b>Con il valore predefinito <code>rounds = 1</code> il v2 è sempre più lento</b> del nostro cooperativo: −15% con 1+4, −37% con 8+8, circa la metà con
+16+16. È il risultato più importante da riportare al professore, visto che il branch nasce per essere più efficiente.</li>
+<li>Un'ipotesi, <i>non verificata</i>, per il calo con molti actor: con molti worker cresce il costo di cercare lavoro da rubare, che supera il guadagno della
+decentralizzazione; inoltre con 34 worker su 28 core fisici entrano in gioco gli hyperthread. Per verificarla servirebbero misure con meno worker
+che actor e un profilo dei worker.</li>
+</ul>
+
+<h3>11.4 Il prezzo della soluzione 1: letture fuori ordine e attese sui lock</h3>
+<table style="white-space:nowrap">
+<tr><th class="l">MA + SD</th><th class="l">Runtime</th><th>Late V</th><th>Late R</th><th>Attese lock V</th><th>Attese lock R</th></tr>
+<tr><td rowspan="5">4 + 4</td><td class="l">Nostra, standard</td><td>1 250</td><td>1 536</td><td>20 182</td><td>26 535</td></tr>
+<tr><td class="l">v2, standard</td><td>1 406</td><td>1 491</td><td>22 191</td><td>24 836</td></tr>
+<tr><td class="l">Nostra, cooperativo</td><td>16</td><td>12</td><td>36</td><td>26</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 1</td><td>28</td><td>30</td><td>56</td><td>53</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 8</td><td>500</td><td>524</td><td>906</td><td>798</td></tr>
+<tr><td rowspan="5">8 + 8</td><td class="l">Nostra, standard</td><td>365</td><td>832</td><td>8 436</td><td>14 581</td></tr>
+<tr><td class="l">v2, standard</td><td>368</td><td>804</td><td>8 300</td><td>12 389</td></tr>
+<tr><td class="l">Nostra, cooperativo</td><td>13</td><td>12</td><td>14</td><td>13</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 1</td><td>14</td><td>7</td><td>22</td><td>13</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 8</td><td>346</td><td>348</td><td>332</td><td>306</td></tr>
+<tr><td rowspan="5">16 + 16</td><td class="l">Nostra, standard</td><td>195</td><td>386</td><td>1 739</td><td>9 664</td></tr>
+<tr><td class="l">v2, standard</td><td>196</td><td>408</td><td>1 848</td><td>7 978</td></tr>
+<tr><td class="l">Nostra, cooperativo</td><td>24</td><td>26</td><td>49</td><td>64</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 1</td><td>9</td><td>10</td><td>8</td><td>1</td></tr>
+<tr><td class="l">v2, coop-ws, rounds 8</td><td>191</td><td>185</td><td>109</td><td>122</td></tr>
+</table>
+<p class="small">Mediane su 10 ripetizioni da 10 s. "Late": letture elaborate dopo una lettura successiva dello stesso sensore. "Attese lock": tentativi
+falliti di acquisire il lock di un sensore. Con 1+4 entrambi sono sempre 0 (una sola replica di MovingAverage).</p>
+<ul>
+<li>Nel runtime standard le letture fuori ordine sono da 200 a 1 500 per esecuzione, cioè da circa 1 ogni 28 000 tuple (4+4, Rigtorp) a 1 ogni 90 000 (16+16, Vyukov). Sono più
+frequenti con 4+4, dove il throughput è massimo.</li>
+<li>Nel runtime standard Rigtorp ha più attese sui lock di Vyukov: le repliche di MovingAverage ricevono più dati al secondo e si contendono i lock più spesso.
+Le attese sono comunque poche rispetto alle tuple (circa 1 ogni 1 500 con 4+4).</li>
+<li>Nel cooperativo con <code>rounds = 1</code> fuori ordine e attese sono quasi assenti (decine). Con <code>rounds = 8</code> salgono a 190–520: un actor
+consuma più messaggi di fila mentre un'altra replica, su un altro worker, lavora sugli stessi sensori.</li>
+<li>Questi numeri dicono <i>quanto spesso</i> l'ordine si rompe, non se cambia il risultato: la verifica sugli spike (sezione 8) è stata fatta su esecuzioni
+brevi. Misurarne l'effetto su esecuzioni lunghe è uno dei prossimi passi.</li>
+</ul>
+
+<h3>11.5 Conclusioni della campagna</h3>
+<ol>
+<li>Per il runtime standard <b>Rigtorp è la coda migliore</b> appena più thread condividono le code: +24–49%, più stabile, e il vantaggio cresce con
+le repliche. Con poca contesa le due code si equivalgono.</li>
+<li>Per i runtime cooperativi <b>la scelta della coda è quasi indifferente</b>, con un piccolo vantaggio di Vyukov in alcuni casi.</li>
+<li>Il <b>v2 conviene solo con <code>max_consume_rounds</code> maggiore di 1</b> e fino a un numero moderato di actor. Con il valore predefinito è più lento
+del cooperativo della nostra versione.</li>
+<li>Il costo della soluzione 1 (lock per sensore) è misurabile ma piccolo in termini di attese; il punto aperto è l'effetto delle letture fuori ordine
+sul risultato.</li>
+</ol>
+
+<div class="kid"><b class="t">Spiegato semplice: cosa abbiamo scoperto</b>
+Abbiamo fatto correre la fabbrica 400 volte, 10 secondi ogni volta, cambiando il numero di bambini e il tipo di nastro trasportatore.
+Quando tutti i bambini lavorano insieme (runtime standard) e sono tanti, il nastro Rigtorp è molto meglio: è come un distributore di numeretti,
+ognuno prende il suo e nessuno litiga. Con il nastro Vyukov invece i bambini si spingono per prendere il posto, e più sono più si spingono:
+con 32 bambini Rigtorp fa passare metà dei pacchi in più.<br>
+Quando invece i bambini lavorano a turno (runtime cooperativo), non si spingono mai, quindi il tipo di nastro non conta: conta solo quanto è bravo
+il capo a decidere i turni. Il capo nuovo (v2) è più bravo solo se lascia lavorare ogni bambino un po' più a lungo prima di cambiare turno
+(rounds 8). Se cambia turno a ogni pacco (rounds 1), perde più tempo del capo vecchio.</div>
+
+<h2>12. Prossimi passi</h2>
+<h3>12.1 La campagna di misure (svolta, sezione 11)</h3>
+<ul>
+<li><b>Code:</b> Vyukov e Rigtorp.</li>
+<li><b>Runtime:</b> standard e cooperativo della nostra versione; v2 standard e <code>coop-ws</code> con <code>rounds</code> 1 e 8. <code>coop-mpmc</code> è escluso per il
+problema della sezione 10.</li>
+<li><b>Configurazioni MA + SD:</b> 1+4, 4+4, 8+8, 16+16; worker cooperativi pari al numero di actor.</li>
+<li><b>Protocollo:</b> esecuzioni da 10 s, ripetizioni con ordine Vyukov/Rigtorp alternato, un riscaldamento scartato, controllo di <code>tuples = averaged = detected</code>
+e della terminazione corretta, registrazione di <code>late</code> e <code>lock_waits</code>.</li>
+</ul>
+<h3>12.2 Dopo la campagna</h3>
+<ul>
+<li>Riportare al professore il problema di <code>coop-mpmc</code> (sezione 10) e il calo del v2 con <code>rounds = 1</code> e con molti actor (sezione 11.3);
+chiedere se considerare anche i branch v3 e v4.</li>
+<li>Capire il calo del v2 con molti actor: misure con meno worker che actor e profilo dei worker.</li>
+<li>Misurare quanto le letture fuori ordine cambiano gli spike nelle esecuzioni lunghe con MovingAverage replicato.</li>
+<li>Progettare e realizzare il communicator a più code con <code>push_to</code>/<code>try_push_to</code> (soluzione 2), con il documento del professore, e confrontarlo con la
+soluzione 1.</li>
+<li>Scegliere la seconda applicazione con un profilo diverso, ad esempio Word Count (stadio uno-a-molti) o un'applicazione con più calcolo per tupla.</li>
+</ul>
+
+<h2 class="pb">Appendice A — Comandi</h2>
+<h3>Preparazione</h3>
+<pre><code># DSPBench, in sola lettura
+git clone --depth 1 https://github.com/GMAP/DSPBench.git
+# dataset binario e riferimento
+python3 Benchmarks/SpikeDetection/prepare_dataset.py sensors.dat Benchmarks/SpikeDetection/data/sensors.bin
+# records=77578 devices=52 max_device=54 skipped={'fields': 2422, 'date': 0, 'key': 0, 'value': 0}
+python3 Benchmarks/SpikeDetection/reference.py Benchmarks/SpikeDetection/data/sensors.bin 3 ref_3.txt</code></pre>
+<h3>Nostra versione di MoStream (VM, ~/mostream-rigtorp-bench)</h3>
+<pre><code>export MOSTREAM_HOME="$PWD"
+mojo build -O3 -I . -I Benchmarks/SpikeDetection Benchmarks/SpikeDetection/spike_detection.mojo -o bin/sd_vyukov
+mojo build -O3 -I . -I Benchmarks/SpikeDetection -D MOSTREAM_RIGTORP=1 Benchmarks/SpikeDetection/spike_detection.mojo -o bin/sd_rigtorp
+# ./sd_&lt;coda&gt; &lt;dataset.bin&gt; &lt;durata_s&gt; &lt;passate&gt; &lt;MA&gt; &lt;SD&gt; &lt;std|coop&gt; &lt;n_workers&gt; [dump]
+bin/sd_rigtorp Benchmarks/SpikeDetection/data/sensors.bin 0 3 1 4 std 6 d.txt     # verifica
+python3 Benchmarks/SpikeDetection/compare_dump.py ref_3.txt d.txt
+bin/sd_rigtorp Benchmarks/SpikeDetection/data/sensors.bin 10 0 4 4 std 10         # misura</code></pre>
+<h3>Branch v2 (VM, ~/mostream-v2)</h3>
+<pre><code>Benchmarks/SpikeDetection/prepare_v2.sh ~/mostream-v2
+cd ~/mostream-v2 &amp;&amp; export MOSTREAM_HOME="$PWD"
+B=~/mostream-rigtorp-bench/Benchmarks/SpikeDetection
+mojo build -O3 -I . -I $B $B/spike_detection_v2.mojo -o bin/sd_v2_vyukov
+mojo build -O3 -I . -I $B -D MOSTREAM_RIGTORP=1 $B/spike_detection_v2.mojo -o bin/sd_v2_rigtorp
+# ./sd_v2_&lt;coda&gt; &lt;dataset.bin&gt; &lt;durata_s&gt; &lt;passate&gt; &lt;MA&gt; &lt;SD&gt; &lt;std|coop-mpmc|coop-ws&gt; &lt;n_workers&gt; &lt;rounds&gt; [dump]
+bin/sd_v2_rigtorp $B/data/sensors.bin 10 0 4 4 coop-ws 10 8</code></pre>
+
+<h2>Appendice B — Ambiente</h2>
+<table>
+<tr><th class="l">Voce</th><th class="l">Valore</th></tr>
+<tr><td>Macchina</td><td class="l">VM <code>ungolo@131.114.2.95</code>, Intel Xeon Gold 5512U, 28 core / 56 thread, 1 nodo NUMA</td></tr>
+<tr><td>Compilatore</td><td class="l">Mojo 1.1.0 (8189361e), opzione <code>-O3</code></td></tr>
+<tr><td>Python</td><td class="l">3.10.12 sulla VM (preparazione, riferimento, v2)</td></tr>
+<tr><td>Nostra libreria</td><td class="l">sorgenti con gli stessi hash dei test di integrazione del 26 ottobre</td></tr>
+<tr><td>v2</td><td class="l">ParaGroup/MoStream, branch cooperative-runtime-v2, commit 423b32b, più la scelta della coda</td></tr>
+<tr><td>DSPBench</td><td class="l">GMAP/DSPBench, clone del 29 ottobre 2026 (ramo principale)</td></tr>
+<tr><td>Capacità delle code fra stadi</td><td class="l">1024 (predefinita)</td></tr>
+<tr><td>Pinning</td><td class="l">attivo</td></tr>
+</table>
+</body></html>
