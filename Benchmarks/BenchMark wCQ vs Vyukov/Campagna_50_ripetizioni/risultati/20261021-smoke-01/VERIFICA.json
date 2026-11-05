@@ -1,0 +1,28 @@
+{
+  "raw_rows": {
+    "PipelineGrain": 12,
+    "FarmThroughput": 12,
+    "ImageTiles": 19
+  },
+  "artifacts_sha256": {
+    "FarmThroughput/farm_efficiency.png": "04d32635055b3d6392e625b3e660b651bc6f886b66fecc35544e28027b51a74e",
+    "FarmThroughput/summary.csv": "881aa9752e99703f950ed0d31957fa208d14b86fbe80c3925d5a6a5f3824cd1b",
+    "FarmThroughput/farm_efficiency.pdf": "38b418ea7ccee7283893ae9e1d1a34b8142aac3cc65079b32e57646134a7b3b0",
+    "FarmThroughput/raw.csv": "3a826de029de7ba53d2bf13f3c22de68788ce19712d1a3e8c7d02f34b8d896de",
+    "FarmThroughput/farm_throughput.pdf": "126f2d31e2642a50abadbde190a87372aaf63de081b85048574f6b2b29c5f018",
+    "FarmThroughput/farm_throughput.png": "540ad79e8aa573e931b0d0d11572762a3a78f5317d5acc7a35728c0761524edb",
+    "PipelineGrain/summary.csv": "2083928ad5af85635576c73086f1adbb8ceb2a48ac359c435eb343700c82e7bc",
+    "PipelineGrain/pipeline_grain.png": "16e7e4601b81f1b48c3e8bbec8537f6119e84b3030d5d5f41c4c0b856d612a94",
+    "PipelineGrain/raw.csv": "9edc44155d970063a52f5d80c98433aed03a5925924096f380d3e38447e9c306",
+    "PipelineGrain/pipeline_grain.pdf": "693875fa5bf8c8f2f8eba80c151bd0139139c1fb4b93173107cfd80f31245429",
+    "ImageTiles/summary.csv": "8ffe6e14e44a5363c6c7684531b2846e364c48dee6c8b6b0f49a8f68309b0611",
+    "ImageTiles/throughput_19x13.pdf": "5139bd4a92d84cf063334789910b35d1acf29cbf39b99fe5f7f82059334cb75d",
+    "ImageTiles/throughput_19x13.png": "84a02bea02552ebc3cbaa6193244c701038f73c7af97548506bbf949aa60e94a",
+    "ImageTiles/speedup_19x13.pdf": "5182802d5bc9c012622cce400150abe8cac51f6058feddc1bb5bae25dd4281da",
+    "ImageTiles/raw.csv": "e08b8d7bb2a5f2a63af8381bb14b2db1e3be878b754162f3c3e175042476afb4",
+    "ImageTiles/speedup_19x13.png": "c64aac53a476963c3f163f05fa877cc6b6c9f473692e005d6fa21bc3e48788c4",
+    "ImageTiles/latency_19x13.pdf": "5048a0d7144e7966203d922023fb19af510ce43a98665e3e2aa7b86d1e61ce91",
+    "ImageTiles/latencies.csv": "56b3a755cb8589b76ecf44d217952b98a7cec3d1e611963a209a381b89383f83",
+    "ImageTiles/latency_19x13.png": "b0c1408e8e2211b1148301a226148aedc146e3b2f2cbb8b880fbe01e28191f20"
+  }
+}

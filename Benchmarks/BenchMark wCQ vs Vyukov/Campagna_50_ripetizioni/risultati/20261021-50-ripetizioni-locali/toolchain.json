@@ -1,0 +1,12 @@
+{
+  "mojo_version": "Mojo 1.1.0 (8189361e)",
+  "compiler_package_url": "https://conda.modular.com/max/linux-64/mojo-compiler-1.1.0-release.conda",
+  "compiler_package_sha256": "1ff52b39a0d2a1bedb8c4705aadc460205ca62fc19f63426bc545e4b60a31aa0",
+  "gcc": "gcc (Ubuntu 15.2.0-4ubuntu4) 15.2.0",
+  "python": "3.13.7 (main, Mar  3 2026, 12:19:54) [GCC 15.2.0]",
+  "date": "2026-10-21",
+  "timezone": "Europe/Rome",
+  "temporary_sdk": "/tmp/wcq-mojo-1.1",
+  "temporary_plot_dependencies": "/tmp/wcq-benchmark-python",
+  "performance_sanitizers": false
+}

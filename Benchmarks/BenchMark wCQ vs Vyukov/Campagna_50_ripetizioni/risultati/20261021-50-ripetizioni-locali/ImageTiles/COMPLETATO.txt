@@ -1,0 +1,1 @@
+Tutti gli output verificati byte per byte contro il riferimento scalare.

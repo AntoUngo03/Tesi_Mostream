@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-22",
+  "host": "xilinx",
+  "mojo": "1.1.0 (8189361e)",
+  "runtime_workers": 56,
+  "command": "python3 Tests/run_rigtorp_tests.py --ssh ungolo@131.114.2.95 --max-n 50 --repeats 50 --allow-oversubscription --timeout 15",
+  "n_range": [
+    1,
+    50
+  ],
+  "messages_per_case": 10000,
+  "capacities": [
+    1,
+    3,
+    8,
+    64
+  ],
+  "repeats": 50,
+  "modes": [
+    "blocking",
+    "try"
+  ],
+  "concurrent_cases_passed": 20000,
+  "timeouts": 0,
+  "sequential_suite": "passed",
+  "sha256": {
+    "Tests/run_rigtorp_tests.py": "61d23addfef9a3d3fa6c2d50d644b1ee87479d15109389e45cbe873edfb53ae1",
+    "Tests/test_rigtorp_concurrent.mojo": "5eabe22757161b17adc8ec3c375db402585840836900806d753661338653ff07",
+    "Tests/test_rigtorp.mojo": "b027f144d08442d13b0d50dcf404004e613876f25d05f0b49a178d4500109c72",
+    "MoStream/MPMC_queue_rigtorp.mojo": "875a17a0416801271c4d1801fb3cb2487bf9605c6e75151948b1d26605770e7c"
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "comparison": "native Mojo wCQ vs Vyukov",
+  "smoke": true,
+  "repeats": 1,
+  "messages": 128,
+  "capacity": 1024,
+  "canonical_nodes": [
+    1,
+    2,
+    4
+  ],
+  "measured_nodes": [
+    1,
+    2,
+    4
+  ],
+  "not_measured_nodes": [],
+  "physical_cpus": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "mojo": "/tmp/wcq-mojo-1.1/bin/mojo",
+  "implementation_notes": {
+    "comparison": "native Mojo wCQ port vs native Mojo Vyukov protocol from Rigtorp suite",
+    "wcq": "experimental; two index rings; sequentially consistent C atomic primitives via external_call; patience 16/64, help delay 16",
+    "vyukov": "native Mojo atomics; relaxed position CAS, acquire/release cell sequence; separate UInt64 payload; no spinlock/backoff",
+    "capacity": "same useful UInt64 capacity, different memory footprint",
+    "participant_ids": "pipeline: producer 0, consumer 1 per edge; farm: source 0, consumer i+1; images: source/collector 0 on distinct queues, worker i+1",
+    "timing": "O3; no sanitizers or extra slow-path diagnostics in the measured harness",
+    "historical_comparability": "same workloads and task topology as Rigtorp suite; new binaries and environment; do not mix historical timings"
+  },
+  "expected_raw_rows": {
+    "PipelineGrain": 12,
+    "FarmThroughput": 12,
+    "ImageTiles": 19
+  }
+}

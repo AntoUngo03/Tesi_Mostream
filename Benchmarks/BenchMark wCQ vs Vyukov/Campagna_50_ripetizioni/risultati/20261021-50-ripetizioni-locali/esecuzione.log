@@ -1,0 +1,3362 @@
+N misurati: [1, 2, 4] ; core fisici: [0, 1, 2, 3, 4, 5] ; esclusi: [8, 16]
+Avvio PipelineGrain
+[1/1200] vyukov N=1 T=1 us: 1028.0 ns/input
+[2/1200] vyukov N=1 T=0 us: 4.5 ns/input
+[3/1200] vyukov N=4 T=1 us: 334.7 ns/input
+[4/1200] wcq N=1 T=5 us: 5272.4 ns/input
+[5/1200] vyukov N=4 T=5 us: 1638.7 ns/input
+[6/1200] vyukov N=2 T=1 us: 592.3 ns/input
+[7/1200] wcq N=2 T=2 us: 1410.3 ns/input
+[8/1200] wcq N=1 T=0 us: 2.1 ns/input
+[9/1200] vyukov N=2 T=2 us: 1188.3 ns/input
+[10/1200] wcq N=4 T=2 us: 993.5 ns/input
+[11/1200] wcq N=1 T=2 us: 2079.4 ns/input
+[12/1200] vyukov N=1 T=2 us: 2091.4 ns/input
+[13/1200] wcq N=1 T=5 us: 5205.8 ns/input
+[14/1200] wcq N=4 T=1 us: 773.4 ns/input
+[15/1200] vyukov N=2 T=0 us: 96.8 ns/input
+[16/1200] wcq N=4 T=0 us: 500.3 ns/input
+[17/1200] wcq N=1 T=5 us: 5161.7 ns/input
+[18/1200] wcq N=4 T=0 us: 597.3 ns/input
+[19/1200] wcq N=4 T=2 us: 1096.6 ns/input
+[20/1200] vyukov N=1 T=2 us: 2200.4 ns/input
+[21/1200] wcq N=1 T=1 us: 1171.5 ns/input
+[22/1200] vyukov N=4 T=1 us: 462.2 ns/input
+[23/1200] vyukov N=1 T=5 us: 5321.0 ns/input
+[24/1200] vyukov N=1 T=0 us: 19.8 ns/input
+[25/1200] vyukov N=1 T=0 us: 1.9 ns/input
+[26/1200] wcq N=4 T=1 us: 802.4 ns/input
+[27/1200] wcq N=4 T=5 us: 1780.8 ns/input
+[28/1200] wcq N=2 T=1 us: 771.1 ns/input
+[29/1200] wcq N=4 T=5 us: 1849.2 ns/input
+[30/1200] vyukov N=1 T=5 us: 5352.4 ns/input
+[31/1200] vyukov N=2 T=0 us: 100.8 ns/input
+[32/1200] wcq N=2 T=1 us: 802.2 ns/input
+[33/1200] wcq N=4 T=1 us: 808.2 ns/input
+[34/1200] vyukov N=2 T=5 us: 2868.3 ns/input
+[35/1200] vyukov N=4 T=1 us: 364.1 ns/input
+[36/1200] wcq N=2 T=1 us: 800.2 ns/input
+[37/1200] wcq N=2 T=0 us: 290.8 ns/input
+[38/1200] wcq N=2 T=2 us: 1346.6 ns/input
+[39/1200] vyukov N=4 T=5 us: 1615.6 ns/input
+[40/1200] wcq N=2 T=5 us: 3021.2 ns/input
+[41/1200] wcq N=2 T=1 us: 785.9 ns/input
+[42/1200] wcq N=2 T=1 us: 796.8 ns/input
+[43/1200] wcq N=1 T=2 us: 2120.0 ns/input
+[44/1200] wcq N=1 T=0 us: 3.5 ns/input
+[45/1200] wcq N=4 T=2 us: 1102.3 ns/input
+[46/1200] vyukov N=1 T=2 us: 2154.5 ns/input
+[47/1200] vyukov N=2 T=5 us: 2797.5 ns/input
+[48/1200] vyukov N=4 T=5 us: 1525.9 ns/input
+[49/1200] vyukov N=4 T=1 us: 344.4 ns/input
+[50/1200] vyukov N=2 T=0 us: 93.2 ns/input
+[51/1200] wcq N=1 T=2 us: 2100.2 ns/input
+[52/1200] vyukov N=4 T=2 us: 616.1 ns/input
+[53/1200] wcq N=1 T=0 us: 3.3 ns/input
+[54/1200] vyukov N=2 T=5 us: 2873.3 ns/input
+[55/1200] wcq N=2 T=0 us: 340.7 ns/input
+[56/1200] wcq N=2 T=1 us: 769.8 ns/input
+[57/1200] vyukov N=1 T=5 us: 5349.5 ns/input
+[58/1200] vyukov N=1 T=0 us: 2.4 ns/input
+[59/1200] wcq N=1 T=0 us: 2.7 ns/input
+[60/1200] wcq N=1 T=1 us: 1142.2 ns/input
+[61/1200] vyukov N=4 T=0 us: 187.8 ns/input
+[62/1200] vyukov N=2 T=2 us: 1109.0 ns/input
+[63/1200] vyukov N=4 T=2 us: 614.5 ns/input
+[64/1200] wcq N=2 T=0 us: 250.5 ns/input
+[65/1200] vyukov N=4 T=0 us: 189.1 ns/input
+[66/1200] vyukov N=2 T=2 us: 1174.6 ns/input
+[67/1200] vyukov N=2 T=0 us: 101.6 ns/input
+[68/1200] wcq N=2 T=1 us: 794.6 ns/input
+[69/1200] wcq N=1 T=2 us: 2050.7 ns/input
+[70/1200] wcq N=2 T=5 us: 2976.6 ns/input
+[71/1200] vyukov N=2 T=2 us: 1232.5 ns/input
+[72/1200] vyukov N=1 T=2 us: 2072.5 ns/input
+[73/1200] wcq N=4 T=0 us: 527.3 ns/input
+[74/1200] vyukov N=1 T=5 us: 5196.5 ns/input
+[75/1200] wcq N=1 T=5 us: 5268.4 ns/input
+[76/1200] wcq N=2 T=5 us: 3051.2 ns/input
+[77/1200] wcq N=1 T=2 us: 2084.6 ns/input
+[78/1200] wcq N=1 T=2 us: 2068.9 ns/input
+[79/1200] wcq N=1 T=1 us: 1014.2 ns/input
+[80/1200] vyukov N=4 T=5 us: 1527.1 ns/input
+[81/1200] vyukov N=2 T=0 us: 99.8 ns/input
+[82/1200] vyukov N=4 T=5 us: 1527.7 ns/input
+[83/1200] wcq N=4 T=1 us: 785.1 ns/input
+[84/1200] wcq N=1 T=2 us: 2083.0 ns/input
+[85/1200] vyukov N=4 T=2 us: 604.7 ns/input
+[86/1200] vyukov N=1 T=2 us: 2085.2 ns/input
+[87/1200] wcq N=2 T=0 us: 250.0 ns/input
+[88/1200] wcq N=4 T=0 us: 554.3 ns/input
+[89/1200] vyukov N=1 T=1 us: 1027.9 ns/input
+[90/1200] wcq N=1 T=2 us: 2103.4 ns/input
+[91/1200] vyukov N=4 T=1 us: 331.0 ns/input
+[92/1200] vyukov N=1 T=1 us: 1053.0 ns/input
+[93/1200] wcq N=1 T=5 us: 5384.4 ns/input
+[94/1200] wcq N=4 T=0 us: 580.1 ns/input
+[95/1200] wcq N=4 T=1 us: 864.0 ns/input
+[96/1200] vyukov N=1 T=5 us: 5181.9 ns/input
+[97/1200] vyukov N=2 T=1 us: 607.1 ns/input
+[98/1200] wcq N=2 T=2 us: 1266.5 ns/input
+[99/1200] wcq N=1 T=1 us: 1008.5 ns/input
+[100/1200] wcq N=4 T=5 us: 1792.5 ns/input
+[101/1200] wcq N=1 T=5 us: 5213.4 ns/input
+[102/1200] vyukov N=1 T=5 us: 5181.9 ns/input
+[103/1200] vyukov N=1 T=2 us: 2168.6 ns/input
+[104/1200] wcq N=2 T=5 us: 3051.7 ns/input
+[105/1200] vyukov N=4 T=0 us: 201.0 ns/input
+[106/1200] wcq N=4 T=1 us: 875.7 ns/input
+[107/1200] wcq N=1 T=1 us: 1162.8 ns/input
+[108/1200] vyukov N=1 T=0 us: 1.9 ns/input
+[109/1200] vyukov N=1 T=5 us: 5153.7 ns/input
+[110/1200] wcq N=1 T=5 us: 5151.8 ns/input
+[111/1200] vyukov N=1 T=2 us: 2103.0 ns/input
+[112/1200] wcq N=4 T=1 us: 771.0 ns/input
+[113/1200] wcq N=2 T=2 us: 1271.4 ns/input
+[114/1200] wcq N=4 T=1 us: 770.6 ns/input
+[115/1200] wcq N=4 T=2 us: 1038.4 ns/input
+[116/1200] vyukov N=4 T=1 us: 344.8 ns/input
+[117/1200] vyukov N=4 T=2 us: 619.4 ns/input
+[118/1200] wcq N=1 T=1 us: 1075.2 ns/input
+[119/1200] vyukov N=4 T=5 us: 1568.1 ns/input
+[120/1200] wcq N=2 T=1 us: 807.7 ns/input
+[121/1200] wcq N=4 T=2 us: 1111.3 ns/input
+[122/1200] vyukov N=2 T=5 us: 3045.7 ns/input
+[123/1200] wcq N=1 T=5 us: 5204.0 ns/input
+[124/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[125/1200] vyukov N=2 T=0 us: 133.5 ns/input
+[126/1200] vyukov N=4 T=0 us: 170.8 ns/input
+[127/1200] wcq N=4 T=5 us: 1800.8 ns/input
+[128/1200] wcq N=4 T=0 us: 492.9 ns/input
+[129/1200] wcq N=4 T=2 us: 992.8 ns/input
+[130/1200] vyukov N=2 T=2 us: 1134.1 ns/input
+[131/1200] wcq N=1 T=5 us: 5185.3 ns/input
+[132/1200] vyukov N=4 T=0 us: 173.5 ns/input
+[133/1200] wcq N=4 T=0 us: 571.5 ns/input
+[134/1200] vyukov N=2 T=5 us: 2826.5 ns/input
+[135/1200] wcq N=4 T=2 us: 1064.8 ns/input
+[136/1200] vyukov N=2 T=5 us: 2866.1 ns/input
+[137/1200] vyukov N=4 T=5 us: 1595.1 ns/input
+[138/1200] vyukov N=4 T=2 us: 619.5 ns/input
+[139/1200] wcq N=2 T=0 us: 224.5 ns/input
+[140/1200] vyukov N=2 T=1 us: 579.9 ns/input
+[141/1200] vyukov N=2 T=1 us: 585.1 ns/input
+[142/1200] wcq N=1 T=1 us: 1009.9 ns/input
+[143/1200] vyukov N=1 T=0 us: 3.9 ns/input
+[144/1200] vyukov N=1 T=2 us: 2090.3 ns/input
+[145/1200] wcq N=2 T=2 us: 1268.5 ns/input
+[146/1200] wcq N=1 T=0 us: 5.9 ns/input
+[147/1200] wcq N=2 T=1 us: 754.3 ns/input
+[148/1200] wcq N=1 T=2 us: 2106.6 ns/input
+[149/1200] vyukov N=1 T=5 us: 5174.8 ns/input
+[150/1200] vyukov N=4 T=5 us: 1540.1 ns/input
+[151/1200] vyukov N=2 T=1 us: 589.2 ns/input
+[152/1200] wcq N=2 T=0 us: 204.0 ns/input
+[153/1200] vyukov N=4 T=0 us: 203.0 ns/input
+[154/1200] wcq N=2 T=5 us: 3001.2 ns/input
+[155/1200] vyukov N=1 T=1 us: 1089.7 ns/input
+[156/1200] wcq N=2 T=1 us: 791.2 ns/input
+[157/1200] wcq N=2 T=1 us: 837.8 ns/input
+[158/1200] wcq N=2 T=5 us: 3070.5 ns/input
+[159/1200] vyukov N=1 T=0 us: 1.8 ns/input
+[160/1200] vyukov N=1 T=1 us: 1083.6 ns/input
+[161/1200] vyukov N=1 T=1 us: 1054.6 ns/input
+[162/1200] wcq N=2 T=5 us: 3134.1 ns/input
+[163/1200] vyukov N=4 T=5 us: 1528.9 ns/input
+[164/1200] wcq N=1 T=0 us: 2.9 ns/input
+[165/1200] wcq N=2 T=0 us: 221.9 ns/input
+[166/1200] vyukov N=2 T=0 us: 106.5 ns/input
+[167/1200] wcq N=2 T=1 us: 769.5 ns/input
+[168/1200] wcq N=1 T=1 us: 1666.5 ns/input
+[169/1200] wcq N=2 T=5 us: 3023.1 ns/input
+[170/1200] wcq N=4 T=5 us: 1816.0 ns/input
+[171/1200] wcq N=2 T=5 us: 3223.7 ns/input
+[172/1200] wcq N=2 T=1 us: 787.6 ns/input
+[173/1200] vyukov N=1 T=0 us: 3.2 ns/input
+[174/1200] wcq N=4 T=5 us: 1926.0 ns/input
+[175/1200] wcq N=1 T=0 us: 6.3 ns/input
+[176/1200] wcq N=4 T=5 us: 1869.9 ns/input
+[177/1200] vyukov N=2 T=0 us: 103.3 ns/input
+[178/1200] wcq N=1 T=0 us: 2.7 ns/input
+[179/1200] vyukov N=4 T=1 us: 383.7 ns/input
+[180/1200] vyukov N=2 T=0 us: 93.6 ns/input
+[181/1200] vyukov N=4 T=5 us: 1527.2 ns/input
+[182/1200] vyukov N=4 T=2 us: 631.0 ns/input
+[183/1200] vyukov N=2 T=2 us: 1151.6 ns/input
+[184/1200] vyukov N=1 T=5 us: 5255.2 ns/input
+[185/1200] wcq N=2 T=0 us: 241.1 ns/input
+[186/1200] wcq N=1 T=2 us: 2096.4 ns/input
+[187/1200] vyukov N=1 T=0 us: 2.4 ns/input
+[188/1200] vyukov N=4 T=5 us: 1533.8 ns/input
+[189/1200] vyukov N=2 T=0 us: 176.0 ns/input
+[190/1200] vyukov N=4 T=0 us: 208.1 ns/input
+[191/1200] vyukov N=4 T=0 us: 248.4 ns/input
+[192/1200] wcq N=2 T=1 us: 776.8 ns/input
+[193/1200] vyukov N=4 T=2 us: 624.1 ns/input
+[194/1200] vyukov N=4 T=1 us: 347.6 ns/input
+[195/1200] wcq N=4 T=0 us: 586.5 ns/input
+[196/1200] wcq N=2 T=5 us: 3086.1 ns/input
+[197/1200] vyukov N=2 T=0 us: 86.1 ns/input
+[198/1200] wcq N=4 T=0 us: 562.2 ns/input
+[199/1200] vyukov N=4 T=0 us: 226.0 ns/input
+[200/1200] wcq N=4 T=5 us: 1856.9 ns/input
+[201/1200] wcq N=4 T=5 us: 1796.1 ns/input
+[202/1200] wcq N=2 T=1 us: 756.6 ns/input
+[203/1200] wcq N=4 T=2 us: 997.6 ns/input
+[204/1200] vyukov N=4 T=1 us: 332.0 ns/input
+[205/1200] wcq N=2 T=5 us: 2948.2 ns/input
+[206/1200] vyukov N=4 T=5 us: 1555.0 ns/input
+[207/1200] vyukov N=1 T=0 us: 5.3 ns/input
+[208/1200] wcq N=1 T=5 us: 5165.1 ns/input
+[209/1200] vyukov N=1 T=0 us: 2.1 ns/input
+[210/1200] vyukov N=1 T=5 us: 5150.8 ns/input
+[211/1200] wcq N=2 T=5 us: 3034.7 ns/input
+[212/1200] wcq N=1 T=5 us: 5254.3 ns/input
+[213/1200] vyukov N=2 T=1 us: 548.5 ns/input
+[214/1200] vyukov N=2 T=0 us: 100.9 ns/input
+[215/1200] wcq N=1 T=5 us: 5225.3 ns/input
+[216/1200] wcq N=1 T=0 us: 2.2 ns/input
+[217/1200] wcq N=2 T=1 us: 769.0 ns/input
+[218/1200] wcq N=4 T=5 us: 1884.5 ns/input
+[219/1200] wcq N=4 T=5 us: 1905.2 ns/input
+[220/1200] wcq N=4 T=1 us: 812.6 ns/input
+[221/1200] wcq N=4 T=5 us: 1881.7 ns/input
+[222/1200] vyukov N=1 T=1 us: 1102.4 ns/input
+[223/1200] wcq N=4 T=1 us: 790.0 ns/input
+[224/1200] wcq N=2 T=1 us: 781.0 ns/input
+[225/1200] vyukov N=2 T=1 us: 658.3 ns/input
+[226/1200] wcq N=1 T=5 us: 5308.0 ns/input
+[227/1200] vyukov N=4 T=2 us: 691.7 ns/input
+[228/1200] wcq N=4 T=1 us: 724.5 ns/input
+[229/1200] vyukov N=2 T=1 us: 658.2 ns/input
+[230/1200] vyukov N=2 T=5 us: 2784.7 ns/input
+[231/1200] vyukov N=1 T=0 us: 3.0 ns/input
+[232/1200] wcq N=1 T=1 us: 1065.5 ns/input
+[233/1200] vyukov N=1 T=5 us: 5169.6 ns/input
+[234/1200] vyukov N=2 T=5 us: 2810.3 ns/input
+[235/1200] wcq N=4 T=1 us: 790.7 ns/input
+[236/1200] vyukov N=1 T=1 us: 1076.9 ns/input
+[237/1200] vyukov N=4 T=1 us: 361.7 ns/input
+[238/1200] wcq N=1 T=2 us: 2079.2 ns/input
+[239/1200] vyukov N=1 T=0 us: 2.5 ns/input
+[240/1200] wcq N=1 T=5 us: 5311.7 ns/input
+[241/1200] wcq N=4 T=5 us: 1904.8 ns/input
+[242/1200] wcq N=4 T=2 us: 977.1 ns/input
+[243/1200] vyukov N=1 T=0 us: 2.4 ns/input
+[244/1200] vyukov N=4 T=5 us: 1493.1 ns/input
+[245/1200] vyukov N=2 T=5 us: 2819.5 ns/input
+[246/1200] wcq N=1 T=1 us: 1043.7 ns/input
+[247/1200] vyukov N=4 T=1 us: 368.5 ns/input
+[248/1200] vyukov N=4 T=5 us: 1535.8 ns/input
+[249/1200] wcq N=1 T=1 us: 1024.6 ns/input
+[250/1200] wcq N=4 T=1 us: 827.3 ns/input
+[251/1200] vyukov N=4 T=1 us: 303.5 ns/input
+[252/1200] wcq N=2 T=5 us: 2908.6 ns/input
+[253/1200] wcq N=1 T=5 us: 5151.4 ns/input
+[254/1200] vyukov N=4 T=5 us: 1610.6 ns/input
+[255/1200] wcq N=1 T=5 us: 5318.1 ns/input
+[256/1200] wcq N=2 T=2 us: 1300.5 ns/input
+[257/1200] wcq N=1 T=2 us: 2064.5 ns/input
+[258/1200] vyukov N=2 T=2 us: 1141.6 ns/input
+[259/1200] vyukov N=4 T=5 us: 1536.2 ns/input
+[260/1200] wcq N=2 T=0 us: 210.3 ns/input
+[261/1200] wcq N=1 T=0 us: 3.0 ns/input
+[262/1200] wcq N=4 T=2 us: 1096.6 ns/input
+[263/1200] vyukov N=4 T=5 us: 1528.5 ns/input
+[264/1200] wcq N=1 T=5 us: 5233.7 ns/input
+[265/1200] wcq N=4 T=5 us: 1776.1 ns/input
+[266/1200] wcq N=4 T=5 us: 1983.0 ns/input
+[267/1200] vyukov N=2 T=0 us: 83.1 ns/input
+[268/1200] wcq N=4 T=2 us: 1070.0 ns/input
+[269/1200] wcq N=4 T=2 us: 1062.8 ns/input
+[270/1200] wcq N=2 T=2 us: 1290.8 ns/input
+[271/1200] vyukov N=4 T=1 us: 364.2 ns/input
+[272/1200] vyukov N=1 T=0 us: 2.4 ns/input
+[273/1200] wcq N=2 T=2 us: 1276.7 ns/input
+[274/1200] vyukov N=4 T=0 us: 186.9 ns/input
+[275/1200] vyukov N=2 T=1 us: 549.5 ns/input
+[276/1200] wcq N=4 T=2 us: 1041.3 ns/input
+[277/1200] wcq N=2 T=1 us: 743.5 ns/input
+[278/1200] vyukov N=4 T=0 us: 171.5 ns/input
+[279/1200] wcq N=2 T=1 us: 799.3 ns/input
+[280/1200] vyukov N=2 T=2 us: 1116.4 ns/input
+[281/1200] vyukov N=1 T=2 us: 2110.4 ns/input
+[282/1200] wcq N=4 T=2 us: 1041.7 ns/input
+[283/1200] wcq N=4 T=2 us: 1089.4 ns/input
+[284/1200] wcq N=2 T=0 us: 232.1 ns/input
+[285/1200] wcq N=1 T=1 us: 1121.5 ns/input
+[286/1200] wcq N=4 T=1 us: 854.1 ns/input
+[287/1200] vyukov N=4 T=5 us: 1574.3 ns/input
+[288/1200] vyukov N=4 T=1 us: 375.3 ns/input
+[289/1200] wcq N=4 T=1 us: 825.8 ns/input
+[290/1200] vyukov N=4 T=0 us: 182.3 ns/input
+[291/1200] vyukov N=4 T=0 us: 182.6 ns/input
+[292/1200] wcq N=2 T=2 us: 1256.8 ns/input
+[293/1200] vyukov N=1 T=5 us: 5312.9 ns/input
+[294/1200] vyukov N=2 T=5 us: 2850.2 ns/input
+[295/1200] vyukov N=4 T=1 us: 324.5 ns/input
+[296/1200] wcq N=1 T=1 us: 1058.4 ns/input
+[297/1200] wcq N=4 T=2 us: 1047.3 ns/input
+[298/1200] vyukov N=1 T=0 us: 2.1 ns/input
+[299/1200] vyukov N=4 T=1 us: 333.8 ns/input
+[300/1200] vyukov N=4 T=0 us: 172.3 ns/input
+[301/1200] wcq N=4 T=0 us: 532.2 ns/input
+[302/1200] wcq N=4 T=5 us: 1844.2 ns/input
+[303/1200] vyukov N=2 T=5 us: 2803.3 ns/input
+[304/1200] vyukov N=1 T=1 us: 1042.2 ns/input
+[305/1200] vyukov N=1 T=2 us: 2063.4 ns/input
+[306/1200] wcq N=2 T=5 us: 3037.2 ns/input
+[307/1200] vyukov N=1 T=2 us: 2088.7 ns/input
+[308/1200] vyukov N=2 T=1 us: 614.8 ns/input
+[309/1200] wcq N=4 T=2 us: 1071.0 ns/input
+[310/1200] wcq N=2 T=1 us: 757.0 ns/input
+[311/1200] vyukov N=1 T=1 us: 1085.7 ns/input
+[312/1200] wcq N=2 T=0 us: 421.7 ns/input
+[313/1200] wcq N=2 T=0 us: 322.3 ns/input
+[314/1200] vyukov N=1 T=2 us: 2127.4 ns/input
+[315/1200] vyukov N=1 T=5 us: 5200.8 ns/input
+[316/1200] vyukov N=4 T=0 us: 166.3 ns/input
+[317/1200] wcq N=4 T=1 us: 762.2 ns/input
+[318/1200] vyukov N=2 T=2 us: 1114.4 ns/input
+[319/1200] wcq N=1 T=5 us: 5252.6 ns/input
+[320/1200] wcq N=1 T=1 us: 1026.0 ns/input
+[321/1200] wcq N=2 T=2 us: 1293.8 ns/input
+[322/1200] vyukov N=4 T=2 us: 635.3 ns/input
+[323/1200] wcq N=4 T=2 us: 996.2 ns/input
+[324/1200] vyukov N=4 T=0 us: 175.4 ns/input
+[325/1200] vyukov N=2 T=0 us: 119.7 ns/input
+[326/1200] wcq N=1 T=2 us: 2079.1 ns/input
+[327/1200] wcq N=1 T=1 us: 1017.2 ns/input
+[328/1200] wcq N=2 T=5 us: 3355.5 ns/input
+[329/1200] vyukov N=1 T=5 us: 5438.5 ns/input
+[330/1200] wcq N=4 T=1 us: 759.8 ns/input
+[331/1200] vyukov N=1 T=1 us: 1025.1 ns/input
+[332/1200] vyukov N=2 T=2 us: 1200.4 ns/input
+[333/1200] vyukov N=1 T=5 us: 5175.6 ns/input
+[334/1200] wcq N=4 T=2 us: 1006.3 ns/input
+[335/1200] wcq N=2 T=5 us: 2967.7 ns/input
+[336/1200] vyukov N=2 T=0 us: 113.6 ns/input
+[337/1200] vyukov N=4 T=2 us: 649.3 ns/input
+[338/1200] vyukov N=2 T=1 us: 852.5 ns/input
+[339/1200] wcq N=1 T=0 us: 7.5 ns/input
+[340/1200] vyukov N=2 T=0 us: 308.1 ns/input
+[341/1200] wcq N=2 T=1 us: 760.5 ns/input
+[342/1200] vyukov N=1 T=2 us: 2187.9 ns/input
+[343/1200] vyukov N=1 T=1 us: 1139.2 ns/input
+[344/1200] vyukov N=4 T=1 us: 335.4 ns/input
+[345/1200] vyukov N=4 T=0 us: 167.0 ns/input
+[346/1200] wcq N=4 T=0 us: 608.5 ns/input
+[347/1200] vyukov N=2 T=1 us: 652.0 ns/input
+[348/1200] wcq N=4 T=1 us: 917.8 ns/input
+[349/1200] vyukov N=4 T=5 us: 1669.0 ns/input
+[350/1200] vyukov N=1 T=1 us: 1166.3 ns/input
+[351/1200] wcq N=2 T=0 us: 231.2 ns/input
+[352/1200] wcq N=1 T=1 us: 1081.5 ns/input
+[353/1200] wcq N=1 T=2 us: 2176.9 ns/input
+[354/1200] wcq N=2 T=1 us: 714.7 ns/input
+[355/1200] wcq N=2 T=0 us: 459.2 ns/input
+[356/1200] vyukov N=1 T=2 us: 2119.0 ns/input
+[357/1200] wcq N=4 T=2 us: 1027.6 ns/input
+[358/1200] wcq N=4 T=5 us: 1793.5 ns/input
+[359/1200] vyukov N=2 T=2 us: 1172.6 ns/input
+[360/1200] vyukov N=4 T=5 us: 1495.2 ns/input
+[361/1200] wcq N=4 T=2 us: 990.8 ns/input
+[362/1200] wcq N=2 T=1 us: 715.7 ns/input
+[363/1200] wcq N=1 T=1 us: 1083.9 ns/input
+[364/1200] vyukov N=4 T=5 us: 1534.2 ns/input
+[365/1200] wcq N=1 T=1 us: 1029.3 ns/input
+[366/1200] vyukov N=2 T=5 us: 2957.6 ns/input
+[367/1200] vyukov N=2 T=1 us: 574.8 ns/input
+[368/1200] wcq N=4 T=0 us: 545.8 ns/input
+[369/1200] vyukov N=2 T=1 us: 638.0 ns/input
+[370/1200] wcq N=2 T=5 us: 3064.4 ns/input
+[371/1200] wcq N=1 T=5 us: 5232.9 ns/input
+[372/1200] vyukov N=2 T=2 us: 1137.0 ns/input
+[373/1200] vyukov N=4 T=2 us: 587.8 ns/input
+[374/1200] wcq N=1 T=5 us: 5227.1 ns/input
+[375/1200] wcq N=4 T=2 us: 1265.3 ns/input
+[376/1200] wcq N=4 T=5 us: 1819.2 ns/input
+[377/1200] wcq N=4 T=2 us: 1003.2 ns/input
+[378/1200] vyukov N=4 T=1 us: 347.1 ns/input
+[379/1200] wcq N=4 T=0 us: 579.1 ns/input
+[380/1200] wcq N=4 T=1 us: 794.1 ns/input
+[381/1200] vyukov N=1 T=2 us: 2169.7 ns/input
+[382/1200] wcq N=1 T=5 us: 5371.1 ns/input
+[383/1200] vyukov N=2 T=0 us: 95.1 ns/input
+[384/1200] vyukov N=2 T=0 us: 107.0 ns/input
+[385/1200] wcq N=1 T=5 us: 5241.7 ns/input
+[386/1200] wcq N=2 T=0 us: 208.6 ns/input
+[387/1200] wcq N=2 T=1 us: 861.1 ns/input
+[388/1200] vyukov N=2 T=0 us: 102.9 ns/input
+[389/1200] vyukov N=1 T=0 us: 2.5 ns/input
+[390/1200] vyukov N=1 T=0 us: 2.5 ns/input
+[391/1200] wcq N=1 T=0 us: 3.2 ns/input
+[392/1200] wcq N=2 T=0 us: 479.2 ns/input
+[393/1200] wcq N=1 T=0 us: 2.4 ns/input
+[394/1200] vyukov N=2 T=0 us: 125.7 ns/input
+[395/1200] wcq N=4 T=1 us: 788.1 ns/input
+[396/1200] wcq N=4 T=1 us: 733.7 ns/input
+[397/1200] vyukov N=2 T=2 us: 1121.9 ns/input
+[398/1200] wcq N=4 T=5 us: 1884.2 ns/input
+[399/1200] wcq N=1 T=2 us: 2062.2 ns/input
+[400/1200] wcq N=1 T=5 us: 5242.5 ns/input
+[401/1200] wcq N=1 T=2 us: 2124.8 ns/input
+[402/1200] wcq N=4 T=0 us: 562.0 ns/input
+[403/1200] wcq N=1 T=1 us: 1067.5 ns/input
+[404/1200] vyukov N=1 T=5 us: 5370.6 ns/input
+[405/1200] vyukov N=1 T=1 us: 1112.0 ns/input
+[406/1200] wcq N=4 T=5 us: 1839.1 ns/input
+[407/1200] wcq N=4 T=0 us: 643.2 ns/input
+[408/1200] vyukov N=2 T=1 us: 572.9 ns/input
+[409/1200] vyukov N=4 T=0 us: 187.0 ns/input
+[410/1200] vyukov N=2 T=0 us: 86.8 ns/input
+[411/1200] wcq N=2 T=1 us: 757.2 ns/input
+[412/1200] vyukov N=2 T=5 us: 2760.8 ns/input
+[413/1200] wcq N=1 T=0 us: 3.3 ns/input
+[414/1200] wcq N=4 T=0 us: 507.4 ns/input
+[415/1200] wcq N=4 T=0 us: 516.6 ns/input
+[416/1200] wcq N=4 T=5 us: 1816.5 ns/input
+[417/1200] wcq N=2 T=5 us: 2945.5 ns/input
+[418/1200] vyukov N=4 T=0 us: 186.9 ns/input
+[419/1200] vyukov N=1 T=1 us: 1023.6 ns/input
+[420/1200] vyukov N=2 T=2 us: 1225.3 ns/input
+[421/1200] wcq N=4 T=1 us: 721.1 ns/input
+[422/1200] wcq N=2 T=2 us: 1404.3 ns/input
+[423/1200] vyukov N=4 T=2 us: 624.2 ns/input
+[424/1200] vyukov N=1 T=1 us: 1148.3 ns/input
+[425/1200] wcq N=1 T=0 us: 6.2 ns/input
+[426/1200] wcq N=1 T=1 us: 1239.2 ns/input
+[427/1200] wcq N=1 T=2 us: 2226.6 ns/input
+[428/1200] vyukov N=4 T=1 us: 375.2 ns/input
+[429/1200] wcq N=1 T=1 us: 1088.7 ns/input
+[430/1200] vyukov N=2 T=2 us: 1118.6 ns/input
+[431/1200] wcq N=1 T=2 us: 2072.6 ns/input
+[432/1200] vyukov N=4 T=1 us: 326.8 ns/input
+[433/1200] vyukov N=1 T=0 us: 2.4 ns/input
+[434/1200] vyukov N=2 T=2 us: 1237.4 ns/input
+[435/1200] wcq N=1 T=5 us: 5174.0 ns/input
+[436/1200] vyukov N=2 T=1 us: 586.9 ns/input
+[437/1200] wcq N=1 T=1 us: 1115.1 ns/input
+[438/1200] vyukov N=2 T=5 us: 2867.7 ns/input
+[439/1200] vyukov N=1 T=5 us: 5196.7 ns/input
+[440/1200] vyukov N=1 T=0 us: 2.8 ns/input
+[441/1200] vyukov N=1 T=2 us: 2172.3 ns/input
+[442/1200] vyukov N=4 T=2 us: 670.0 ns/input
+[443/1200] vyukov N=4 T=0 us: 178.1 ns/input
+[444/1200] vyukov N=1 T=1 us: 1149.9 ns/input
+[445/1200] vyukov N=2 T=2 us: 1261.5 ns/input
+[446/1200] wcq N=1 T=2 us: 2165.7 ns/input
+[447/1200] vyukov N=4 T=2 us: 589.4 ns/input
+[448/1200] wcq N=2 T=0 us: 205.4 ns/input
+[449/1200] wcq N=4 T=0 us: 585.5 ns/input
+[450/1200] wcq N=1 T=1 us: 1084.5 ns/input
+[451/1200] vyukov N=1 T=5 us: 5244.5 ns/input
+[452/1200] vyukov N=1 T=5 us: 5259.3 ns/input
+[453/1200] vyukov N=4 T=1 us: 364.2 ns/input
+[454/1200] wcq N=2 T=2 us: 1324.2 ns/input
+[455/1200] vyukov N=4 T=5 us: 1565.1 ns/input
+[456/1200] vyukov N=2 T=0 us: 113.3 ns/input
+[457/1200] wcq N=2 T=1 us: 913.9 ns/input
+[458/1200] vyukov N=2 T=1 us: 564.8 ns/input
+[459/1200] vyukov N=2 T=5 us: 2982.4 ns/input
+[460/1200] wcq N=4 T=2 us: 1125.4 ns/input
+[461/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[462/1200] vyukov N=1 T=2 us: 2174.1 ns/input
+[463/1200] wcq N=1 T=2 us: 2102.7 ns/input
+[464/1200] vyukov N=2 T=1 us: 576.4 ns/input
+[465/1200] wcq N=1 T=1 us: 1058.3 ns/input
+[466/1200] vyukov N=4 T=0 us: 158.6 ns/input
+[467/1200] wcq N=1 T=0 us: 2.6 ns/input
+[468/1200] wcq N=4 T=0 us: 588.3 ns/input
+[469/1200] vyukov N=4 T=1 us: 363.0 ns/input
+[470/1200] wcq N=2 T=5 us: 2972.4 ns/input
+[471/1200] vyukov N=1 T=5 us: 5163.0 ns/input
+[472/1200] wcq N=4 T=2 us: 984.0 ns/input
+[473/1200] wcq N=1 T=5 us: 5826.9 ns/input
+[474/1200] vyukov N=2 T=2 us: 1171.4 ns/input
+[475/1200] vyukov N=1 T=5 us: 5467.4 ns/input
+[476/1200] wcq N=4 T=1 us: 803.5 ns/input
+[477/1200] wcq N=2 T=2 us: 1353.8 ns/input
+[478/1200] vyukov N=4 T=0 us: 203.3 ns/input
+[479/1200] wcq N=4 T=0 us: 598.0 ns/input
+[480/1200] vyukov N=1 T=5 us: 5201.5 ns/input
+[481/1200] wcq N=1 T=0 us: 2.1 ns/input
+[482/1200] wcq N=2 T=1 us: 756.3 ns/input
+[483/1200] wcq N=4 T=1 us: 768.3 ns/input
+[484/1200] wcq N=1 T=1 us: 1106.1 ns/input
+[485/1200] vyukov N=2 T=1 us: 634.6 ns/input
+[486/1200] vyukov N=1 T=2 us: 2066.3 ns/input
+[487/1200] vyukov N=4 T=5 us: 1524.2 ns/input
+[488/1200] wcq N=2 T=1 us: 787.3 ns/input
+[489/1200] wcq N=2 T=1 us: 946.6 ns/input
+[490/1200] vyukov N=2 T=1 us: 602.5 ns/input
+[491/1200] vyukov N=2 T=5 us: 2922.1 ns/input
+[492/1200] vyukov N=4 T=1 us: 361.9 ns/input
+[493/1200] vyukov N=1 T=1 us: 1067.8 ns/input
+[494/1200] wcq N=4 T=0 us: 601.9 ns/input
+[495/1200] vyukov N=1 T=1 us: 1095.7 ns/input
+[496/1200] wcq N=4 T=5 us: 1933.5 ns/input
+[497/1200] wcq N=1 T=0 us: 2.1 ns/input
+[498/1200] vyukov N=1 T=2 us: 2171.7 ns/input
+[499/1200] wcq N=4 T=5 us: 1888.4 ns/input
+[500/1200] vyukov N=2 T=2 us: 1213.1 ns/input
+[501/1200] wcq N=2 T=5 us: 2960.3 ns/input
+[502/1200] vyukov N=4 T=0 us: 186.8 ns/input
+[503/1200] vyukov N=2 T=0 us: 92.0 ns/input
+[504/1200] wcq N=2 T=1 us: 781.7 ns/input
+[505/1200] wcq N=4 T=5 us: 1805.4 ns/input
+[506/1200] wcq N=2 T=5 us: 3003.7 ns/input
+[507/1200] vyukov N=4 T=0 us: 172.1 ns/input
+[508/1200] vyukov N=1 T=1 us: 1048.1 ns/input
+[509/1200] vyukov N=4 T=2 us: 621.5 ns/input
+[510/1200] wcq N=1 T=1 us: 1071.5 ns/input
+[511/1200] vyukov N=2 T=1 us: 575.6 ns/input
+[512/1200] vyukov N=2 T=1 us: 612.5 ns/input
+[513/1200] vyukov N=1 T=5 us: 5321.1 ns/input
+[514/1200] wcq N=4 T=0 us: 539.0 ns/input
+[515/1200] vyukov N=1 T=1 us: 1042.1 ns/input
+[516/1200] wcq N=1 T=0 us: 3.4 ns/input
+[517/1200] vyukov N=4 T=5 us: 1647.6 ns/input
+[518/1200] vyukov N=1 T=1 us: 1047.5 ns/input
+[519/1200] vyukov N=4 T=2 us: 658.6 ns/input
+[520/1200] vyukov N=4 T=1 us: 330.5 ns/input
+[521/1200] vyukov N=4 T=0 us: 236.0 ns/input
+[522/1200] wcq N=4 T=5 us: 1863.3 ns/input
+[523/1200] vyukov N=4 T=0 us: 169.5 ns/input
+[524/1200] vyukov N=1 T=5 us: 5253.5 ns/input
+[525/1200] vyukov N=2 T=1 us: 628.1 ns/input
+[526/1200] wcq N=4 T=5 us: 1788.4 ns/input
+[527/1200] wcq N=1 T=5 us: 5188.3 ns/input
+[528/1200] vyukov N=4 T=5 us: 1649.7 ns/input
+[529/1200] wcq N=2 T=5 us: 3017.2 ns/input
+[530/1200] vyukov N=4 T=2 us: 620.9 ns/input
+[531/1200] vyukov N=2 T=1 us: 624.6 ns/input
+[532/1200] wcq N=1 T=2 us: 2078.4 ns/input
+[533/1200] wcq N=4 T=5 us: 1859.0 ns/input
+[534/1200] wcq N=1 T=0 us: 2.6 ns/input
+[535/1200] vyukov N=4 T=5 us: 1526.9 ns/input
+[536/1200] vyukov N=4 T=2 us: 613.3 ns/input
+[537/1200] wcq N=2 T=0 us: 230.8 ns/input
+[538/1200] wcq N=1 T=1 us: 1112.0 ns/input
+[539/1200] wcq N=1 T=1 us: 1049.0 ns/input
+[540/1200] wcq N=4 T=2 us: 1056.3 ns/input
+[541/1200] wcq N=1 T=5 us: 5173.0 ns/input
+[542/1200] wcq N=1 T=1 us: 1049.5 ns/input
+[543/1200] vyukov N=1 T=2 us: 2143.0 ns/input
+[544/1200] vyukov N=4 T=2 us: 622.5 ns/input
+[545/1200] vyukov N=1 T=5 us: 5318.5 ns/input
+[546/1200] vyukov N=2 T=0 us: 95.5 ns/input
+[547/1200] wcq N=1 T=1 us: 1064.1 ns/input
+[548/1200] vyukov N=2 T=5 us: 2806.2 ns/input
+[549/1200] vyukov N=1 T=0 us: 2.1 ns/input
+[550/1200] wcq N=1 T=1 us: 1123.3 ns/input
+[551/1200] wcq N=2 T=1 us: 805.8 ns/input
+[552/1200] wcq N=4 T=2 us: 1016.3 ns/input
+[553/1200] vyukov N=4 T=0 us: 167.8 ns/input
+[554/1200] wcq N=1 T=5 us: 5206.4 ns/input
+[555/1200] wcq N=1 T=1 us: 1039.2 ns/input
+[556/1200] vyukov N=2 T=2 us: 1212.2 ns/input
+[557/1200] vyukov N=4 T=5 us: 1472.6 ns/input
+[558/1200] vyukov N=1 T=5 us: 5217.6 ns/input
+[559/1200] vyukov N=2 T=1 us: 624.3 ns/input
+[560/1200] vyukov N=2 T=0 us: 95.3 ns/input
+[561/1200] wcq N=2 T=1 us: 781.3 ns/input
+[562/1200] wcq N=2 T=0 us: 295.4 ns/input
+[563/1200] vyukov N=4 T=2 us: 650.0 ns/input
+[564/1200] wcq N=1 T=0 us: 3.5 ns/input
+[565/1200] vyukov N=2 T=5 us: 2841.5 ns/input
+[566/1200] wcq N=4 T=5 us: 1815.0 ns/input
+[567/1200] vyukov N=4 T=0 us: 158.3 ns/input
+[568/1200] wcq N=2 T=5 us: 3055.2 ns/input
+[569/1200] wcq N=2 T=2 us: 1254.2 ns/input
+[570/1200] wcq N=4 T=2 us: 1067.3 ns/input
+[571/1200] vyukov N=1 T=5 us: 5259.9 ns/input
+[572/1200] vyukov N=2 T=2 us: 1123.5 ns/input
+[573/1200] vyukov N=4 T=2 us: 656.2 ns/input
+[574/1200] vyukov N=2 T=5 us: 2765.4 ns/input
+[575/1200] vyukov N=4 T=0 us: 204.1 ns/input
+[576/1200] wcq N=2 T=1 us: 788.6 ns/input
+[577/1200] vyukov N=2 T=1 us: 686.1 ns/input
+[578/1200] vyukov N=4 T=2 us: 675.3 ns/input
+[579/1200] wcq N=1 T=5 us: 5293.4 ns/input
+[580/1200] vyukov N=2 T=1 us: 589.9 ns/input
+[581/1200] wcq N=1 T=2 us: 2119.3 ns/input
+[582/1200] wcq N=2 T=1 us: 722.4 ns/input
+[583/1200] wcq N=2 T=5 us: 3026.1 ns/input
+[584/1200] wcq N=4 T=1 us: 804.1 ns/input
+[585/1200] wcq N=2 T=5 us: 3036.9 ns/input
+[586/1200] wcq N=4 T=0 us: 586.1 ns/input
+[587/1200] vyukov N=2 T=1 us: 622.0 ns/input
+[588/1200] wcq N=2 T=2 us: 1383.6 ns/input
+[589/1200] wcq N=2 T=0 us: 291.6 ns/input
+[590/1200] wcq N=2 T=1 us: 716.8 ns/input
+[591/1200] vyukov N=4 T=2 us: 630.7 ns/input
+[592/1200] vyukov N=2 T=5 us: 2824.9 ns/input
+[593/1200] vyukov N=1 T=1 us: 1124.2 ns/input
+[594/1200] wcq N=1 T=5 us: 5325.6 ns/input
+[595/1200] vyukov N=4 T=2 us: 752.2 ns/input
+[596/1200] wcq N=4 T=1 us: 727.8 ns/input
+[597/1200] wcq N=4 T=2 us: 1068.6 ns/input
+[598/1200] vyukov N=4 T=0 us: 272.6 ns/input
+[599/1200] vyukov N=2 T=2 us: 1177.1 ns/input
+[600/1200] vyukov N=1 T=2 us: 2201.5 ns/input
+[601/1200] vyukov N=1 T=0 us: 2.1 ns/input
+[602/1200] wcq N=4 T=0 us: 530.0 ns/input
+[603/1200] wcq N=2 T=1 us: 819.3 ns/input
+[604/1200] wcq N=1 T=5 us: 5217.2 ns/input
+[605/1200] wcq N=1 T=0 us: 2.3 ns/input
+[606/1200] wcq N=1 T=0 us: 4.4 ns/input
+[607/1200] wcq N=4 T=0 us: 581.9 ns/input
+[608/1200] wcq N=1 T=2 us: 2134.4 ns/input
+[609/1200] wcq N=1 T=1 us: 1052.7 ns/input
+[610/1200] wcq N=1 T=2 us: 2131.0 ns/input
+[611/1200] vyukov N=4 T=1 us: 367.9 ns/input
+[612/1200] wcq N=2 T=5 us: 2966.0 ns/input
+[613/1200] vyukov N=1 T=5 us: 5377.4 ns/input
+[614/1200] wcq N=2 T=2 us: 1409.3 ns/input
+[615/1200] wcq N=4 T=2 us: 1024.6 ns/input
+[616/1200] vyukov N=4 T=1 us: 326.9 ns/input
+[617/1200] wcq N=4 T=0 us: 510.3 ns/input
+[618/1200] wcq N=4 T=0 us: 573.6 ns/input
+[619/1200] wcq N=1 T=5 us: 5209.4 ns/input
+[620/1200] wcq N=1 T=0 us: 2.5 ns/input
+[621/1200] vyukov N=1 T=5 us: 5177.6 ns/input
+[622/1200] wcq N=2 T=0 us: 227.5 ns/input
+[623/1200] wcq N=1 T=2 us: 2089.7 ns/input
+[624/1200] wcq N=4 T=2 us: 1034.4 ns/input
+[625/1200] vyukov N=4 T=1 us: 373.5 ns/input
+[626/1200] wcq N=1 T=2 us: 2189.8 ns/input
+[627/1200] vyukov N=4 T=0 us: 260.8 ns/input
+[628/1200] wcq N=2 T=2 us: 1284.9 ns/input
+[629/1200] vyukov N=2 T=1 us: 584.7 ns/input
+[630/1200] vyukov N=2 T=1 us: 922.7 ns/input
+[631/1200] wcq N=2 T=0 us: 249.5 ns/input
+[632/1200] vyukov N=4 T=5 us: 1581.7 ns/input
+[633/1200] vyukov N=1 T=1 us: 1265.4 ns/input
+[634/1200] vyukov N=1 T=2 us: 2200.6 ns/input
+[635/1200] wcq N=4 T=2 us: 1052.2 ns/input
+[636/1200] wcq N=2 T=5 us: 3045.3 ns/input
+[637/1200] wcq N=4 T=0 us: 523.6 ns/input
+[638/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[639/1200] wcq N=1 T=1 us: 1121.9 ns/input
+[640/1200] wcq N=4 T=1 us: 806.4 ns/input
+[641/1200] vyukov N=4 T=5 us: 1540.0 ns/input
+[642/1200] vyukov N=4 T=0 us: 282.0 ns/input
+[643/1200] wcq N=1 T=1 us: 1153.1 ns/input
+[644/1200] vyukov N=4 T=1 us: 366.4 ns/input
+[645/1200] wcq N=2 T=2 us: 1333.8 ns/input
+[646/1200] vyukov N=4 T=0 us: 165.0 ns/input
+[647/1200] vyukov N=2 T=1 us: 624.7 ns/input
+[648/1200] vyukov N=1 T=5 us: 5189.7 ns/input
+[649/1200] vyukov N=1 T=1 us: 1040.5 ns/input
+[650/1200] vyukov N=4 T=5 us: 1670.3 ns/input
+[651/1200] wcq N=1 T=0 us: 5.7 ns/input
+[652/1200] vyukov N=4 T=5 us: 1527.3 ns/input
+[653/1200] wcq N=2 T=0 us: 446.2 ns/input
+[654/1200] wcq N=2 T=2 us: 1306.8 ns/input
+[655/1200] vyukov N=4 T=0 us: 165.2 ns/input
+[656/1200] wcq N=4 T=5 us: 1821.0 ns/input
+[657/1200] vyukov N=1 T=2 us: 2118.3 ns/input
+[658/1200] vyukov N=4 T=0 us: 164.0 ns/input
+[659/1200] vyukov N=4 T=1 us: 330.9 ns/input
+[660/1200] vyukov N=4 T=0 us: 175.6 ns/input
+[661/1200] vyukov N=4 T=2 us: 626.9 ns/input
+[662/1200] vyukov N=4 T=2 us: 625.8 ns/input
+[663/1200] vyukov N=2 T=5 us: 2819.7 ns/input
+[664/1200] vyukov N=1 T=0 us: 2.2 ns/input
+[665/1200] wcq N=4 T=1 us: 820.2 ns/input
+[666/1200] wcq N=1 T=1 us: 1068.3 ns/input
+[667/1200] vyukov N=4 T=0 us: 167.5 ns/input
+[668/1200] vyukov N=4 T=5 us: 1590.6 ns/input
+[669/1200] wcq N=1 T=0 us: 2.3 ns/input
+[670/1200] vyukov N=2 T=1 us: 704.2 ns/input
+[671/1200] vyukov N=1 T=1 us: 1090.6 ns/input
+[672/1200] wcq N=2 T=5 us: 3052.3 ns/input
+[673/1200] wcq N=1 T=1 us: 1215.7 ns/input
+[674/1200] wcq N=1 T=1 us: 1052.3 ns/input
+[675/1200] vyukov N=2 T=2 us: 1298.8 ns/input
+[676/1200] vyukov N=1 T=1 us: 1070.9 ns/input
+[677/1200] wcq N=4 T=5 us: 1890.8 ns/input
+[678/1200] vyukov N=1 T=5 us: 5164.1 ns/input
+[679/1200] wcq N=1 T=2 us: 2070.5 ns/input
+[680/1200] vyukov N=1 T=5 us: 5223.8 ns/input
+[681/1200] wcq N=2 T=2 us: 1279.6 ns/input
+[682/1200] wcq N=2 T=0 us: 252.1 ns/input
+[683/1200] wcq N=2 T=0 us: 231.6 ns/input
+[684/1200] wcq N=4 T=1 us: 788.5 ns/input
+[685/1200] vyukov N=4 T=2 us: 578.8 ns/input
+[686/1200] wcq N=4 T=0 us: 514.4 ns/input
+[687/1200] vyukov N=2 T=2 us: 1143.9 ns/input
+[688/1200] wcq N=4 T=0 us: 516.2 ns/input
+[689/1200] vyukov N=1 T=1 us: 1128.0 ns/input
+[690/1200] vyukov N=4 T=2 us: 683.9 ns/input
+[691/1200] wcq N=4 T=2 us: 1035.1 ns/input
+[692/1200] wcq N=2 T=5 us: 3071.9 ns/input
+[693/1200] wcq N=4 T=2 us: 1036.0 ns/input
+[694/1200] wcq N=2 T=1 us: 739.0 ns/input
+[695/1200] wcq N=1 T=2 us: 2083.4 ns/input
+[696/1200] vyukov N=2 T=2 us: 1121.8 ns/input
+[697/1200] wcq N=1 T=2 us: 2078.7 ns/input
+[698/1200] vyukov N=2 T=1 us: 598.9 ns/input
+[699/1200] wcq N=2 T=2 us: 1294.7 ns/input
+[700/1200] vyukov N=4 T=5 us: 1543.5 ns/input
+[701/1200] wcq N=4 T=0 us: 534.6 ns/input
+[702/1200] vyukov N=2 T=1 us: 613.1 ns/input
+[703/1200] vyukov N=2 T=2 us: 1301.7 ns/input
+[704/1200] wcq N=2 T=2 us: 1337.7 ns/input
+[705/1200] wcq N=2 T=5 us: 3015.1 ns/input
+[706/1200] vyukov N=4 T=1 us: 312.0 ns/input
+[707/1200] vyukov N=1 T=5 us: 5421.6 ns/input
+[708/1200] wcq N=4 T=1 us: 813.5 ns/input
+[709/1200] vyukov N=2 T=0 us: 142.8 ns/input
+[710/1200] vyukov N=1 T=5 us: 5340.8 ns/input
+[711/1200] wcq N=2 T=5 us: 3161.2 ns/input
+[712/1200] wcq N=2 T=2 us: 1348.1 ns/input
+[713/1200] vyukov N=4 T=1 us: 353.6 ns/input
+[714/1200] vyukov N=4 T=2 us: 607.3 ns/input
+[715/1200] wcq N=1 T=2 us: 2128.9 ns/input
+[716/1200] wcq N=4 T=1 us: 718.3 ns/input
+[717/1200] vyukov N=2 T=5 us: 2869.0 ns/input
+[718/1200] wcq N=1 T=2 us: 2103.9 ns/input
+[719/1200] wcq N=2 T=2 us: 1313.0 ns/input
+[720/1200] wcq N=1 T=5 us: 5341.5 ns/input
+[721/1200] wcq N=2 T=2 us: 1405.2 ns/input
+[722/1200] vyukov N=2 T=2 us: 1219.0 ns/input
+[723/1200] vyukov N=1 T=2 us: 2100.5 ns/input
+[724/1200] wcq N=4 T=0 us: 598.2 ns/input
+[725/1200] vyukov N=2 T=0 us: 115.5 ns/input
+[726/1200] vyukov N=4 T=2 us: 616.2 ns/input
+[727/1200] vyukov N=4 T=5 us: 1565.0 ns/input
+[728/1200] vyukov N=1 T=0 us: 4.0 ns/input
+[729/1200] vyukov N=4 T=2 us: 584.7 ns/input
+[730/1200] wcq N=2 T=1 us: 732.5 ns/input
+[731/1200] vyukov N=4 T=5 us: 1538.3 ns/input
+[732/1200] vyukov N=2 T=0 us: 154.1 ns/input
+[733/1200] vyukov N=4 T=5 us: 1494.6 ns/input
+[734/1200] wcq N=1 T=2 us: 2106.7 ns/input
+[735/1200] wcq N=1 T=0 us: 2.2 ns/input
+[736/1200] wcq N=1 T=0 us: 3.0 ns/input
+[737/1200] vyukov N=4 T=0 us: 166.4 ns/input
+[738/1200] vyukov N=2 T=0 us: 99.5 ns/input
+[739/1200] wcq N=1 T=0 us: 11.5 ns/input
+[740/1200] wcq N=2 T=0 us: 334.8 ns/input
+[741/1200] vyukov N=4 T=2 us: 675.7 ns/input
+[742/1200] wcq N=1 T=0 us: 4.4 ns/input
+[743/1200] wcq N=4 T=5 us: 1841.5 ns/input
+[744/1200] wcq N=1 T=0 us: 2.2 ns/input
+[745/1200] wcq N=1 T=2 us: 2171.0 ns/input
+[746/1200] vyukov N=4 T=1 us: 357.1 ns/input
+[747/1200] vyukov N=1 T=0 us: 4.0 ns/input
+[748/1200] wcq N=1 T=1 us: 1342.1 ns/input
+[749/1200] vyukov N=1 T=1 us: 1070.7 ns/input
+[750/1200] wcq N=2 T=2 us: 1264.5 ns/input
+[751/1200] wcq N=4 T=5 us: 1830.2 ns/input
+[752/1200] wcq N=1 T=5 us: 5180.5 ns/input
+[753/1200] vyukov N=2 T=1 us: 616.4 ns/input
+[754/1200] wcq N=2 T=5 us: 2949.3 ns/input
+[755/1200] wcq N=2 T=1 us: 721.5 ns/input
+[756/1200] vyukov N=1 T=0 us: 2.5 ns/input
+[757/1200] vyukov N=1 T=2 us: 2201.2 ns/input
+[758/1200] wcq N=4 T=0 us: 561.3 ns/input
+[759/1200] wcq N=4 T=1 us: 760.5 ns/input
+[760/1200] vyukov N=2 T=2 us: 1111.7 ns/input
+[761/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[762/1200] wcq N=2 T=2 us: 1403.7 ns/input
+[763/1200] vyukov N=1 T=2 us: 2079.7 ns/input
+[764/1200] wcq N=4 T=5 us: 1980.8 ns/input
+[765/1200] vyukov N=2 T=2 us: 1374.2 ns/input
+[766/1200] vyukov N=1 T=1 us: 1124.9 ns/input
+[767/1200] vyukov N=4 T=1 us: 348.5 ns/input
+[768/1200] vyukov N=1 T=2 us: 2234.9 ns/input
+[769/1200] vyukov N=2 T=5 us: 2835.3 ns/input
+[770/1200] wcq N=2 T=2 us: 1308.7 ns/input
+[771/1200] vyukov N=2 T=1 us: 583.5 ns/input
+[772/1200] wcq N=4 T=1 us: 819.7 ns/input
+[773/1200] wcq N=4 T=1 us: 724.3 ns/input
+[774/1200] wcq N=2 T=0 us: 252.1 ns/input
+[775/1200] wcq N=4 T=2 us: 1116.6 ns/input
+[776/1200] wcq N=1 T=1 us: 1069.0 ns/input
+[777/1200] wcq N=1 T=0 us: 3.3 ns/input
+[778/1200] vyukov N=1 T=2 us: 2090.2 ns/input
+[779/1200] vyukov N=2 T=0 us: 97.2 ns/input
+[780/1200] wcq N=1 T=5 us: 5199.0 ns/input
+[781/1200] wcq N=1 T=2 us: 2086.6 ns/input
+[782/1200] vyukov N=4 T=2 us: 659.6 ns/input
+[783/1200] vyukov N=1 T=1 us: 1096.1 ns/input
+[784/1200] vyukov N=1 T=2 us: 2199.0 ns/input
+[785/1200] wcq N=2 T=5 us: 3103.1 ns/input
+[786/1200] vyukov N=2 T=1 us: 705.5 ns/input
+[787/1200] wcq N=1 T=2 us: 2064.9 ns/input
+[788/1200] wcq N=1 T=1 us: 1141.7 ns/input
+[789/1200] wcq N=2 T=1 us: 719.0 ns/input
+[790/1200] vyukov N=4 T=1 us: 322.4 ns/input
+[791/1200] vyukov N=1 T=1 us: 1178.7 ns/input
+[792/1200] wcq N=2 T=5 us: 3016.4 ns/input
+[793/1200] vyukov N=4 T=5 us: 1548.9 ns/input
+[794/1200] wcq N=4 T=5 us: 1824.3 ns/input
+[795/1200] vyukov N=4 T=0 us: 160.2 ns/input
+[796/1200] wcq N=2 T=0 us: 217.3 ns/input
+[797/1200] wcq N=1 T=2 us: 2070.9 ns/input
+[798/1200] wcq N=2 T=5 us: 2937.1 ns/input
+[799/1200] vyukov N=2 T=2 us: 1150.6 ns/input
+[800/1200] vyukov N=2 T=5 us: 2943.1 ns/input
+[801/1200] wcq N=4 T=0 us: 608.0 ns/input
+[802/1200] wcq N=4 T=0 us: 546.1 ns/input
+[803/1200] vyukov N=1 T=2 us: 2188.9 ns/input
+[804/1200] vyukov N=2 T=5 us: 2796.4 ns/input
+[805/1200] vyukov N=4 T=0 us: 175.9 ns/input
+[806/1200] vyukov N=2 T=0 us: 121.4 ns/input
+[807/1200] vyukov N=2 T=5 us: 2808.0 ns/input
+[808/1200] vyukov N=2 T=5 us: 2816.3 ns/input
+[809/1200] wcq N=2 T=5 us: 3002.7 ns/input
+[810/1200] wcq N=1 T=0 us: 5.5 ns/input
+[811/1200] wcq N=4 T=5 us: 1803.2 ns/input
+[812/1200] wcq N=4 T=0 us: 576.9 ns/input
+[813/1200] vyukov N=1 T=5 us: 5270.0 ns/input
+[814/1200] wcq N=2 T=5 us: 3044.6 ns/input
+[815/1200] vyukov N=1 T=2 us: 2225.8 ns/input
+[816/1200] wcq N=2 T=2 us: 1290.0 ns/input
+[817/1200] vyukov N=1 T=0 us: 4.2 ns/input
+[818/1200] vyukov N=1 T=1 us: 1175.1 ns/input
+[819/1200] wcq N=4 T=2 us: 1079.2 ns/input
+[820/1200] vyukov N=2 T=2 us: 1211.5 ns/input
+[821/1200] wcq N=2 T=2 us: 1283.9 ns/input
+[822/1200] vyukov N=4 T=5 us: 1544.3 ns/input
+[823/1200] vyukov N=1 T=5 us: 5186.4 ns/input
+[824/1200] wcq N=1 T=0 us: 2.5 ns/input
+[825/1200] wcq N=2 T=2 us: 1301.3 ns/input
+[826/1200] vyukov N=2 T=2 us: 1181.6 ns/input
+[827/1200] wcq N=2 T=2 us: 1368.6 ns/input
+[828/1200] wcq N=4 T=2 us: 1131.1 ns/input
+[829/1200] vyukov N=1 T=2 us: 2231.4 ns/input
+[830/1200] vyukov N=1 T=0 us: 2.8 ns/input
+[831/1200] wcq N=1 T=1 us: 1278.6 ns/input
+[832/1200] vyukov N=4 T=2 us: 659.0 ns/input
+[833/1200] wcq N=4 T=1 us: 861.9 ns/input
+[834/1200] vyukov N=1 T=1 us: 1076.6 ns/input
+[835/1200] wcq N=1 T=5 us: 5177.8 ns/input
+[836/1200] vyukov N=2 T=2 us: 1165.7 ns/input
+[837/1200] wcq N=2 T=5 us: 3011.0 ns/input
+[838/1200] vyukov N=4 T=1 us: 346.4 ns/input
+[839/1200] wcq N=2 T=1 us: 834.7 ns/input
+[840/1200] vyukov N=2 T=1 us: 584.1 ns/input
+[841/1200] wcq N=1 T=1 us: 1100.7 ns/input
+[842/1200] vyukov N=2 T=5 us: 2756.0 ns/input
+[843/1200] wcq N=2 T=0 us: 247.2 ns/input
+[844/1200] vyukov N=2 T=5 us: 2786.7 ns/input
+[845/1200] wcq N=1 T=0 us: 2.3 ns/input
+[846/1200] wcq N=4 T=0 us: 543.4 ns/input
+[847/1200] wcq N=4 T=2 us: 1109.5 ns/input
+[848/1200] wcq N=1 T=5 us: 5370.8 ns/input
+[849/1200] vyukov N=2 T=0 us: 114.2 ns/input
+[850/1200] wcq N=1 T=5 us: 5264.0 ns/input
+[851/1200] wcq N=4 T=1 us: 753.2 ns/input
+[852/1200] wcq N=1 T=2 us: 2244.0 ns/input
+[853/1200] vyukov N=2 T=5 us: 2803.7 ns/input
+[854/1200] vyukov N=1 T=1 us: 1012.4 ns/input
+[855/1200] wcq N=2 T=5 us: 2987.2 ns/input
+[856/1200] wcq N=2 T=2 us: 1267.2 ns/input
+[857/1200] vyukov N=1 T=0 us: 4.7 ns/input
+[858/1200] wcq N=4 T=5 us: 1849.4 ns/input
+[859/1200] vyukov N=2 T=0 us: 101.5 ns/input
+[860/1200] wcq N=1 T=1 us: 1026.6 ns/input
+[861/1200] wcq N=1 T=0 us: 2.8 ns/input
+[862/1200] wcq N=1 T=2 us: 2240.9 ns/input
+[863/1200] vyukov N=1 T=5 us: 5284.3 ns/input
+[864/1200] vyukov N=2 T=1 us: 614.4 ns/input
+[865/1200] wcq N=2 T=0 us: 261.4 ns/input
+[866/1200] vyukov N=1 T=0 us: 2.8 ns/input
+[867/1200] wcq N=4 T=2 us: 1076.2 ns/input
+[868/1200] vyukov N=1 T=5 us: 5259.9 ns/input
+[869/1200] vyukov N=1 T=5 us: 5231.3 ns/input
+[870/1200] wcq N=1 T=2 us: 2094.7 ns/input
+[871/1200] vyukov N=2 T=2 us: 1146.4 ns/input
+[872/1200] wcq N=2 T=2 us: 1378.0 ns/input
+[873/1200] vyukov N=2 T=5 us: 2842.4 ns/input
+[874/1200] vyukov N=1 T=0 us: 1.8 ns/input
+[875/1200] wcq N=4 T=0 us: 512.3 ns/input
+[876/1200] wcq N=2 T=0 us: 225.2 ns/input
+[877/1200] vyukov N=1 T=2 us: 2099.8 ns/input
+[878/1200] vyukov N=4 T=1 us: 364.6 ns/input
+[879/1200] vyukov N=2 T=2 us: 1235.3 ns/input
+[880/1200] vyukov N=2 T=0 us: 109.0 ns/input
+[881/1200] vyukov N=4 T=5 us: 1610.1 ns/input
+[882/1200] vyukov N=1 T=1 us: 1110.1 ns/input
+[883/1200] wcq N=2 T=0 us: 213.6 ns/input
+[884/1200] vyukov N=2 T=5 us: 2832.0 ns/input
+[885/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[886/1200] wcq N=2 T=1 us: 800.5 ns/input
+[887/1200] vyukov N=4 T=1 us: 348.5 ns/input
+[888/1200] wcq N=4 T=1 us: 818.1 ns/input
+[889/1200] wcq N=4 T=2 us: 990.3 ns/input
+[890/1200] wcq N=2 T=1 us: 736.2 ns/input
+[891/1200] vyukov N=1 T=5 us: 5149.2 ns/input
+[892/1200] wcq N=1 T=2 us: 2077.9 ns/input
+[893/1200] vyukov N=1 T=1 us: 1019.3 ns/input
+[894/1200] wcq N=2 T=0 us: 242.5 ns/input
+[895/1200] vyukov N=4 T=0 us: 180.7 ns/input
+[896/1200] wcq N=1 T=0 us: 2.3 ns/input
+[897/1200] wcq N=4 T=0 us: 550.2 ns/input
+[898/1200] vyukov N=1 T=5 us: 5202.3 ns/input
+[899/1200] vyukov N=2 T=5 us: 2772.6 ns/input
+[900/1200] vyukov N=2 T=1 us: 685.7 ns/input
+[901/1200] wcq N=4 T=5 us: 1925.4 ns/input
+[902/1200] wcq N=4 T=5 us: 1839.9 ns/input
+[903/1200] vyukov N=1 T=1 us: 1088.6 ns/input
+[904/1200] wcq N=4 T=1 us: 807.9 ns/input
+[905/1200] wcq N=4 T=2 us: 1073.0 ns/input
+[906/1200] vyukov N=1 T=0 us: 3.3 ns/input
+[907/1200] vyukov N=4 T=5 us: 1504.8 ns/input
+[908/1200] vyukov N=2 T=2 us: 1177.2 ns/input
+[909/1200] vyukov N=2 T=1 us: 653.4 ns/input
+[910/1200] vyukov N=1 T=1 us: 1132.6 ns/input
+[911/1200] wcq N=2 T=1 us: 780.9 ns/input
+[912/1200] wcq N=4 T=5 us: 1874.8 ns/input
+[913/1200] wcq N=1 T=0 us: 4.6 ns/input
+[914/1200] wcq N=4 T=1 us: 770.6 ns/input
+[915/1200] vyukov N=2 T=1 us: 729.0 ns/input
+[916/1200] vyukov N=4 T=1 us: 318.0 ns/input
+[917/1200] vyukov N=2 T=0 us: 87.3 ns/input
+[918/1200] vyukov N=2 T=0 us: 119.1 ns/input
+[919/1200] vyukov N=2 T=1 us: 625.6 ns/input
+[920/1200] vyukov N=4 T=2 us: 608.9 ns/input
+[921/1200] vyukov N=4 T=1 us: 371.8 ns/input
+[922/1200] wcq N=1 T=1 us: 1154.4 ns/input
+[923/1200] vyukov N=2 T=2 us: 1245.9 ns/input
+[924/1200] wcq N=1 T=5 us: 5255.0 ns/input
+[925/1200] wcq N=2 T=2 us: 1336.2 ns/input
+[926/1200] wcq N=1 T=5 us: 5219.9 ns/input
+[927/1200] vyukov N=4 T=1 us: 364.5 ns/input
+[928/1200] vyukov N=4 T=0 us: 188.0 ns/input
+[929/1200] wcq N=2 T=2 us: 1318.8 ns/input
+[930/1200] wcq N=1 T=0 us: 2.3 ns/input
+[931/1200] wcq N=4 T=0 us: 613.1 ns/input
+[932/1200] vyukov N=4 T=2 us: 619.9 ns/input
+[933/1200] vyukov N=1 T=2 us: 2089.7 ns/input
+[934/1200] vyukov N=1 T=1 us: 1102.9 ns/input
+[935/1200] vyukov N=2 T=1 us: 627.7 ns/input
+[936/1200] vyukov N=4 T=5 us: 1563.2 ns/input
+[937/1200] wcq N=4 T=1 us: 749.9 ns/input
+[938/1200] vyukov N=1 T=1 us: 1138.5 ns/input
+[939/1200] vyukov N=2 T=2 us: 1294.4 ns/input
+[940/1200] wcq N=2 T=0 us: 269.3 ns/input
+[941/1200] wcq N=4 T=0 us: 581.9 ns/input
+[942/1200] wcq N=1 T=0 us: 2.2 ns/input
+[943/1200] wcq N=1 T=2 us: 2177.4 ns/input
+[944/1200] wcq N=2 T=2 us: 1328.4 ns/input
+[945/1200] wcq N=2 T=0 us: 253.2 ns/input
+[946/1200] vyukov N=2 T=5 us: 2851.3 ns/input
+[947/1200] wcq N=2 T=0 us: 218.0 ns/input
+[948/1200] wcq N=1 T=2 us: 2080.3 ns/input
+[949/1200] wcq N=4 T=1 us: 801.0 ns/input
+[950/1200] wcq N=2 T=5 us: 3015.1 ns/input
+[951/1200] wcq N=2 T=0 us: 231.6 ns/input
+[952/1200] wcq N=2 T=0 us: 282.7 ns/input
+[953/1200] vyukov N=4 T=0 us: 167.5 ns/input
+[954/1200] vyukov N=2 T=0 us: 114.7 ns/input
+[955/1200] wcq N=1 T=2 us: 2082.5 ns/input
+[956/1200] vyukov N=4 T=5 us: 1534.1 ns/input
+[957/1200] vyukov N=2 T=2 us: 1130.3 ns/input
+[958/1200] wcq N=4 T=2 us: 1061.6 ns/input
+[959/1200] vyukov N=1 T=0 us: 2.1 ns/input
+[960/1200] vyukov N=1 T=5 us: 5263.5 ns/input
+[961/1200] wcq N=4 T=5 us: 1936.8 ns/input
+[962/1200] wcq N=4 T=0 us: 572.1 ns/input
+[963/1200] vyukov N=2 T=5 us: 2893.1 ns/input
+[964/1200] wcq N=1 T=2 us: 2069.4 ns/input
+[965/1200] wcq N=4 T=5 us: 1824.3 ns/input
+[966/1200] vyukov N=4 T=1 us: 331.7 ns/input
+[967/1200] vyukov N=2 T=5 us: 2744.5 ns/input
+[968/1200] vyukov N=4 T=0 us: 188.1 ns/input
+[969/1200] vyukov N=2 T=1 us: 618.5 ns/input
+[970/1200] vyukov N=1 T=1 us: 1262.7 ns/input
+[971/1200] vyukov N=4 T=0 us: 175.4 ns/input
+[972/1200] vyukov N=4 T=2 us: 672.9 ns/input
+[973/1200] wcq N=1 T=2 us: 2185.9 ns/input
+[974/1200] vyukov N=1 T=5 us: 5190.8 ns/input
+[975/1200] vyukov N=1 T=2 us: 2163.0 ns/input
+[976/1200] vyukov N=4 T=5 us: 1783.0 ns/input
+[977/1200] vyukov N=2 T=0 us: 61.7 ns/input
+[978/1200] vyukov N=2 T=5 us: 3244.0 ns/input
+[979/1200] vyukov N=1 T=5 us: 6294.0 ns/input
+[980/1200] wcq N=4 T=0 us: 557.4 ns/input
+[981/1200] wcq N=2 T=2 us: 1311.5 ns/input
+[982/1200] vyukov N=2 T=2 us: 1143.7 ns/input
+[983/1200] wcq N=1 T=5 us: 5184.6 ns/input
+[984/1200] vyukov N=2 T=0 us: 91.1 ns/input
+[985/1200] vyukov N=4 T=1 us: 371.9 ns/input
+[986/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[987/1200] wcq N=4 T=0 us: 590.6 ns/input
+[988/1200] wcq N=2 T=2 us: 1313.6 ns/input
+[989/1200] wcq N=4 T=0 us: 563.5 ns/input
+[990/1200] vyukov N=1 T=2 us: 2103.1 ns/input
+[991/1200] vyukov N=2 T=5 us: 2865.9 ns/input
+[992/1200] wcq N=4 T=2 us: 984.3 ns/input
+[993/1200] vyukov N=1 T=1 us: 1162.4 ns/input
+[994/1200] wcq N=2 T=0 us: 580.7 ns/input
+[995/1200] wcq N=2 T=5 us: 3254.0 ns/input
+[996/1200] wcq N=4 T=5 us: 1921.5 ns/input
+[997/1200] wcq N=1 T=2 us: 2103.5 ns/input
+[998/1200] vyukov N=1 T=2 us: 2079.3 ns/input
+[999/1200] wcq N=2 T=0 us: 227.4 ns/input
+[1000/1200] vyukov N=2 T=1 us: 715.3 ns/input
+[1001/1200] wcq N=2 T=0 us: 296.6 ns/input
+[1002/1200] vyukov N=2 T=0 us: 105.0 ns/input
+[1003/1200] vyukov N=4 T=2 us: 625.3 ns/input
+[1004/1200] wcq N=2 T=0 us: 200.6 ns/input
+[1005/1200] wcq N=2 T=1 us: 867.6 ns/input
+[1006/1200] wcq N=4 T=1 us: 750.9 ns/input
+[1007/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[1008/1200] vyukov N=4 T=1 us: 364.2 ns/input
+[1009/1200] wcq N=2 T=1 us: 771.2 ns/input
+[1010/1200] wcq N=4 T=0 us: 746.0 ns/input
+[1011/1200] wcq N=2 T=2 us: 1268.9 ns/input
+[1012/1200] wcq N=2 T=1 us: 971.7 ns/input
+[1013/1200] vyukov N=2 T=2 us: 1240.9 ns/input
+[1014/1200] vyukov N=2 T=5 us: 2771.5 ns/input
+[1015/1200] wcq N=1 T=0 us: 2.3 ns/input
+[1016/1200] wcq N=2 T=2 us: 1353.2 ns/input
+[1017/1200] vyukov N=4 T=5 us: 1548.9 ns/input
+[1018/1200] vyukov N=2 T=0 us: 121.9 ns/input
+[1019/1200] vyukov N=4 T=2 us: 587.0 ns/input
+[1020/1200] vyukov N=1 T=2 us: 2251.9 ns/input
+[1021/1200] vyukov N=4 T=0 us: 175.5 ns/input
+[1022/1200] vyukov N=2 T=0 us: 246.8 ns/input
+[1023/1200] wcq N=4 T=5 us: 1977.8 ns/input
+[1024/1200] vyukov N=2 T=5 us: 2740.9 ns/input
+[1025/1200] wcq N=4 T=0 us: 546.7 ns/input
+[1026/1200] wcq N=4 T=2 us: 1041.7 ns/input
+[1027/1200] wcq N=1 T=5 us: 5214.9 ns/input
+[1028/1200] wcq N=1 T=2 us: 2235.5 ns/input
+[1029/1200] wcq N=1 T=0 us: 4.6 ns/input
+[1030/1200] vyukov N=1 T=0 us: 5.2 ns/input
+[1031/1200] wcq N=2 T=2 us: 1382.8 ns/input
+[1032/1200] wcq N=2 T=0 us: 283.4 ns/input
+[1033/1200] vyukov N=2 T=2 us: 1185.9 ns/input
+[1034/1200] vyukov N=1 T=5 us: 5200.9 ns/input
+[1035/1200] wcq N=2 T=5 us: 3148.3 ns/input
+[1036/1200] vyukov N=4 T=1 us: 343.3 ns/input
+[1037/1200] wcq N=4 T=0 us: 619.2 ns/input
+[1038/1200] vyukov N=2 T=0 us: 94.5 ns/input
+[1039/1200] vyukov N=1 T=1 us: 1097.5 ns/input
+[1040/1200] wcq N=1 T=2 us: 2122.1 ns/input
+[1041/1200] vyukov N=2 T=1 us: 597.4 ns/input
+[1042/1200] wcq N=2 T=5 us: 3051.5 ns/input
+[1043/1200] wcq N=1 T=0 us: 2.3 ns/input
+[1044/1200] wcq N=2 T=2 us: 1278.8 ns/input
+[1045/1200] vyukov N=2 T=0 us: 104.3 ns/input
+[1046/1200] vyukov N=1 T=0 us: 2.1 ns/input
+[1047/1200] wcq N=2 T=0 us: 252.3 ns/input
+[1048/1200] wcq N=1 T=1 us: 1074.1 ns/input
+[1049/1200] wcq N=2 T=0 us: 293.8 ns/input
+[1050/1200] vyukov N=1 T=2 us: 2072.5 ns/input
+[1051/1200] wcq N=4 T=5 us: 1868.0 ns/input
+[1052/1200] vyukov N=4 T=2 us: 610.3 ns/input
+[1053/1200] vyukov N=2 T=5 us: 2765.8 ns/input
+[1054/1200] vyukov N=4 T=1 us: 376.9 ns/input
+[1055/1200] vyukov N=1 T=1 us: 1085.8 ns/input
+[1056/1200] vyukov N=2 T=0 us: 95.9 ns/input
+[1057/1200] vyukov N=1 T=2 us: 2115.9 ns/input
+[1058/1200] wcq N=4 T=5 us: 1960.0 ns/input
+[1059/1200] wcq N=4 T=1 us: 814.6 ns/input
+[1060/1200] vyukov N=4 T=0 us: 167.5 ns/input
+[1061/1200] vyukov N=4 T=5 us: 1557.6 ns/input
+[1062/1200] vyukov N=1 T=2 us: 2113.7 ns/input
+[1063/1200] vyukov N=2 T=2 us: 1159.5 ns/input
+[1064/1200] wcq N=4 T=2 us: 1057.3 ns/input
+[1065/1200] vyukov N=2 T=2 us: 1151.5 ns/input
+[1066/1200] vyukov N=1 T=0 us: 2.1 ns/input
+[1067/1200] wcq N=1 T=5 us: 5182.6 ns/input
+[1068/1200] vyukov N=2 T=5 us: 2769.6 ns/input
+[1069/1200] vyukov N=2 T=2 us: 1117.3 ns/input
+[1070/1200] vyukov N=4 T=0 us: 174.7 ns/input
+[1071/1200] vyukov N=4 T=2 us: 601.2 ns/input
+[1072/1200] vyukov N=4 T=1 us: 383.2 ns/input
+[1073/1200] vyukov N=1 T=0 us: 2.4 ns/input
+[1074/1200] vyukov N=1 T=1 us: 1067.2 ns/input
+[1075/1200] vyukov N=4 T=0 us: 339.5 ns/input
+[1076/1200] vyukov N=4 T=2 us: 607.1 ns/input
+[1077/1200] vyukov N=4 T=1 us: 353.5 ns/input
+[1078/1200] wcq N=1 T=1 us: 1051.6 ns/input
+[1079/1200] vyukov N=4 T=2 us: 680.5 ns/input
+[1080/1200] vyukov N=4 T=1 us: 352.2 ns/input
+[1081/1200] wcq N=2 T=0 us: 247.2 ns/input
+[1082/1200] vyukov N=1 T=0 us: 3.5 ns/input
+[1083/1200] vyukov N=4 T=5 us: 1573.3 ns/input
+[1084/1200] wcq N=2 T=5 us: 2950.3 ns/input
+[1085/1200] vyukov N=1 T=1 us: 1057.0 ns/input
+[1086/1200] wcq N=1 T=5 us: 5208.6 ns/input
+[1087/1200] vyukov N=4 T=5 us: 1487.8 ns/input
+[1088/1200] wcq N=4 T=1 us: 789.0 ns/input
+[1089/1200] vyukov N=2 T=0 us: 88.6 ns/input
+[1090/1200] wcq N=4 T=5 us: 1834.1 ns/input
+[1091/1200] vyukov N=1 T=2 us: 2101.7 ns/input
+[1092/1200] wcq N=2 T=5 us: 3049.2 ns/input
+[1093/1200] wcq N=4 T=1 us: 792.2 ns/input
+[1094/1200] wcq N=2 T=2 us: 1362.9 ns/input
+[1095/1200] vyukov N=2 T=2 us: 1232.2 ns/input
+[1096/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[1097/1200] wcq N=2 T=1 us: 812.7 ns/input
+[1098/1200] wcq N=1 T=0 us: 2.3 ns/input
+[1099/1200] wcq N=1 T=5 us: 5192.5 ns/input
+[1100/1200] wcq N=2 T=0 us: 333.3 ns/input
+[1101/1200] vyukov N=4 T=1 us: 368.4 ns/input
+[1102/1200] vyukov N=1 T=5 us: 5211.0 ns/input
+[1103/1200] wcq N=4 T=5 us: 1836.0 ns/input
+[1104/1200] vyukov N=2 T=5 us: 2949.2 ns/input
+[1105/1200] vyukov N=1 T=0 us: 2.9 ns/input
+[1106/1200] vyukov N=1 T=2 us: 2229.9 ns/input
+[1107/1200] wcq N=4 T=1 us: 756.3 ns/input
+[1108/1200] vyukov N=4 T=5 us: 1552.4 ns/input
+[1109/1200] vyukov N=1 T=0 us: 2.0 ns/input
+[1110/1200] wcq N=1 T=5 us: 5473.7 ns/input
+[1111/1200] wcq N=2 T=2 us: 1368.1 ns/input
+[1112/1200] wcq N=4 T=0 us: 556.4 ns/input
+[1113/1200] vyukov N=2 T=0 us: 97.8 ns/input
+[1114/1200] wcq N=1 T=5 us: 5144.1 ns/input
+[1115/1200] wcq N=2 T=2 us: 1318.6 ns/input
+[1116/1200] vyukov N=2 T=0 us: 112.1 ns/input
+[1117/1200] wcq N=2 T=5 us: 3054.5 ns/input
+[1118/1200] wcq N=1 T=0 us: 5.2 ns/input
+[1119/1200] vyukov N=2 T=2 us: 1167.7 ns/input
+[1120/1200] wcq N=2 T=5 us: 2964.1 ns/input
+[1121/1200] vyukov N=4 T=0 us: 170.0 ns/input
+[1122/1200] wcq N=4 T=5 us: 1840.8 ns/input
+[1123/1200] vyukov N=1 T=2 us: 2146.1 ns/input
+[1124/1200] vyukov N=1 T=2 us: 2113.2 ns/input
+[1125/1200] wcq N=1 T=5 us: 5399.6 ns/input
+[1126/1200] wcq N=4 T=2 us: 1096.5 ns/input
+[1127/1200] vyukov N=4 T=2 us: 654.9 ns/input
+[1128/1200] wcq N=1 T=0 us: 4.7 ns/input
+[1129/1200] vyukov N=2 T=1 us: 832.1 ns/input
+[1130/1200] wcq N=4 T=1 us: 765.2 ns/input
+[1131/1200] wcq N=4 T=5 us: 1791.5 ns/input
+[1132/1200] wcq N=2 T=5 us: 2966.7 ns/input
+[1133/1200] vyukov N=1 T=2 us: 2188.2 ns/input
+[1134/1200] wcq N=2 T=2 us: 1249.0 ns/input
+[1135/1200] wcq N=2 T=0 us: 274.2 ns/input
+[1136/1200] wcq N=1 T=5 us: 5164.6 ns/input
+[1137/1200] vyukov N=2 T=5 us: 2798.9 ns/input
+[1138/1200] vyukov N=1 T=1 us: 1044.7 ns/input
+[1139/1200] wcq N=2 T=2 us: 1379.1 ns/input
+[1140/1200] vyukov N=2 T=5 us: 2871.1 ns/input
+[1141/1200] vyukov N=2 T=0 us: 100.2 ns/input
+[1142/1200] wcq N=4 T=2 us: 1050.6 ns/input
+[1143/1200] vyukov N=1 T=5 us: 5179.0 ns/input
+[1144/1200] vyukov N=1 T=2 us: 2139.1 ns/input
+[1145/1200] wcq N=2 T=2 us: 1317.6 ns/input
+[1146/1200] vyukov N=2 T=1 us: 576.8 ns/input
+[1147/1200] vyukov N=1 T=5 us: 5193.6 ns/input
+[1148/1200] wcq N=4 T=2 us: 1032.6 ns/input
+[1149/1200] wcq N=4 T=1 us: 835.0 ns/input
+[1150/1200] vyukov N=2 T=5 us: 2777.1 ns/input
+[1151/1200] wcq N=4 T=5 us: 1862.1 ns/input
+[1152/1200] vyukov N=2 T=1 us: 648.9 ns/input
+[1153/1200] wcq N=2 T=5 us: 3157.7 ns/input
+[1154/1200] wcq N=1 T=0 us: 2.3 ns/input
+[1155/1200] wcq N=2 T=0 us: 274.6 ns/input
+[1156/1200] vyukov N=4 T=2 us: 654.7 ns/input
+[1157/1200] vyukov N=1 T=1 us: 1323.6 ns/input
+[1158/1200] vyukov N=2 T=2 us: 1136.5 ns/input
+[1159/1200] wcq N=1 T=5 us: 5204.4 ns/input
+[1160/1200] wcq N=4 T=0 us: 531.6 ns/input
+[1161/1200] wcq N=4 T=2 us: 1024.3 ns/input
+[1162/1200] vyukov N=1 T=2 us: 2105.2 ns/input
+[1163/1200] wcq N=2 T=1 us: 728.4 ns/input
+[1164/1200] vyukov N=2 T=2 us: 1122.8 ns/input
+[1165/1200] wcq N=1 T=1 us: 1030.3 ns/input
+[1166/1200] wcq N=4 T=1 us: 805.1 ns/input
+[1167/1200] vyukov N=2 T=5 us: 2800.9 ns/input
+[1168/1200] vyukov N=4 T=2 us: 596.9 ns/input
+[1169/1200] vyukov N=4 T=2 us: 676.9 ns/input
+[1170/1200] wcq N=2 T=1 us: 782.9 ns/input
+[1171/1200] wcq N=1 T=1 us: 1119.8 ns/input
+[1172/1200] wcq N=1 T=0 us: 4.4 ns/input
+[1173/1200] wcq N=1 T=0 us: 2.1 ns/input
+[1174/1200] vyukov N=1 T=0 us: 2.2 ns/input
+[1175/1200] wcq N=2 T=2 us: 1370.8 ns/input
+[1176/1200] vyukov N=1 T=2 us: 2169.6 ns/input
+[1177/1200] vyukov N=4 T=2 us: 706.6 ns/input
+[1178/1200] vyukov N=1 T=1 us: 1027.6 ns/input
+[1179/1200] vyukov N=1 T=5 us: 5227.5 ns/input
+[1180/1200] vyukov N=1 T=5 us: 5253.5 ns/input
+[1181/1200] wcq N=4 T=2 us: 995.4 ns/input
+[1182/1200] vyukov N=4 T=5 us: 1576.5 ns/input
+[1183/1200] vyukov N=2 T=5 us: 2828.8 ns/input
+[1184/1200] wcq N=1 T=1 us: 1020.9 ns/input
+[1185/1200] wcq N=2 T=0 us: 230.1 ns/input
+[1186/1200] wcq N=2 T=5 us: 3135.8 ns/input
+[1187/1200] vyukov N=2 T=2 us: 1286.9 ns/input
+[1188/1200] vyukov N=4 T=5 us: 1652.3 ns/input
+[1189/1200] vyukov N=1 T=2 us: 2071.5 ns/input
+[1190/1200] vyukov N=4 T=2 us: 601.3 ns/input
+[1191/1200] wcq N=1 T=0 us: 4.3 ns/input
+[1192/1200] wcq N=4 T=1 us: 900.1 ns/input
+[1193/1200] wcq N=1 T=2 us: 2266.0 ns/input
+[1194/1200] vyukov N=4 T=2 us: 737.3 ns/input
+[1195/1200] vyukov N=2 T=5 us: 2920.1 ns/input
+[1196/1200] vyukov N=1 T=0 us: 3.1 ns/input
+[1197/1200] vyukov N=2 T=5 us: 3013.0 ns/input
+[1198/1200] vyukov N=4 T=1 us: 343.9 ns/input
+[1199/1200] vyukov N=2 T=0 us: 104.7 ns/input
+[1200/1200] wcq N=1 T=2 us: 2055.9 ns/input
+Risultati: /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali/PipelineGrain
+Grafici salvati in /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali/PipelineGrain
+Analisi salvata in /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali/PipelineGrain
+Avvio FarmThroughput
+[1/1200] wcq N=4 T=2 us: 1,393,719 input/s
+[2/1200] vyukov N=4 T=2 us: 1,706,848 input/s
+[3/1200] wcq N=4 T=5 us: 651,817 input/s
+[4/1200] vyukov N=4 T=5 us: 695,338 input/s
+[5/1200] wcq N=4 T=2 us: 1,482,348 input/s
+[6/1200] vyukov N=4 T=2 us: 1,755,450 input/s
+[7/1200] wcq N=2 T=1 us: 1,469,851 input/s
+[8/1200] vyukov N=2 T=1 us: 1,749,591 input/s
+[9/1200] wcq N=1 T=1 us: 756,621 input/s
+[10/1200] vyukov N=1 T=1 us: 965,563 input/s
+[11/1200] vyukov N=1 T=5 us: 203,500 input/s
+[12/1200] wcq N=1 T=5 us: 185,846 input/s
+[13/1200] wcq N=2 T=5 us: 354,835 input/s
+[14/1200] vyukov N=2 T=5 us: 380,969 input/s
+[15/1200] wcq N=4 T=2 us: 1,485,760 input/s
+[16/1200] vyukov N=4 T=2 us: 1,705,734 input/s
+[17/1200] wcq N=4 T=2 us: 1,498,418 input/s
+[18/1200] vyukov N=4 T=2 us: 1,663,037 input/s
+[19/1200] vyukov N=4 T=0 us: 4,868,796 input/s
+[20/1200] wcq N=4 T=0 us: 684,055 input/s
+[21/1200] wcq N=4 T=2 us: 1,504,795 input/s
+[22/1200] vyukov N=4 T=2 us: 1,757,804 input/s
+[23/1200] wcq N=2 T=0 us: 2,084,213 input/s
+[24/1200] vyukov N=2 T=0 us: 6,551,714 input/s
+[25/1200] vyukov N=4 T=1 us: 3,368,860 input/s
+[26/1200] wcq N=4 T=1 us: 2,600,730 input/s
+[27/1200] wcq N=1 T=0 us: 4,040,970 input/s
+[28/1200] vyukov N=1 T=0 us: 10,872,844 input/s
+[29/1200] wcq N=2 T=2 us: 856,995 input/s
+[30/1200] vyukov N=2 T=2 us: 884,211 input/s
+[31/1200] vyukov N=4 T=2 us: 1,719,398 input/s
+[32/1200] wcq N=4 T=2 us: 1,529,642 input/s
+[33/1200] wcq N=2 T=2 us: 822,976 input/s
+[34/1200] vyukov N=2 T=2 us: 959,000 input/s
+[35/1200] vyukov N=1 T=0 us: 10,680,057 input/s
+[36/1200] wcq N=1 T=0 us: 4,506,087 input/s
+[37/1200] wcq N=1 T=0 us: 4,748,791 input/s
+[38/1200] vyukov N=1 T=0 us: 10,484,594 input/s
+[39/1200] wcq N=2 T=5 us: 346,464 input/s
+[40/1200] vyukov N=2 T=5 us: 364,177 input/s
+[41/1200] wcq N=2 T=2 us: 813,326 input/s
+[42/1200] vyukov N=2 T=2 us: 955,880 input/s
+[43/1200] vyukov N=4 T=1 us: 3,410,093 input/s
+[44/1200] wcq N=4 T=1 us: 2,575,273 input/s
+[45/1200] vyukov N=2 T=0 us: 7,817,889 input/s
+[46/1200] wcq N=2 T=0 us: 2,264,400 input/s
+[47/1200] vyukov N=2 T=0 us: 7,691,268 input/s
+[48/1200] wcq N=2 T=0 us: 2,363,434 input/s
+[49/1200] vyukov N=4 T=0 us: 4,928,491 input/s
+[50/1200] wcq N=4 T=0 us: 700,750 input/s
+[51/1200] wcq N=4 T=5 us: 655,321 input/s
+[52/1200] vyukov N=4 T=5 us: 685,564 input/s
+[53/1200] vyukov N=4 T=1 us: 3,128,062 input/s
+[54/1200] wcq N=4 T=1 us: 2,668,775 input/s
+[55/1200] vyukov N=1 T=1 us: 933,498 input/s
+[56/1200] wcq N=1 T=1 us: 754,215 input/s
+[57/1200] vyukov N=4 T=0 us: 5,283,466 input/s
+[58/1200] wcq N=4 T=0 us: 696,003 input/s
+[59/1200] wcq N=4 T=5 us: 661,362 input/s
+[60/1200] vyukov N=4 T=5 us: 694,261 input/s
+[61/1200] wcq N=2 T=1 us: 1,440,081 input/s
+[62/1200] vyukov N=2 T=1 us: 1,719,223 input/s
+[63/1200] wcq N=2 T=0 us: 2,077,297 input/s
+[64/1200] vyukov N=2 T=0 us: 6,076,682 input/s
+[65/1200] wcq N=2 T=1 us: 1,358,603 input/s
+[66/1200] vyukov N=2 T=1 us: 1,703,690 input/s
+[67/1200] wcq N=2 T=0 us: 2,265,279 input/s
+[68/1200] vyukov N=2 T=0 us: 7,289,718 input/s
+[69/1200] vyukov N=1 T=0 us: 9,650,598 input/s
+[70/1200] wcq N=1 T=0 us: 4,383,544 input/s
+[71/1200] vyukov N=4 T=5 us: 671,446 input/s
+[72/1200] wcq N=4 T=5 us: 664,723 input/s
+[73/1200] wcq N=1 T=5 us: 188,820 input/s
+[74/1200] vyukov N=1 T=5 us: 201,867 input/s
+[75/1200] wcq N=2 T=2 us: 845,726 input/s
+[76/1200] vyukov N=2 T=2 us: 954,056 input/s
+[77/1200] vyukov N=1 T=0 us: 13,050,227 input/s
+[78/1200] wcq N=1 T=0 us: 3,438,737 input/s
+[79/1200] wcq N=1 T=5 us: 189,752 input/s
+[80/1200] vyukov N=1 T=5 us: 195,333 input/s
+[81/1200] wcq N=1 T=2 us: 417,095 input/s
+[82/1200] vyukov N=1 T=2 us: 471,293 input/s
+[83/1200] vyukov N=1 T=1 us: 843,063 input/s
+[84/1200] wcq N=1 T=1 us: 782,335 input/s
+[85/1200] wcq N=2 T=1 us: 1,463,160 input/s
+[86/1200] vyukov N=2 T=1 us: 1,788,287 input/s
+[87/1200] wcq N=1 T=1 us: 755,509 input/s
+[88/1200] vyukov N=1 T=1 us: 955,932 input/s
+[89/1200] wcq N=4 T=5 us: 626,231 input/s
+[90/1200] vyukov N=4 T=5 us: 676,969 input/s
+[91/1200] wcq N=2 T=0 us: 2,292,864 input/s
+[92/1200] vyukov N=2 T=0 us: 6,885,134 input/s
+[93/1200] vyukov N=1 T=0 us: 11,682,257 input/s
+[94/1200] wcq N=1 T=0 us: 3,993,014 input/s
+[95/1200] wcq N=4 T=1 us: 2,504,788 input/s
+[96/1200] vyukov N=4 T=1 us: 3,066,938 input/s
+[97/1200] vyukov N=1 T=1 us: 853,829 input/s
+[98/1200] wcq N=1 T=1 us: 624,246 input/s
+[99/1200] wcq N=2 T=2 us: 724,411 input/s
+[100/1200] vyukov N=2 T=2 us: 880,495 input/s
+[101/1200] wcq N=2 T=1 us: 1,235,136 input/s
+[102/1200] vyukov N=2 T=1 us: 1,405,094 input/s
+[103/1200] wcq N=1 T=0 us: 4,044,753 input/s
+[104/1200] vyukov N=1 T=0 us: 9,284,210 input/s
+[105/1200] vyukov N=1 T=5 us: 173,166 input/s
+[106/1200] wcq N=1 T=5 us: 190,398 input/s
+[107/1200] wcq N=1 T=5 us: 187,781 input/s
+[108/1200] vyukov N=1 T=5 us: 200,495 input/s
+[109/1200] wcq N=4 T=0 us: 771,038 input/s
+[110/1200] vyukov N=4 T=0 us: 4,697,194 input/s
+[111/1200] wcq N=4 T=0 us: 637,051 input/s
+[112/1200] vyukov N=4 T=0 us: 5,296,767 input/s
+[113/1200] vyukov N=2 T=1 us: 1,677,502 input/s
+[114/1200] wcq N=2 T=1 us: 1,463,043 input/s
+[115/1200] wcq N=4 T=1 us: 2,611,087 input/s
+[116/1200] vyukov N=4 T=1 us: 2,959,558 input/s
+[117/1200] vyukov N=4 T=5 us: 694,810 input/s
+[118/1200] wcq N=4 T=5 us: 632,877 input/s
+[119/1200] vyukov N=4 T=5 us: 656,814 input/s
+[120/1200] wcq N=4 T=5 us: 652,874 input/s
+[121/1200] wcq N=2 T=2 us: 836,144 input/s
+[122/1200] vyukov N=2 T=2 us: 962,210 input/s
+[123/1200] vyukov N=4 T=0 us: 5,363,079 input/s
+[124/1200] wcq N=4 T=0 us: 855,626 input/s
+[125/1200] vyukov N=2 T=5 us: 388,581 input/s
+[126/1200] wcq N=2 T=5 us: 371,490 input/s
+[127/1200] wcq N=2 T=5 us: 364,796 input/s
+[128/1200] vyukov N=2 T=5 us: 384,295 input/s
+[129/1200] vyukov N=1 T=0 us: 10,640,578 input/s
+[130/1200] wcq N=1 T=0 us: 4,973,607 input/s
+[131/1200] wcq N=1 T=2 us: 432,501 input/s
+[132/1200] vyukov N=1 T=2 us: 482,773 input/s
+[133/1200] vyukov N=1 T=1 us: 926,875 input/s
+[134/1200] wcq N=1 T=1 us: 745,597 input/s
+[135/1200] vyukov N=1 T=2 us: 466,152 input/s
+[136/1200] wcq N=1 T=2 us: 434,646 input/s
+[137/1200] wcq N=4 T=2 us: 1,461,986 input/s
+[138/1200] vyukov N=4 T=2 us: 1,638,214 input/s
+[139/1200] wcq N=2 T=5 us: 367,067 input/s
+[140/1200] vyukov N=2 T=5 us: 389,193 input/s
+[141/1200] wcq N=1 T=1 us: 761,980 input/s
+[142/1200] vyukov N=1 T=1 us: 906,596 input/s
+[143/1200] vyukov N=1 T=0 us: 10,866,234 input/s
+[144/1200] wcq N=1 T=0 us: 3,539,250 input/s
+[145/1200] wcq N=4 T=5 us: 669,656 input/s
+[146/1200] vyukov N=4 T=5 us: 689,697 input/s
+[147/1200] wcq N=1 T=0 us: 3,963,479 input/s
+[148/1200] vyukov N=1 T=0 us: 9,477,342 input/s
+[149/1200] wcq N=4 T=5 us: 674,975 input/s
+[150/1200] vyukov N=4 T=5 us: 699,466 input/s
+[151/1200] wcq N=1 T=2 us: 410,656 input/s
+[152/1200] vyukov N=1 T=2 us: 466,149 input/s
+[153/1200] wcq N=2 T=0 us: 2,200,972 input/s
+[154/1200] vyukov N=2 T=0 us: 6,696,548 input/s
+[155/1200] wcq N=1 T=1 us: 714,567 input/s
+[156/1200] vyukov N=1 T=1 us: 947,055 input/s
+[157/1200] wcq N=4 T=0 us: 600,476 input/s
+[158/1200] vyukov N=4 T=0 us: 5,701,153 input/s
+[159/1200] vyukov N=1 T=5 us: 201,467 input/s
+[160/1200] wcq N=1 T=5 us: 190,780 input/s
+[161/1200] wcq N=4 T=5 us: 665,767 input/s
+[162/1200] vyukov N=4 T=5 us: 690,912 input/s
+[163/1200] vyukov N=1 T=1 us: 974,420 input/s
+[164/1200] wcq N=1 T=1 us: 784,202 input/s
+[165/1200] vyukov N=2 T=5 us: 337,546 input/s
+[166/1200] wcq N=2 T=5 us: 347,923 input/s
+[167/1200] wcq N=4 T=2 us: 1,391,639 input/s
+[168/1200] vyukov N=4 T=2 us: 1,679,209 input/s
+[169/1200] vyukov N=2 T=1 us: 1,683,093 input/s
+[170/1200] wcq N=2 T=1 us: 1,434,742 input/s
+[171/1200] vyukov N=1 T=0 us: 10,431,288 input/s
+[172/1200] wcq N=1 T=0 us: 4,781,669 input/s
+[173/1200] vyukov N=4 T=2 us: 1,638,047 input/s
+[174/1200] wcq N=4 T=2 us: 1,497,697 input/s
+[175/1200] vyukov N=1 T=1 us: 945,977 input/s
+[176/1200] wcq N=1 T=1 us: 714,295 input/s
+[177/1200] vyukov N=4 T=0 us: 5,432,519 input/s
+[178/1200] wcq N=4 T=0 us: 688,583 input/s
+[179/1200] vyukov N=1 T=1 us: 954,991 input/s
+[180/1200] wcq N=1 T=1 us: 762,618 input/s
+[181/1200] vyukov N=1 T=2 us: 476,775 input/s
+[182/1200] wcq N=1 T=2 us: 434,728 input/s
+[183/1200] vyukov N=1 T=0 us: 9,787,808 input/s
+[184/1200] wcq N=1 T=0 us: 4,033,455 input/s
+[185/1200] vyukov N=1 T=0 us: 7,888,380 input/s
+[186/1200] wcq N=1 T=0 us: 3,517,219 input/s
+[187/1200] vyukov N=1 T=2 us: 486,407 input/s
+[188/1200] wcq N=1 T=2 us: 442,528 input/s
+[189/1200] wcq N=4 T=5 us: 658,094 input/s
+[190/1200] vyukov N=4 T=5 us: 693,607 input/s
+[191/1200] vyukov N=2 T=1 us: 1,781,132 input/s
+[192/1200] wcq N=2 T=1 us: 1,281,713 input/s
+[193/1200] vyukov N=1 T=2 us: 482,774 input/s
+[194/1200] wcq N=1 T=2 us: 409,775 input/s
+[195/1200] wcq N=1 T=1 us: 749,312 input/s
+[196/1200] vyukov N=1 T=1 us: 903,510 input/s
+[197/1200] wcq N=1 T=1 us: 775,053 input/s
+[198/1200] vyukov N=1 T=1 us: 935,178 input/s
+[199/1200] wcq N=1 T=0 us: 4,893,465 input/s
+[200/1200] vyukov N=1 T=0 us: 10,116,547 input/s
+[201/1200] vyukov N=2 T=2 us: 955,510 input/s
+[202/1200] wcq N=2 T=2 us: 804,505 input/s
+[203/1200] vyukov N=4 T=2 us: 1,493,577 input/s
+[204/1200] wcq N=4 T=2 us: 1,473,247 input/s
+[205/1200] vyukov N=4 T=5 us: 694,376 input/s
+[206/1200] wcq N=4 T=5 us: 663,555 input/s
+[207/1200] wcq N=2 T=0 us: 2,388,818 input/s
+[208/1200] vyukov N=2 T=0 us: 7,962,424 input/s
+[209/1200] vyukov N=2 T=1 us: 1,762,804 input/s
+[210/1200] wcq N=2 T=1 us: 1,407,409 input/s
+[211/1200] vyukov N=2 T=1 us: 1,826,637 input/s
+[212/1200] wcq N=2 T=1 us: 1,444,352 input/s
+[213/1200] wcq N=1 T=1 us: 760,001 input/s
+[214/1200] vyukov N=1 T=1 us: 960,785 input/s
+[215/1200] wcq N=2 T=1 us: 1,455,772 input/s
+[216/1200] vyukov N=2 T=1 us: 1,792,029 input/s
+[217/1200] wcq N=1 T=0 us: 4,136,006 input/s
+[218/1200] vyukov N=1 T=0 us: 8,372,745 input/s
+[219/1200] vyukov N=4 T=2 us: 1,685,592 input/s
+[220/1200] wcq N=4 T=2 us: 1,431,745 input/s
+[221/1200] vyukov N=2 T=1 us: 1,794,252 input/s
+[222/1200] wcq N=2 T=1 us: 1,379,780 input/s
+[223/1200] vyukov N=2 T=5 us: 364,618 input/s
+[224/1200] wcq N=2 T=5 us: 356,080 input/s
+[225/1200] vyukov N=4 T=2 us: 1,695,701 input/s
+[226/1200] wcq N=4 T=2 us: 1,521,142 input/s
+[227/1200] wcq N=2 T=2 us: 800,399 input/s
+[228/1200] vyukov N=2 T=2 us: 944,229 input/s
+[229/1200] vyukov N=4 T=2 us: 1,689,864 input/s
+[230/1200] wcq N=4 T=2 us: 1,482,984 input/s
+[231/1200] vyukov N=4 T=0 us: 5,310,686 input/s
+[232/1200] wcq N=4 T=0 us: 599,817 input/s
+[233/1200] wcq N=2 T=5 us: 377,072 input/s
+[234/1200] vyukov N=2 T=5 us: 393,846 input/s
+[235/1200] wcq N=1 T=0 us: 4,886,152 input/s
+[236/1200] vyukov N=1 T=0 us: 11,051,377 input/s
+[237/1200] wcq N=1 T=0 us: 4,373,104 input/s
+[238/1200] vyukov N=1 T=0 us: 8,469,529 input/s
+[239/1200] vyukov N=4 T=0 us: 5,781,912 input/s
+[240/1200] wcq N=4 T=0 us: 731,642 input/s
+[241/1200] wcq N=4 T=2 us: 1,505,123 input/s
+[242/1200] vyukov N=4 T=2 us: 1,620,044 input/s
+[243/1200] vyukov N=1 T=2 us: 464,682 input/s
+[244/1200] wcq N=1 T=2 us: 420,270 input/s
+[245/1200] wcq N=1 T=2 us: 432,930 input/s
+[246/1200] vyukov N=1 T=2 us: 498,857 input/s
+[247/1200] wcq N=2 T=1 us: 1,480,571 input/s
+[248/1200] vyukov N=2 T=1 us: 1,858,454 input/s
+[249/1200] vyukov N=4 T=5 us: 679,121 input/s
+[250/1200] wcq N=4 T=5 us: 664,711 input/s
+[251/1200] wcq N=2 T=5 us: 373,262 input/s
+[252/1200] vyukov N=2 T=5 us: 397,300 input/s
+[253/1200] wcq N=4 T=0 us: 730,657 input/s
+[254/1200] vyukov N=4 T=0 us: 5,720,394 input/s
+[255/1200] wcq N=4 T=1 us: 2,454,516 input/s
+[256/1200] vyukov N=4 T=1 us: 3,228,728 input/s
+[257/1200] vyukov N=2 T=5 us: 387,901 input/s
+[258/1200] wcq N=2 T=5 us: 350,326 input/s
+[259/1200] wcq N=4 T=5 us: 622,739 input/s
+[260/1200] vyukov N=4 T=5 us: 671,460 input/s
+[261/1200] vyukov N=2 T=5 us: 396,045 input/s
+[262/1200] wcq N=2 T=5 us: 370,885 input/s
+[263/1200] wcq N=2 T=2 us: 840,767 input/s
+[264/1200] vyukov N=2 T=2 us: 946,360 input/s
+[265/1200] wcq N=4 T=5 us: 659,561 input/s
+[266/1200] vyukov N=4 T=5 us: 688,173 input/s
+[267/1200] wcq N=4 T=5 us: 627,786 input/s
+[268/1200] vyukov N=4 T=5 us: 687,865 input/s
+[269/1200] wcq N=2 T=1 us: 1,331,783 input/s
+[270/1200] vyukov N=2 T=1 us: 1,656,926 input/s
+[271/1200] wcq N=4 T=0 us: 545,251 input/s
+[272/1200] vyukov N=4 T=0 us: 4,911,390 input/s
+[273/1200] wcq N=1 T=2 us: 420,594 input/s
+[274/1200] vyukov N=1 T=2 us: 476,479 input/s
+[275/1200] vyukov N=2 T=2 us: 936,672 input/s
+[276/1200] wcq N=2 T=2 us: 825,770 input/s
+[277/1200] vyukov N=2 T=5 us: 385,052 input/s
+[278/1200] wcq N=2 T=5 us: 366,501 input/s
+[279/1200] wcq N=2 T=5 us: 363,032 input/s
+[280/1200] vyukov N=2 T=5 us: 385,958 input/s
+[281/1200] wcq N=4 T=5 us: 654,966 input/s
+[282/1200] vyukov N=4 T=5 us: 683,453 input/s
+[283/1200] vyukov N=1 T=1 us: 922,631 input/s
+[284/1200] wcq N=1 T=1 us: 719,792 input/s
+[285/1200] wcq N=2 T=5 us: 353,034 input/s
+[286/1200] vyukov N=2 T=5 us: 390,314 input/s
+[287/1200] wcq N=4 T=1 us: 2,659,079 input/s
+[288/1200] vyukov N=4 T=1 us: 3,143,110 input/s
+[289/1200] wcq N=1 T=5 us: 193,174 input/s
+[290/1200] vyukov N=1 T=5 us: 200,738 input/s
+[291/1200] vyukov N=2 T=2 us: 958,106 input/s
+[292/1200] wcq N=2 T=2 us: 848,197 input/s
+[293/1200] wcq N=4 T=2 us: 1,513,581 input/s
+[294/1200] vyukov N=4 T=2 us: 1,709,858 input/s
+[295/1200] wcq N=1 T=5 us: 191,943 input/s
+[296/1200] vyukov N=1 T=5 us: 196,261 input/s
+[297/1200] vyukov N=4 T=2 us: 1,638,325 input/s
+[298/1200] wcq N=4 T=2 us: 1,491,398 input/s
+[299/1200] wcq N=4 T=2 us: 1,432,806 input/s
+[300/1200] vyukov N=4 T=2 us: 1,697,980 input/s
+[301/1200] vyukov N=2 T=2 us: 947,095 input/s
+[302/1200] wcq N=2 T=2 us: 839,589 input/s
+[303/1200] wcq N=2 T=0 us: 2,519,566 input/s
+[304/1200] vyukov N=2 T=0 us: 7,403,323 input/s
+[305/1200] wcq N=4 T=5 us: 653,459 input/s
+[306/1200] vyukov N=4 T=5 us: 684,334 input/s
+[307/1200] wcq N=4 T=5 us: 669,218 input/s
+[308/1200] vyukov N=4 T=5 us: 686,452 input/s
+[309/1200] wcq N=1 T=5 us: 187,588 input/s
+[310/1200] vyukov N=1 T=5 us: 194,924 input/s
+[311/1200] wcq N=1 T=5 us: 189,492 input/s
+[312/1200] vyukov N=1 T=5 us: 201,776 input/s
+[313/1200] vyukov N=1 T=5 us: 201,270 input/s
+[314/1200] wcq N=1 T=5 us: 191,157 input/s
+[315/1200] vyukov N=1 T=0 us: 9,506,256 input/s
+[316/1200] wcq N=1 T=0 us: 3,633,058 input/s
+[317/1200] vyukov N=2 T=2 us: 928,000 input/s
+[318/1200] wcq N=2 T=2 us: 846,400 input/s
+[319/1200] vyukov N=4 T=0 us: 5,309,600 input/s
+[320/1200] wcq N=4 T=0 us: 726,052 input/s
+[321/1200] wcq N=4 T=0 us: 478,104 input/s
+[322/1200] vyukov N=4 T=0 us: 5,033,717 input/s
+[323/1200] wcq N=2 T=1 us: 1,234,813 input/s
+[324/1200] vyukov N=2 T=1 us: 1,609,293 input/s
+[325/1200] vyukov N=1 T=2 us: 463,426 input/s
+[326/1200] wcq N=1 T=2 us: 409,263 input/s
+[327/1200] wcq N=4 T=1 us: 2,546,417 input/s
+[328/1200] vyukov N=4 T=1 us: 3,112,884 input/s
+[329/1200] wcq N=1 T=1 us: 737,441 input/s
+[330/1200] vyukov N=1 T=1 us: 948,563 input/s
+[331/1200] wcq N=2 T=2 us: 847,428 input/s
+[332/1200] vyukov N=2 T=2 us: 943,956 input/s
+[333/1200] vyukov N=4 T=1 us: 3,267,616 input/s
+[334/1200] wcq N=4 T=1 us: 2,601,625 input/s
+[335/1200] vyukov N=4 T=2 us: 1,710,025 input/s
+[336/1200] wcq N=4 T=2 us: 1,473,616 input/s
+[337/1200] wcq N=4 T=0 us: 697,100 input/s
+[338/1200] vyukov N=4 T=0 us: 5,293,794 input/s
+[339/1200] vyukov N=1 T=2 us: 490,050 input/s
+[340/1200] wcq N=1 T=2 us: 432,741 input/s
+[341/1200] wcq N=4 T=2 us: 1,462,530 input/s
+[342/1200] vyukov N=4 T=2 us: 1,692,157 input/s
+[343/1200] vyukov N=2 T=0 us: 7,214,476 input/s
+[344/1200] wcq N=2 T=0 us: 2,224,051 input/s
+[345/1200] wcq N=4 T=0 us: 649,452 input/s
+[346/1200] vyukov N=4 T=0 us: 5,556,404 input/s
+[347/1200] wcq N=1 T=5 us: 188,534 input/s
+[348/1200] vyukov N=1 T=5 us: 190,048 input/s
+[349/1200] wcq N=2 T=2 us: 795,921 input/s
+[350/1200] vyukov N=2 T=2 us: 893,450 input/s
+[351/1200] wcq N=4 T=1 us: 2,584,812 input/s
+[352/1200] vyukov N=4 T=1 us: 3,286,186 input/s
+[353/1200] wcq N=2 T=0 us: 2,390,044 input/s
+[354/1200] vyukov N=2 T=0 us: 3,628,517 input/s
+[355/1200] wcq N=2 T=2 us: 803,731 input/s
+[356/1200] vyukov N=2 T=2 us: 955,462 input/s
+[357/1200] wcq N=1 T=1 us: 788,192 input/s
+[358/1200] vyukov N=1 T=1 us: 952,414 input/s
+[359/1200] wcq N=4 T=0 us: 828,166 input/s
+[360/1200] vyukov N=4 T=0 us: 5,130,508 input/s
+[361/1200] wcq N=4 T=2 us: 1,524,381 input/s
+[362/1200] vyukov N=4 T=2 us: 1,655,504 input/s
+[363/1200] wcq N=2 T=2 us: 840,651 input/s
+[364/1200] vyukov N=2 T=2 us: 935,523 input/s
+[365/1200] wcq N=2 T=1 us: 1,397,656 input/s
+[366/1200] vyukov N=2 T=1 us: 1,756,774 input/s
+[367/1200] vyukov N=4 T=5 us: 687,434 input/s
+[368/1200] wcq N=4 T=5 us: 664,414 input/s
+[369/1200] vyukov N=4 T=5 us: 686,179 input/s
+[370/1200] wcq N=4 T=5 us: 634,072 input/s
+[371/1200] vyukov N=1 T=5 us: 197,506 input/s
+[372/1200] wcq N=1 T=5 us: 187,977 input/s
+[373/1200] wcq N=2 T=1 us: 1,481,238 input/s
+[374/1200] vyukov N=2 T=1 us: 1,761,579 input/s
+[375/1200] vyukov N=4 T=5 us: 689,733 input/s
+[376/1200] wcq N=4 T=5 us: 624,946 input/s
+[377/1200] vyukov N=4 T=1 us: 3,174,658 input/s
+[378/1200] wcq N=4 T=1 us: 2,737,743 input/s
+[379/1200] vyukov N=1 T=5 us: 201,278 input/s
+[380/1200] wcq N=1 T=5 us: 190,408 input/s
+[381/1200] vyukov N=1 T=1 us: 913,518 input/s
+[382/1200] wcq N=1 T=1 us: 777,068 input/s
+[383/1200] wcq N=1 T=2 us: 435,337 input/s
+[384/1200] vyukov N=1 T=2 us: 489,373 input/s
+[385/1200] wcq N=1 T=2 us: 436,846 input/s
+[386/1200] vyukov N=1 T=2 us: 484,251 input/s
+[387/1200] wcq N=2 T=0 us: 2,300,663 input/s
+[388/1200] vyukov N=2 T=0 us: 5,846,991 input/s
+[389/1200] vyukov N=4 T=5 us: 691,869 input/s
+[390/1200] wcq N=4 T=5 us: 654,543 input/s
+[391/1200] vyukov N=4 T=5 us: 648,819 input/s
+[392/1200] wcq N=4 T=5 us: 660,116 input/s
+[393/1200] wcq N=4 T=1 us: 2,346,210 input/s
+[394/1200] vyukov N=4 T=1 us: 2,921,336 input/s
+[395/1200] vyukov N=2 T=1 us: 1,852,851 input/s
+[396/1200] wcq N=2 T=1 us: 1,394,264 input/s
+[397/1200] wcq N=4 T=2 us: 1,517,483 input/s
+[398/1200] vyukov N=4 T=2 us: 1,713,375 input/s
+[399/1200] vyukov N=4 T=5 us: 695,807 input/s
+[400/1200] wcq N=4 T=5 us: 659,729 input/s
+[401/1200] wcq N=2 T=0 us: 2,163,308 input/s
+[402/1200] vyukov N=2 T=0 us: 8,361,821 input/s
+[403/1200] vyukov N=1 T=2 us: 494,558 input/s
+[404/1200] wcq N=1 T=2 us: 436,779 input/s
+[405/1200] vyukov N=4 T=1 us: 3,306,875 input/s
+[406/1200] wcq N=4 T=1 us: 2,658,009 input/s
+[407/1200] wcq N=1 T=2 us: 431,888 input/s
+[408/1200] vyukov N=1 T=2 us: 496,334 input/s
+[409/1200] vyukov N=4 T=5 us: 638,839 input/s
+[410/1200] wcq N=4 T=5 us: 620,161 input/s
+[411/1200] vyukov N=1 T=2 us: 484,811 input/s
+[412/1200] wcq N=1 T=2 us: 431,878 input/s
+[413/1200] wcq N=1 T=2 us: 423,947 input/s
+[414/1200] vyukov N=1 T=2 us: 491,372 input/s
+[415/1200] vyukov N=2 T=1 us: 1,787,776 input/s
+[416/1200] wcq N=2 T=1 us: 1,455,859 input/s
+[417/1200] wcq N=1 T=1 us: 779,920 input/s
+[418/1200] vyukov N=1 T=1 us: 967,821 input/s
+[419/1200] vyukov N=1 T=1 us: 961,383 input/s
+[420/1200] wcq N=1 T=1 us: 761,827 input/s
+[421/1200] vyukov N=4 T=1 us: 3,399,005 input/s
+[422/1200] wcq N=4 T=1 us: 2,556,801 input/s
+[423/1200] wcq N=2 T=5 us: 364,238 input/s
+[424/1200] vyukov N=2 T=5 us: 381,617 input/s
+[425/1200] wcq N=4 T=1 us: 2,433,053 input/s
+[426/1200] vyukov N=4 T=1 us: 3,214,544 input/s
+[427/1200] wcq N=1 T=5 us: 177,221 input/s
+[428/1200] vyukov N=1 T=5 us: 199,060 input/s
+[429/1200] wcq N=1 T=1 us: 759,607 input/s
+[430/1200] vyukov N=1 T=1 us: 909,542 input/s
+[431/1200] wcq N=4 T=0 us: 675,503 input/s
+[432/1200] vyukov N=4 T=0 us: 5,723,952 input/s
+[433/1200] vyukov N=2 T=5 us: 390,528 input/s
+[434/1200] wcq N=2 T=5 us: 367,265 input/s
+[435/1200] vyukov N=4 T=1 us: 3,141,937 input/s
+[436/1200] wcq N=4 T=1 us: 2,465,836 input/s
+[437/1200] wcq N=1 T=2 us: 433,278 input/s
+[438/1200] vyukov N=1 T=2 us: 469,902 input/s
+[439/1200] wcq N=2 T=2 us: 756,244 input/s
+[440/1200] vyukov N=2 T=2 us: 883,498 input/s
+[441/1200] vyukov N=1 T=1 us: 943,731 input/s
+[442/1200] wcq N=1 T=1 us: 706,496 input/s
+[443/1200] vyukov N=4 T=0 us: 5,339,204 input/s
+[444/1200] wcq N=4 T=0 us: 738,625 input/s
+[445/1200] wcq N=1 T=2 us: 443,421 input/s
+[446/1200] vyukov N=1 T=2 us: 460,592 input/s
+[447/1200] wcq N=2 T=1 us: 1,465,636 input/s
+[448/1200] vyukov N=2 T=1 us: 1,807,216 input/s
+[449/1200] vyukov N=1 T=5 us: 202,210 input/s
+[450/1200] wcq N=1 T=5 us: 192,692 input/s
+[451/1200] vyukov N=4 T=1 us: 3,278,488 input/s
+[452/1200] wcq N=4 T=1 us: 2,462,537 input/s
+[453/1200] vyukov N=4 T=0 us: 5,327,702 input/s
+[454/1200] wcq N=4 T=0 us: 530,635 input/s
+[455/1200] vyukov N=4 T=0 us: 5,528,009 input/s
+[456/1200] wcq N=4 T=0 us: 663,885 input/s
+[457/1200] wcq N=2 T=1 us: 1,422,570 input/s
+[458/1200] vyukov N=2 T=1 us: 1,842,102 input/s
+[459/1200] vyukov N=2 T=1 us: 1,733,971 input/s
+[460/1200] wcq N=2 T=1 us: 1,414,144 input/s
+[461/1200] vyukov N=1 T=1 us: 928,091 input/s
+[462/1200] wcq N=1 T=1 us: 676,503 input/s
+[463/1200] vyukov N=1 T=0 us: 11,459,416 input/s
+[464/1200] wcq N=1 T=0 us: 3,189,042 input/s
+[465/1200] wcq N=4 T=1 us: 2,606,486 input/s
+[466/1200] vyukov N=4 T=1 us: 3,023,874 input/s
+[467/1200] vyukov N=1 T=0 us: 10,606,334 input/s
+[468/1200] wcq N=1 T=0 us: 4,784,980 input/s
+[469/1200] wcq N=2 T=2 us: 789,194 input/s
+[470/1200] vyukov N=2 T=2 us: 872,241 input/s
+[471/1200] wcq N=1 T=5 us: 189,779 input/s
+[472/1200] vyukov N=1 T=5 us: 202,500 input/s
+[473/1200] wcq N=1 T=1 us: 740,559 input/s
+[474/1200] vyukov N=1 T=1 us: 976,594 input/s
+[475/1200] wcq N=2 T=5 us: 367,670 input/s
+[476/1200] vyukov N=2 T=5 us: 390,973 input/s
+[477/1200] wcq N=1 T=0 us: 4,317,576 input/s
+[478/1200] vyukov N=1 T=0 us: 11,448,886 input/s
+[479/1200] wcq N=4 T=0 us: 721,143 input/s
+[480/1200] vyukov N=4 T=0 us: 5,382,105 input/s
+[481/1200] vyukov N=4 T=0 us: 5,722,020 input/s
+[482/1200] wcq N=4 T=0 us: 641,884 input/s
+[483/1200] vyukov N=4 T=5 us: 693,687 input/s
+[484/1200] wcq N=4 T=5 us: 623,018 input/s
+[485/1200] vyukov N=4 T=1 us: 3,388,777 input/s
+[486/1200] wcq N=4 T=1 us: 2,341,178 input/s
+[487/1200] vyukov N=4 T=0 us: 5,063,338 input/s
+[488/1200] wcq N=4 T=0 us: 565,448 input/s
+[489/1200] wcq N=1 T=1 us: 754,605 input/s
+[490/1200] vyukov N=1 T=1 us: 968,851 input/s
+[491/1200] vyukov N=1 T=2 us: 483,189 input/s
+[492/1200] wcq N=1 T=2 us: 434,007 input/s
+[493/1200] vyukov N=1 T=5 us: 198,768 input/s
+[494/1200] wcq N=1 T=5 us: 191,527 input/s
+[495/1200] vyukov N=1 T=5 us: 202,043 input/s
+[496/1200] wcq N=1 T=5 us: 192,163 input/s
+[497/1200] vyukov N=1 T=5 us: 193,198 input/s
+[498/1200] wcq N=1 T=5 us: 185,043 input/s
+[499/1200] vyukov N=1 T=1 us: 930,760 input/s
+[500/1200] wcq N=1 T=1 us: 786,359 input/s
+[501/1200] vyukov N=4 T=1 us: 3,358,134 input/s
+[502/1200] wcq N=4 T=1 us: 2,516,993 input/s
+[503/1200] vyukov N=1 T=2 us: 489,846 input/s
+[504/1200] wcq N=1 T=2 us: 426,638 input/s
+[505/1200] wcq N=2 T=1 us: 1,458,943 input/s
+[506/1200] vyukov N=2 T=1 us: 1,839,998 input/s
+[507/1200] wcq N=1 T=0 us: 4,555,395 input/s
+[508/1200] vyukov N=1 T=0 us: 10,663,793 input/s
+[509/1200] wcq N=4 T=0 us: 677,018 input/s
+[510/1200] vyukov N=4 T=0 us: 4,789,106 input/s
+[511/1200] wcq N=1 T=5 us: 193,960 input/s
+[512/1200] vyukov N=1 T=5 us: 204,314 input/s
+[513/1200] vyukov N=2 T=1 us: 1,799,643 input/s
+[514/1200] wcq N=2 T=1 us: 1,321,620 input/s
+[515/1200] vyukov N=2 T=0 us: 5,992,447 input/s
+[516/1200] wcq N=2 T=0 us: 2,295,928 input/s
+[517/1200] wcq N=2 T=1 us: 1,396,065 input/s
+[518/1200] vyukov N=2 T=1 us: 1,649,071 input/s
+[519/1200] wcq N=1 T=5 us: 185,221 input/s
+[520/1200] vyukov N=1 T=5 us: 202,320 input/s
+[521/1200] wcq N=1 T=5 us: 192,537 input/s
+[522/1200] vyukov N=1 T=5 us: 203,697 input/s
+[523/1200] vyukov N=1 T=5 us: 202,296 input/s
+[524/1200] wcq N=1 T=5 us: 191,082 input/s
+[525/1200] vyukov N=2 T=5 us: 374,183 input/s
+[526/1200] wcq N=2 T=5 us: 351,849 input/s
+[527/1200] wcq N=4 T=0 us: 589,889 input/s
+[528/1200] vyukov N=4 T=0 us: 5,520,648 input/s
+[529/1200] vyukov N=4 T=0 us: 5,379,824 input/s
+[530/1200] wcq N=4 T=0 us: 540,661 input/s
+[531/1200] wcq N=2 T=0 us: 2,211,333 input/s
+[532/1200] vyukov N=2 T=0 us: 6,914,237 input/s
+[533/1200] vyukov N=1 T=1 us: 925,973 input/s
+[534/1200] wcq N=1 T=1 us: 782,605 input/s
+[535/1200] vyukov N=2 T=0 us: 7,431,434 input/s
+[536/1200] wcq N=2 T=0 us: 2,464,537 input/s
+[537/1200] vyukov N=4 T=1 us: 3,036,500 input/s
+[538/1200] wcq N=4 T=1 us: 2,507,526 input/s
+[539/1200] wcq N=1 T=1 us: 792,283 input/s
+[540/1200] vyukov N=1 T=1 us: 878,135 input/s
+[541/1200] vyukov N=1 T=5 us: 197,350 input/s
+[542/1200] wcq N=1 T=5 us: 182,660 input/s
+[543/1200] vyukov N=2 T=1 us: 1,868,560 input/s
+[544/1200] wcq N=2 T=1 us: 1,433,774 input/s
+[545/1200] vyukov N=4 T=2 us: 1,690,788 input/s
+[546/1200] wcq N=4 T=2 us: 1,504,181 input/s
+[547/1200] vyukov N=2 T=5 us: 352,649 input/s
+[548/1200] wcq N=2 T=5 us: 351,431 input/s
+[549/1200] wcq N=2 T=0 us: 2,397,203 input/s
+[550/1200] vyukov N=2 T=0 us: 7,902,626 input/s
+[551/1200] wcq N=1 T=0 us: 4,872,395 input/s
+[552/1200] vyukov N=1 T=0 us: 9,702,720 input/s
+[553/1200] wcq N=1 T=0 us: 3,912,107 input/s
+[554/1200] vyukov N=1 T=0 us: 10,590,813 input/s
+[555/1200] vyukov N=1 T=0 us: 8,750,424 input/s
+[556/1200] wcq N=1 T=0 us: 4,625,076 input/s
+[557/1200] wcq N=1 T=2 us: 433,008 input/s
+[558/1200] vyukov N=1 T=2 us: 487,225 input/s
+[559/1200] wcq N=4 T=5 us: 653,249 input/s
+[560/1200] vyukov N=4 T=5 us: 687,543 input/s
+[561/1200] wcq N=4 T=1 us: 2,725,866 input/s
+[562/1200] vyukov N=4 T=1 us: 3,219,208 input/s
+[563/1200] wcq N=2 T=1 us: 1,427,959 input/s
+[564/1200] vyukov N=2 T=1 us: 1,843,942 input/s
+[565/1200] wcq N=1 T=0 us: 4,286,755 input/s
+[566/1200] vyukov N=1 T=0 us: 9,496,324 input/s
+[567/1200] wcq N=4 T=0 us: 515,242 input/s
+[568/1200] vyukov N=4 T=0 us: 5,801,948 input/s
+[569/1200] vyukov N=1 T=5 us: 200,621 input/s
+[570/1200] wcq N=1 T=5 us: 185,540 input/s
+[571/1200] vyukov N=4 T=1 us: 2,946,851 input/s
+[572/1200] wcq N=4 T=1 us: 1,154,239 input/s
+[573/1200] wcq N=2 T=1 us: 1,426,042 input/s
+[574/1200] vyukov N=2 T=1 us: 1,727,965 input/s
+[575/1200] wcq N=1 T=2 us: 424,555 input/s
+[576/1200] vyukov N=1 T=2 us: 461,358 input/s
+[577/1200] wcq N=4 T=2 us: 1,421,694 input/s
+[578/1200] vyukov N=4 T=2 us: 1,587,209 input/s
+[579/1200] vyukov N=2 T=1 us: 1,758,526 input/s
+[580/1200] wcq N=2 T=1 us: 1,465,202 input/s
+[581/1200] vyukov N=4 T=5 us: 678,224 input/s
+[582/1200] wcq N=4 T=5 us: 648,542 input/s
+[583/1200] vyukov N=2 T=0 us: 7,328,592 input/s
+[584/1200] wcq N=2 T=0 us: 2,141,741 input/s
+[585/1200] vyukov N=2 T=0 us: 7,604,724 input/s
+[586/1200] wcq N=2 T=0 us: 2,144,473 input/s
+[587/1200] wcq N=1 T=1 us: 772,669 input/s
+[588/1200] vyukov N=1 T=1 us: 969,087 input/s
+[589/1200] vyukov N=2 T=2 us: 896,164 input/s
+[590/1200] wcq N=2 T=2 us: 836,112 input/s
+[591/1200] vyukov N=2 T=2 us: 964,537 input/s
+[592/1200] wcq N=2 T=2 us: 821,117 input/s
+[593/1200] wcq N=2 T=2 us: 804,639 input/s
+[594/1200] vyukov N=2 T=2 us: 890,892 input/s
+[595/1200] wcq N=1 T=5 us: 191,322 input/s
+[596/1200] vyukov N=1 T=5 us: 196,160 input/s
+[597/1200] wcq N=1 T=1 us: 735,622 input/s
+[598/1200] vyukov N=1 T=1 us: 904,676 input/s
+[599/1200] vyukov N=2 T=5 us: 382,119 input/s
+[600/1200] wcq N=2 T=5 us: 365,436 input/s
+[601/1200] wcq N=1 T=5 us: 192,657 input/s
+[602/1200] vyukov N=1 T=5 us: 203,097 input/s
+[603/1200] wcq N=2 T=0 us: 2,442,259 input/s
+[604/1200] vyukov N=2 T=0 us: 7,865,017 input/s
+[605/1200] vyukov N=4 T=2 us: 1,705,724 input/s
+[606/1200] wcq N=4 T=2 us: 1,500,386 input/s
+[607/1200] wcq N=2 T=2 us: 842,045 input/s
+[608/1200] vyukov N=2 T=2 us: 950,267 input/s
+[609/1200] wcq N=1 T=0 us: 4,767,259 input/s
+[610/1200] vyukov N=1 T=0 us: 10,958,039 input/s
+[611/1200] wcq N=4 T=0 us: 631,402 input/s
+[612/1200] vyukov N=4 T=0 us: 5,092,067 input/s
+[613/1200] wcq N=1 T=2 us: 417,274 input/s
+[614/1200] vyukov N=1 T=2 us: 454,172 input/s
+[615/1200] wcq N=2 T=0 us: 2,115,601 input/s
+[616/1200] vyukov N=2 T=0 us: 7,038,944 input/s
+[617/1200] vyukov N=2 T=0 us: 6,612,173 input/s
+[618/1200] wcq N=2 T=0 us: 2,305,640 input/s
+[619/1200] vyukov N=4 T=5 us: 658,754 input/s
+[620/1200] wcq N=4 T=5 us: 650,668 input/s
+[621/1200] wcq N=1 T=2 us: 438,089 input/s
+[622/1200] vyukov N=1 T=2 us: 493,324 input/s
+[623/1200] wcq N=1 T=0 us: 5,312,414 input/s
+[624/1200] vyukov N=1 T=0 us: 8,722,063 input/s
+[625/1200] wcq N=1 T=1 us: 744,228 input/s
+[626/1200] vyukov N=1 T=1 us: 946,353 input/s
+[627/1200] wcq N=2 T=0 us: 2,363,874 input/s
+[628/1200] vyukov N=2 T=0 us: 8,014,876 input/s
+[629/1200] wcq N=2 T=5 us: 376,887 input/s
+[630/1200] vyukov N=2 T=5 us: 395,288 input/s
+[631/1200] vyukov N=4 T=5 us: 680,440 input/s
+[632/1200] wcq N=4 T=5 us: 649,694 input/s
+[633/1200] wcq N=2 T=2 us: 814,817 input/s
+[634/1200] vyukov N=2 T=2 us: 917,658 input/s
+[635/1200] vyukov N=2 T=5 us: 376,025 input/s
+[636/1200] wcq N=2 T=5 us: 358,968 input/s
+[637/1200] wcq N=2 T=5 us: 369,191 input/s
+[638/1200] vyukov N=2 T=5 us: 385,746 input/s
+[639/1200] wcq N=4 T=0 us: 610,237 input/s
+[640/1200] vyukov N=4 T=0 us: 5,230,581 input/s
+[641/1200] wcq N=2 T=5 us: 372,557 input/s
+[642/1200] vyukov N=2 T=5 us: 384,625 input/s
+[643/1200] vyukov N=2 T=5 us: 348,272 input/s
+[644/1200] wcq N=2 T=5 us: 313,402 input/s
+[645/1200] wcq N=4 T=0 us: 665,212 input/s
+[646/1200] vyukov N=4 T=0 us: 5,055,368 input/s
+[647/1200] vyukov N=1 T=5 us: 183,544 input/s
+[648/1200] wcq N=1 T=5 us: 194,615 input/s
+[649/1200] wcq N=4 T=2 us: 1,502,819 input/s
+[650/1200] vyukov N=4 T=2 us: 1,690,304 input/s
+[651/1200] wcq N=1 T=0 us: 4,477,100 input/s
+[652/1200] vyukov N=1 T=0 us: 9,686,819 input/s
+[653/1200] vyukov N=1 T=5 us: 201,899 input/s
+[654/1200] wcq N=1 T=5 us: 191,510 input/s
+[655/1200] vyukov N=2 T=1 us: 1,870,400 input/s
+[656/1200] wcq N=2 T=1 us: 1,474,081 input/s
+[657/1200] wcq N=4 T=5 us: 646,412 input/s
+[658/1200] vyukov N=4 T=5 us: 640,431 input/s
+[659/1200] wcq N=2 T=0 us: 2,306,976 input/s
+[660/1200] vyukov N=2 T=0 us: 6,934,100 input/s
+[661/1200] wcq N=4 T=5 us: 619,633 input/s
+[662/1200] vyukov N=4 T=5 us: 695,567 input/s
+[663/1200] vyukov N=4 T=0 us: 5,697,828 input/s
+[664/1200] wcq N=4 T=0 us: 640,623 input/s
+[665/1200] vyukov N=4 T=0 us: 5,185,874 input/s
+[666/1200] wcq N=4 T=0 us: 652,300 input/s
+[667/1200] wcq N=4 T=1 us: 2,676,719 input/s
+[668/1200] vyukov N=4 T=1 us: 3,079,296 input/s
+[669/1200] vyukov N=2 T=2 us: 942,454 input/s
+[670/1200] wcq N=2 T=2 us: 857,443 input/s
+[671/1200] wcq N=4 T=1 us: 2,607,469 input/s
+[672/1200] vyukov N=4 T=1 us: 3,376,061 input/s
+[673/1200] wcq N=4 T=0 us: 537,380 input/s
+[674/1200] vyukov N=4 T=0 us: 5,670,022 input/s
+[675/1200] wcq N=2 T=2 us: 828,631 input/s
+[676/1200] vyukov N=2 T=2 us: 925,710 input/s
+[677/1200] vyukov N=4 T=0 us: 5,234,673 input/s
+[678/1200] wcq N=4 T=0 us: 765,020 input/s
+[679/1200] vyukov N=1 T=2 us: 475,480 input/s
+[680/1200] wcq N=1 T=2 us: 419,625 input/s
+[681/1200] vyukov N=2 T=5 us: 379,485 input/s
+[682/1200] wcq N=2 T=5 us: 342,005 input/s
+[683/1200] vyukov N=2 T=2 us: 864,088 input/s
+[684/1200] wcq N=2 T=2 us: 782,801 input/s
+[685/1200] wcq N=2 T=5 us: 344,413 input/s
+[686/1200] vyukov N=2 T=5 us: 390,622 input/s
+[687/1200] vyukov N=1 T=2 us: 493,445 input/s
+[688/1200] wcq N=1 T=2 us: 432,786 input/s
+[689/1200] wcq N=4 T=1 us: 2,708,870 input/s
+[690/1200] vyukov N=4 T=1 us: 3,212,461 input/s
+[691/1200] vyukov N=2 T=0 us: 8,112,846 input/s
+[692/1200] wcq N=2 T=0 us: 2,376,419 input/s
+[693/1200] vyukov N=4 T=1 us: 3,242,945 input/s
+[694/1200] wcq N=4 T=1 us: 2,454,119 input/s
+[695/1200] vyukov N=1 T=0 us: 11,264,235 input/s
+[696/1200] wcq N=1 T=0 us: 3,748,544 input/s
+[697/1200] wcq N=2 T=0 us: 2,340,503 input/s
+[698/1200] vyukov N=2 T=0 us: 7,745,144 input/s
+[699/1200] vyukov N=1 T=0 us: 8,939,850 input/s
+[700/1200] wcq N=1 T=0 us: 4,695,476 input/s
+[701/1200] vyukov N=2 T=0 us: 7,086,898 input/s
+[702/1200] wcq N=2 T=0 us: 2,391,974 input/s
+[703/1200] wcq N=2 T=1 us: 1,413,733 input/s
+[704/1200] vyukov N=2 T=1 us: 1,829,554 input/s
+[705/1200] wcq N=1 T=2 us: 440,377 input/s
+[706/1200] vyukov N=1 T=2 us: 499,262 input/s
+[707/1200] wcq N=2 T=1 us: 1,386,211 input/s
+[708/1200] vyukov N=2 T=1 us: 1,624,858 input/s
+[709/1200] wcq N=4 T=0 us: 580,142 input/s
+[710/1200] vyukov N=4 T=0 us: 5,114,408 input/s
+[711/1200] wcq N=2 T=2 us: 805,747 input/s
+[712/1200] vyukov N=2 T=2 us: 886,849 input/s
+[713/1200] wcq N=2 T=1 us: 1,257,530 input/s
+[714/1200] vyukov N=2 T=1 us: 1,805,648 input/s
+[715/1200] vyukov N=2 T=1 us: 1,691,589 input/s
+[716/1200] wcq N=2 T=1 us: 1,467,215 input/s
+[717/1200] wcq N=1 T=1 us: 776,114 input/s
+[718/1200] vyukov N=1 T=1 us: 918,485 input/s
+[719/1200] vyukov N=2 T=0 us: 6,988,485 input/s
+[720/1200] wcq N=2 T=0 us: 2,214,879 input/s
+[721/1200] wcq N=2 T=2 us: 850,535 input/s
+[722/1200] vyukov N=2 T=2 us: 950,056 input/s
+[723/1200] vyukov N=1 T=2 us: 485,263 input/s
+[724/1200] wcq N=1 T=2 us: 432,807 input/s
+[725/1200] vyukov N=1 T=0 us: 10,263,478 input/s
+[726/1200] wcq N=1 T=0 us: 4,204,456 input/s
+[727/1200] vyukov N=2 T=0 us: 7,666,376 input/s
+[728/1200] wcq N=2 T=0 us: 2,132,086 input/s
+[729/1200] wcq N=4 T=5 us: 644,524 input/s
+[730/1200] vyukov N=4 T=5 us: 695,269 input/s
+[731/1200] wcq N=2 T=0 us: 2,517,504 input/s
+[732/1200] vyukov N=2 T=0 us: 8,085,301 input/s
+[733/1200] wcq N=2 T=0 us: 2,357,037 input/s
+[734/1200] vyukov N=2 T=0 us: 6,126,585 input/s
+[735/1200] wcq N=2 T=1 us: 1,381,838 input/s
+[736/1200] vyukov N=2 T=1 us: 1,831,022 input/s
+[737/1200] vyukov N=2 T=5 us: 385,966 input/s
+[738/1200] wcq N=2 T=5 us: 346,213 input/s
+[739/1200] wcq N=4 T=1 us: 2,550,164 input/s
+[740/1200] vyukov N=4 T=1 us: 3,240,195 input/s
+[741/1200] wcq N=1 T=0 us: 4,227,815 input/s
+[742/1200] vyukov N=1 T=0 us: 10,834,572 input/s
+[743/1200] wcq N=2 T=2 us: 830,954 input/s
+[744/1200] vyukov N=2 T=2 us: 946,861 input/s
+[745/1200] vyukov N=4 T=0 us: 5,492,447 input/s
+[746/1200] wcq N=4 T=0 us: 670,592 input/s
+[747/1200] wcq N=1 T=0 us: 4,105,892 input/s
+[748/1200] vyukov N=1 T=0 us: 9,831,001 input/s
+[749/1200] wcq N=1 T=1 us: 766,151 input/s
+[750/1200] vyukov N=1 T=1 us: 955,600 input/s
+[751/1200] wcq N=1 T=2 us: 446,813 input/s
+[752/1200] vyukov N=1 T=2 us: 494,084 input/s
+[753/1200] wcq N=4 T=5 us: 663,768 input/s
+[754/1200] vyukov N=4 T=5 us: 696,693 input/s
+[755/1200] wcq N=1 T=5 us: 192,723 input/s
+[756/1200] vyukov N=1 T=5 us: 204,307 input/s
+[757/1200] wcq N=2 T=2 us: 800,650 input/s
+[758/1200] vyukov N=2 T=2 us: 902,754 input/s
+[759/1200] wcq N=2 T=0 us: 2,115,195 input/s
+[760/1200] vyukov N=2 T=0 us: 6,467,918 input/s
+[761/1200] vyukov N=2 T=5 us: 375,822 input/s
+[762/1200] wcq N=2 T=5 us: 356,053 input/s
+[763/1200] vyukov N=4 T=1 us: 3,178,185 input/s
+[764/1200] wcq N=4 T=1 us: 2,540,081 input/s
+[765/1200] wcq N=4 T=0 us: 660,347 input/s
+[766/1200] vyukov N=4 T=0 us: 5,782,257 input/s
+[767/1200] vyukov N=2 T=2 us: 976,860 input/s
+[768/1200] wcq N=2 T=2 us: 814,965 input/s
+[769/1200] wcq N=1 T=2 us: 427,222 input/s
+[770/1200] vyukov N=1 T=2 us: 494,988 input/s
+[771/1200] vyukov N=2 T=0 us: 8,128,824 input/s
+[772/1200] wcq N=2 T=0 us: 2,387,658 input/s
+[773/1200] wcq N=1 T=1 us: 769,707 input/s
+[774/1200] vyukov N=1 T=1 us: 925,737 input/s
+[775/1200] wcq N=1 T=0 us: 4,816,832 input/s
+[776/1200] vyukov N=1 T=0 us: 10,731,062 input/s
+[777/1200] wcq N=1 T=0 us: 4,941,879 input/s
+[778/1200] vyukov N=1 T=0 us: 3,295,721 input/s
+[779/1200] wcq N=4 T=1 us: 2,674,881 input/s
+[780/1200] vyukov N=4 T=1 us: 3,203,309 input/s
+[781/1200] vyukov N=4 T=5 us: 685,788 input/s
+[782/1200] wcq N=4 T=5 us: 624,973 input/s
+[783/1200] wcq N=2 T=2 us: 790,138 input/s
+[784/1200] vyukov N=2 T=2 us: 915,120 input/s
+[785/1200] vyukov N=4 T=2 us: 1,663,995 input/s
+[786/1200] wcq N=4 T=2 us: 1,400,555 input/s
+[787/1200] vyukov N=1 T=2 us: 492,549 input/s
+[788/1200] wcq N=1 T=2 us: 432,493 input/s
+[789/1200] wcq N=4 T=1 us: 2,697,664 input/s
+[790/1200] vyukov N=4 T=1 us: 3,424,024 input/s
+[791/1200] vyukov N=1 T=2 us: 493,177 input/s
+[792/1200] wcq N=1 T=2 us: 446,321 input/s
+[793/1200] wcq N=4 T=1 us: 2,572,614 input/s
+[794/1200] vyukov N=4 T=1 us: 3,322,149 input/s
+[795/1200] vyukov N=2 T=0 us: 7,957,611 input/s
+[796/1200] wcq N=2 T=0 us: 2,389,764 input/s
+[797/1200] wcq N=2 T=0 us: 2,058,498 input/s
+[798/1200] vyukov N=2 T=0 us: 8,159,664 input/s
+[799/1200] vyukov N=4 T=0 us: 5,019,126 input/s
+[800/1200] wcq N=4 T=0 us: 607,732 input/s
+[801/1200] vyukov N=1 T=0 us: 10,884,453 input/s
+[802/1200] wcq N=1 T=0 us: 4,258,104 input/s
+[803/1200] wcq N=2 T=1 us: 1,492,752 input/s
+[804/1200] vyukov N=2 T=1 us: 1,794,162 input/s
+[805/1200] vyukov N=2 T=5 us: 384,159 input/s
+[806/1200] wcq N=2 T=5 us: 367,898 input/s
+[807/1200] vyukov N=1 T=5 us: 193,670 input/s
+[808/1200] wcq N=1 T=5 us: 185,560 input/s
+[809/1200] wcq N=1 T=1 us: 749,282 input/s
+[810/1200] vyukov N=1 T=1 us: 970,016 input/s
+[811/1200] wcq N=1 T=0 us: 4,767,844 input/s
+[812/1200] vyukov N=1 T=0 us: 7,374,492 input/s
+[813/1200] wcq N=1 T=5 us: 190,259 input/s
+[814/1200] vyukov N=1 T=5 us: 200,682 input/s
+[815/1200] wcq N=1 T=1 us: 784,669 input/s
+[816/1200] vyukov N=1 T=1 us: 966,241 input/s
+[817/1200] vyukov N=2 T=0 us: 8,239,114 input/s
+[818/1200] wcq N=2 T=0 us: 2,229,111 input/s
+[819/1200] wcq N=4 T=1 us: 2,638,541 input/s
+[820/1200] vyukov N=4 T=1 us: 3,241,894 input/s
+[821/1200] wcq N=2 T=1 us: 1,464,981 input/s
+[822/1200] vyukov N=2 T=1 us: 1,236,480 input/s
+[823/1200] wcq N=4 T=2 us: 1,506,084 input/s
+[824/1200] vyukov N=4 T=2 us: 1,738,689 input/s
+[825/1200] wcq N=4 T=2 us: 1,486,577 input/s
+[826/1200] vyukov N=4 T=2 us: 1,604,160 input/s
+[827/1200] vyukov N=2 T=1 us: 1,741,446 input/s
+[828/1200] wcq N=2 T=1 us: 1,433,257 input/s
+[829/1200] vyukov N=4 T=5 us: 655,725 input/s
+[830/1200] wcq N=4 T=5 us: 636,414 input/s
+[831/1200] vyukov N=4 T=2 us: 1,667,176 input/s
+[832/1200] wcq N=4 T=2 us: 1,512,445 input/s
+[833/1200] wcq N=4 T=0 us: 664,367 input/s
+[834/1200] vyukov N=4 T=0 us: 5,449,674 input/s
+[835/1200] vyukov N=2 T=2 us: 959,542 input/s
+[836/1200] wcq N=2 T=2 us: 845,361 input/s
+[837/1200] vyukov N=2 T=1 us: 1,777,227 input/s
+[838/1200] wcq N=2 T=1 us: 1,415,691 input/s
+[839/1200] wcq N=4 T=0 us: 476,809 input/s
+[840/1200] vyukov N=4 T=0 us: 5,697,484 input/s
+[841/1200] vyukov N=1 T=1 us: 964,251 input/s
+[842/1200] wcq N=1 T=1 us: 772,545 input/s
+[843/1200] vyukov N=4 T=1 us: 3,310,836 input/s
+[844/1200] wcq N=4 T=1 us: 2,558,084 input/s
+[845/1200] wcq N=4 T=0 us: 679,720 input/s
+[846/1200] vyukov N=4 T=0 us: 4,768,571 input/s
+[847/1200] vyukov N=2 T=0 us: 7,701,191 input/s
+[848/1200] wcq N=2 T=0 us: 2,430,916 input/s
+[849/1200] wcq N=4 T=1 us: 2,482,958 input/s
+[850/1200] vyukov N=4 T=1 us: 3,180,125 input/s
+[851/1200] vyukov N=2 T=2 us: 945,513 input/s
+[852/1200] wcq N=2 T=2 us: 836,336 input/s
+[853/1200] vyukov N=4 T=1 us: 3,359,932 input/s
+[854/1200] wcq N=4 T=1 us: 2,617,795 input/s
+[855/1200] wcq N=1 T=5 us: 186,248 input/s
+[856/1200] vyukov N=1 T=5 us: 197,224 input/s
+[857/1200] vyukov N=4 T=1 us: 3,201,874 input/s
+[858/1200] wcq N=4 T=1 us: 2,720,034 input/s
+[859/1200] wcq N=1 T=5 us: 192,143 input/s
+[860/1200] vyukov N=1 T=5 us: 199,945 input/s
+[861/1200] wcq N=1 T=2 us: 424,707 input/s
+[862/1200] vyukov N=1 T=2 us: 493,983 input/s
+[863/1200] wcq N=1 T=0 us: 4,469,545 input/s
+[864/1200] vyukov N=1 T=0 us: 8,639,104 input/s
+[865/1200] wcq N=4 T=2 us: 1,471,097 input/s
+[866/1200] vyukov N=4 T=2 us: 1,704,758 input/s
+[867/1200] vyukov N=4 T=0 us: 4,933,509 input/s
+[868/1200] wcq N=4 T=0 us: 609,874 input/s
+[869/1200] vyukov N=2 T=0 us: 8,144,557 input/s
+[870/1200] wcq N=2 T=0 us: 2,155,808 input/s
+[871/1200] wcq N=2 T=5 us: 354,366 input/s
+[872/1200] vyukov N=2 T=5 us: 358,548 input/s
+[873/1200] vyukov N=1 T=2 us: 489,850 input/s
+[874/1200] wcq N=1 T=2 us: 439,834 input/s
+[875/1200] vyukov N=4 T=5 us: 691,312 input/s
+[876/1200] wcq N=4 T=5 us: 661,137 input/s
+[877/1200] vyukov N=1 T=5 us: 199,471 input/s
+[878/1200] wcq N=1 T=5 us: 188,794 input/s
+[879/1200] vyukov N=4 T=1 us: 3,274,774 input/s
+[880/1200] wcq N=4 T=1 us: 2,620,968 input/s
+[881/1200] wcq N=4 T=5 us: 666,060 input/s
+[882/1200] vyukov N=4 T=5 us: 652,908 input/s
+[883/1200] vyukov N=2 T=5 us: 368,927 input/s
+[884/1200] wcq N=2 T=5 us: 354,467 input/s
+[885/1200] wcq N=1 T=1 us: 772,683 input/s
+[886/1200] vyukov N=1 T=1 us: 968,026 input/s
+[887/1200] vyukov N=2 T=5 us: 394,038 input/s
+[888/1200] wcq N=2 T=5 us: 365,655 input/s
+[889/1200] vyukov N=4 T=2 us: 1,693,790 input/s
+[890/1200] wcq N=4 T=2 us: 1,527,251 input/s
+[891/1200] wcq N=4 T=2 us: 1,506,621 input/s
+[892/1200] vyukov N=4 T=2 us: 1,733,763 input/s
+[893/1200] wcq N=2 T=0 us: 1,965,415 input/s
+[894/1200] vyukov N=2 T=0 us: 7,533,489 input/s
+[895/1200] wcq N=1 T=2 us: 423,205 input/s
+[896/1200] vyukov N=1 T=2 us: 489,437 input/s
+[897/1200] wcq N=2 T=2 us: 830,827 input/s
+[898/1200] vyukov N=2 T=2 us: 862,529 input/s
+[899/1200] vyukov N=2 T=2 us: 907,343 input/s
+[900/1200] wcq N=2 T=2 us: 813,742 input/s
+[901/1200] wcq N=1 T=2 us: 412,664 input/s
+[902/1200] vyukov N=1 T=2 us: 480,673 input/s
+[903/1200] wcq N=2 T=1 us: 1,492,278 input/s
+[904/1200] vyukov N=2 T=1 us: 1,821,996 input/s
+[905/1200] vyukov N=4 T=0 us: 5,326,721 input/s
+[906/1200] wcq N=4 T=0 us: 676,474 input/s
+[907/1200] vyukov N=4 T=2 us: 1,655,422 input/s
+[908/1200] wcq N=4 T=2 us: 1,427,007 input/s
+[909/1200] wcq N=2 T=1 us: 1,346,814 input/s
+[910/1200] vyukov N=2 T=1 us: 1,796,811 input/s
+[911/1200] wcq N=1 T=1 us: 779,462 input/s
+[912/1200] vyukov N=1 T=1 us: 961,912 input/s
+[913/1200] wcq N=2 T=0 us: 1,988,767 input/s
+[914/1200] vyukov N=2 T=0 us: 7,217,200 input/s
+[915/1200] wcq N=2 T=1 us: 1,377,553 input/s
+[916/1200] vyukov N=2 T=1 us: 1,679,129 input/s
+[917/1200] wcq N=1 T=1 us: 706,592 input/s
+[918/1200] vyukov N=1 T=1 us: 898,330 input/s
+[919/1200] wcq N=1 T=2 us: 422,711 input/s
+[920/1200] vyukov N=1 T=2 us: 477,457 input/s
+[921/1200] wcq N=1 T=2 us: 439,462 input/s
+[922/1200] vyukov N=1 T=2 us: 501,734 input/s
+[923/1200] vyukov N=2 T=5 us: 390,120 input/s
+[924/1200] wcq N=2 T=5 us: 362,801 input/s
+[925/1200] wcq N=1 T=2 us: 430,920 input/s
+[926/1200] vyukov N=1 T=2 us: 486,110 input/s
+[927/1200] wcq N=2 T=1 us: 1,471,894 input/s
+[928/1200] vyukov N=2 T=1 us: 1,826,747 input/s
+[929/1200] vyukov N=1 T=5 us: 200,703 input/s
+[930/1200] wcq N=1 T=5 us: 184,295 input/s
+[931/1200] vyukov N=2 T=1 us: 1,780,171 input/s
+[932/1200] wcq N=2 T=1 us: 1,402,310 input/s
+[933/1200] wcq N=1 T=0 us: 3,979,134 input/s
+[934/1200] vyukov N=1 T=0 us: 10,052,706 input/s
+[935/1200] wcq N=4 T=1 us: 2,507,447 input/s
+[936/1200] vyukov N=4 T=1 us: 3,330,106 input/s
+[937/1200] wcq N=1 T=5 us: 187,330 input/s
+[938/1200] vyukov N=1 T=5 us: 200,186 input/s
+[939/1200] wcq N=2 T=0 us: 2,354,608 input/s
+[940/1200] vyukov N=2 T=0 us: 6,284,311 input/s
+[941/1200] vyukov N=2 T=5 us: 385,979 input/s
+[942/1200] wcq N=2 T=5 us: 372,038 input/s
+[943/1200] wcq N=1 T=5 us: 189,332 input/s
+[944/1200] vyukov N=1 T=5 us: 196,447 input/s
+[945/1200] wcq N=4 T=1 us: 2,559,061 input/s
+[946/1200] vyukov N=4 T=1 us: 3,061,059 input/s
+[947/1200] vyukov N=4 T=1 us: 3,029,714 input/s
+[948/1200] wcq N=4 T=1 us: 2,486,875 input/s
+[949/1200] vyukov N=4 T=5 us: 662,814 input/s
+[950/1200] wcq N=4 T=5 us: 663,626 input/s
+[951/1200] wcq N=2 T=2 us: 829,166 input/s
+[952/1200] vyukov N=2 T=2 us: 935,141 input/s
+[953/1200] wcq N=4 T=2 us: 1,499,868 input/s
+[954/1200] vyukov N=4 T=2 us: 1,708,133 input/s
+[955/1200] vyukov N=1 T=5 us: 202,189 input/s
+[956/1200] wcq N=1 T=5 us: 189,269 input/s
+[957/1200] wcq N=4 T=5 us: 676,221 input/s
+[958/1200] vyukov N=4 T=5 us: 697,233 input/s
+[959/1200] vyukov N=1 T=1 us: 898,260 input/s
+[960/1200] wcq N=1 T=1 us: 756,438 input/s
+[961/1200] vyukov N=1 T=1 us: 822,651 input/s
+[962/1200] wcq N=1 T=1 us: 741,530 input/s
+[963/1200] wcq N=4 T=1 us: 2,355,755 input/s
+[964/1200] vyukov N=4 T=1 us: 3,348,105 input/s
+[965/1200] vyukov N=4 T=2 us: 1,712,797 input/s
+[966/1200] wcq N=4 T=2 us: 1,508,381 input/s
+[967/1200] vyukov N=4 T=1 us: 3,240,352 input/s
+[968/1200] wcq N=4 T=1 us: 2,474,439 input/s
+[969/1200] vyukov N=1 T=1 us: 939,209 input/s
+[970/1200] wcq N=1 T=1 us: 751,606 input/s
+[971/1200] wcq N=4 T=2 us: 1,520,739 input/s
+[972/1200] vyukov N=4 T=2 us: 1,616,407 input/s
+[973/1200] wcq N=4 T=5 us: 670,539 input/s
+[974/1200] vyukov N=4 T=5 us: 672,867 input/s
+[975/1200] vyukov N=2 T=2 us: 933,108 input/s
+[976/1200] wcq N=2 T=2 us: 828,813 input/s
+[977/1200] wcq N=1 T=5 us: 192,945 input/s
+[978/1200] vyukov N=1 T=5 us: 201,791 input/s
+[979/1200] vyukov N=1 T=2 us: 486,285 input/s
+[980/1200] wcq N=1 T=2 us: 411,116 input/s
+[981/1200] vyukov N=4 T=2 us: 1,642,945 input/s
+[982/1200] wcq N=4 T=2 us: 1,431,308 input/s
+[983/1200] wcq N=4 T=2 us: 1,492,278 input/s
+[984/1200] vyukov N=4 T=2 us: 1,697,141 input/s
+[985/1200] wcq N=1 T=0 us: 2,606,012 input/s
+[986/1200] vyukov N=1 T=0 us: 6,664,140 input/s
+[987/1200] wcq N=4 T=0 us: 649,525 input/s
+[988/1200] vyukov N=4 T=0 us: 4,888,829 input/s
+[989/1200] vyukov N=2 T=5 us: 391,799 input/s
+[990/1200] wcq N=2 T=5 us: 371,426 input/s
+[991/1200] vyukov N=1 T=0 us: 10,306,956 input/s
+[992/1200] wcq N=1 T=0 us: 4,727,414 input/s
+[993/1200] vyukov N=4 T=2 us: 1,518,305 input/s
+[994/1200] wcq N=4 T=2 us: 1,521,815 input/s
+[995/1200] wcq N=2 T=5 us: 366,130 input/s
+[996/1200] vyukov N=2 T=5 us: 388,676 input/s
+[997/1200] wcq N=2 T=1 us: 1,474,516 input/s
+[998/1200] vyukov N=2 T=1 us: 1,867,480 input/s
+[999/1200] vyukov N=4 T=1 us: 3,022,599 input/s
+[1000/1200] wcq N=4 T=1 us: 2,385,382 input/s
+[1001/1200] wcq N=1 T=0 us: 4,463,032 input/s
+[1002/1200] vyukov N=1 T=0 us: 8,359,458 input/s
+[1003/1200] wcq N=2 T=5 us: 341,335 input/s
+[1004/1200] vyukov N=2 T=5 us: 370,078 input/s
+[1005/1200] wcq N=2 T=0 us: 2,304,381 input/s
+[1006/1200] vyukov N=2 T=0 us: 6,866,050 input/s
+[1007/1200] wcq N=1 T=1 us: 776,574 input/s
+[1008/1200] vyukov N=1 T=1 us: 913,817 input/s
+[1009/1200] vyukov N=4 T=5 us: 690,234 input/s
+[1010/1200] wcq N=4 T=5 us: 646,910 input/s
+[1011/1200] wcq N=2 T=5 us: 353,010 input/s
+[1012/1200] vyukov N=2 T=5 us: 389,537 input/s
+[1013/1200] vyukov N=4 T=0 us: 5,221,859 input/s
+[1014/1200] wcq N=4 T=0 us: 552,893 input/s
+[1015/1200] vyukov N=4 T=5 us: 691,109 input/s
+[1016/1200] wcq N=4 T=5 us: 660,674 input/s
+[1017/1200] vyukov N=4 T=5 us: 662,576 input/s
+[1018/1200] wcq N=4 T=5 us: 633,767 input/s
+[1019/1200] wcq N=1 T=5 us: 193,421 input/s
+[1020/1200] vyukov N=1 T=5 us: 202,731 input/s
+[1021/1200] wcq N=1 T=2 us: 430,752 input/s
+[1022/1200] vyukov N=1 T=2 us: 490,856 input/s
+[1023/1200] vyukov N=1 T=2 us: 488,481 input/s
+[1024/1200] wcq N=1 T=2 us: 440,913 input/s
+[1025/1200] wcq N=2 T=2 us: 839,654 input/s
+[1026/1200] vyukov N=2 T=2 us: 936,080 input/s
+[1027/1200] vyukov N=4 T=0 us: 5,458,074 input/s
+[1028/1200] wcq N=4 T=0 us: 713,067 input/s
+[1029/1200] wcq N=2 T=0 us: 2,390,196 input/s
+[1030/1200] vyukov N=2 T=0 us: 7,785,665 input/s
+[1031/1200] vyukov N=1 T=5 us: 199,234 input/s
+[1032/1200] wcq N=1 T=5 us: 184,076 input/s
+[1033/1200] wcq N=2 T=2 us: 833,768 input/s
+[1034/1200] vyukov N=2 T=2 us: 964,359 input/s
+[1035/1200] wcq N=2 T=0 us: 2,448,970 input/s
+[1036/1200] vyukov N=2 T=0 us: 6,910,467 input/s
+[1037/1200] wcq N=2 T=5 us: 366,447 input/s
+[1038/1200] vyukov N=2 T=5 us: 388,940 input/s
+[1039/1200] wcq N=1 T=0 us: 4,489,347 input/s
+[1040/1200] vyukov N=1 T=0 us: 10,390,740 input/s
+[1041/1200] wcq N=2 T=2 us: 798,276 input/s
+[1042/1200] vyukov N=2 T=2 us: 941,676 input/s
+[1043/1200] vyukov N=2 T=5 us: 383,437 input/s
+[1044/1200] wcq N=2 T=5 us: 364,385 input/s
+[1045/1200] vyukov N=4 T=0 us: 5,779,444 input/s
+[1046/1200] wcq N=4 T=0 us: 646,017 input/s
+[1047/1200] wcq N=4 T=5 us: 629,429 input/s
+[1048/1200] vyukov N=4 T=5 us: 648,084 input/s
+[1049/1200] vyukov N=2 T=0 us: 7,313,936 input/s
+[1050/1200] wcq N=2 T=0 us: 2,477,365 input/s
+[1051/1200] wcq N=1 T=2 us: 413,820 input/s
+[1052/1200] vyukov N=1 T=2 us: 485,399 input/s
+[1053/1200] vyukov N=1 T=5 us: 199,518 input/s
+[1054/1200] wcq N=1 T=5 us: 189,694 input/s
+[1055/1200] vyukov N=4 T=2 us: 1,705,366 input/s
+[1056/1200] wcq N=4 T=2 us: 1,492,410 input/s
+[1057/1200] wcq N=4 T=2 us: 1,544,539 input/s
+[1058/1200] vyukov N=4 T=2 us: 1,717,985 input/s
+[1059/1200] wcq N=1 T=0 us: 4,339,849 input/s
+[1060/1200] vyukov N=1 T=0 us: 8,447,250 input/s
+[1061/1200] wcq N=2 T=1 us: 1,282,981 input/s
+[1062/1200] vyukov N=2 T=1 us: 1,819,346 input/s
+[1063/1200] vyukov N=4 T=1 us: 3,148,137 input/s
+[1064/1200] wcq N=4 T=1 us: 2,444,523 input/s
+[1065/1200] vyukov N=4 T=5 us: 689,481 input/s
+[1066/1200] wcq N=4 T=5 us: 635,988 input/s
+[1067/1200] vyukov N=4 T=2 us: 1,626,332 input/s
+[1068/1200] wcq N=4 T=2 us: 1,437,078 input/s
+[1069/1200] vyukov N=2 T=2 us: 896,433 input/s
+[1070/1200] wcq N=2 T=2 us: 829,200 input/s
+[1071/1200] wcq N=2 T=0 us: 2,078,498 input/s
+[1072/1200] vyukov N=2 T=0 us: 8,025,018 input/s
+[1073/1200] wcq N=1 T=5 us: 189,457 input/s
+[1074/1200] vyukov N=1 T=5 us: 200,889 input/s
+[1075/1200] vyukov N=2 T=5 us: 391,185 input/s
+[1076/1200] wcq N=2 T=5 us: 368,349 input/s
+[1077/1200] vyukov N=1 T=1 us: 954,280 input/s
+[1078/1200] wcq N=1 T=1 us: 779,844 input/s
+[1079/1200] vyukov N=2 T=2 us: 955,989 input/s
+[1080/1200] wcq N=2 T=2 us: 838,872 input/s
+[1081/1200] vyukov N=2 T=5 us: 368,637 input/s
+[1082/1200] wcq N=2 T=5 us: 353,411 input/s
+[1083/1200] wcq N=2 T=0 us: 2,288,988 input/s
+[1084/1200] vyukov N=2 T=0 us: 7,684,615 input/s
+[1085/1200] wcq N=4 T=2 us: 1,530,654 input/s
+[1086/1200] vyukov N=4 T=2 us: 1,702,428 input/s
+[1087/1200] wcq N=2 T=2 us: 866,567 input/s
+[1088/1200] vyukov N=2 T=2 us: 934,526 input/s
+[1089/1200] wcq N=2 T=0 us: 2,048,871 input/s
+[1090/1200] vyukov N=2 T=0 us: 6,901,166 input/s
+[1091/1200] vyukov N=2 T=2 us: 944,895 input/s
+[1092/1200] wcq N=2 T=2 us: 811,070 input/s
+[1093/1200] wcq N=1 T=5 us: 191,309 input/s
+[1094/1200] vyukov N=1 T=5 us: 203,162 input/s
+[1095/1200] vyukov N=1 T=5 us: 203,114 input/s
+[1096/1200] wcq N=1 T=5 us: 186,570 input/s
+[1097/1200] wcq N=4 T=2 us: 1,418,289 input/s
+[1098/1200] vyukov N=4 T=2 us: 1,677,667 input/s
+[1099/1200] wcq N=4 T=1 us: 2,601,572 input/s
+[1100/1200] vyukov N=4 T=1 us: 3,275,058 input/s
+[1101/1200] wcq N=2 T=5 us: 367,806 input/s
+[1102/1200] vyukov N=2 T=5 us: 391,203 input/s
+[1103/1200] vyukov N=4 T=5 us: 691,656 input/s
+[1104/1200] wcq N=4 T=5 us: 644,435 input/s
+[1105/1200] wcq N=2 T=1 us: 1,485,423 input/s
+[1106/1200] vyukov N=2 T=1 us: 1,807,431 input/s
+[1107/1200] vyukov N=2 T=5 us: 387,619 input/s
+[1108/1200] wcq N=2 T=5 us: 361,889 input/s
+[1109/1200] wcq N=1 T=0 us: 4,738,787 input/s
+[1110/1200] vyukov N=1 T=0 us: 4,738,855 input/s
+[1111/1200] wcq N=4 T=2 us: 1,388,314 input/s
+[1112/1200] vyukov N=4 T=2 us: 1,562,384 input/s
+[1113/1200] vyukov N=1 T=1 us: 944,239 input/s
+[1114/1200] wcq N=1 T=1 us: 768,050 input/s
+[1115/1200] wcq N=2 T=2 us: 794,187 input/s
+[1116/1200] vyukov N=2 T=2 us: 971,624 input/s
+[1117/1200] vyukov N=1 T=5 us: 201,027 input/s
+[1118/1200] wcq N=1 T=5 us: 190,824 input/s
+[1119/1200] wcq N=4 T=0 us: 581,309 input/s
+[1120/1200] vyukov N=4 T=0 us: 5,543,978 input/s
+[1121/1200] wcq N=4 T=2 us: 1,478,701 input/s
+[1122/1200] vyukov N=4 T=2 us: 1,724,144 input/s
+[1123/1200] vyukov N=1 T=2 us: 491,183 input/s
+[1124/1200] wcq N=1 T=2 us: 445,390 input/s
+[1125/1200] wcq N=2 T=1 us: 1,451,129 input/s
+[1126/1200] vyukov N=2 T=1 us: 1,738,950 input/s
+[1127/1200] wcq N=2 T=2 us: 806,056 input/s
+[1128/1200] vyukov N=2 T=2 us: 940,023 input/s
+[1129/1200] vyukov N=1 T=1 us: 933,902 input/s
+[1130/1200] wcq N=1 T=1 us: 733,161 input/s
+[1131/1200] vyukov N=4 T=1 us: 3,096,145 input/s
+[1132/1200] wcq N=4 T=1 us: 2,422,930 input/s
+[1133/1200] wcq N=2 T=5 us: 355,290 input/s
+[1134/1200] vyukov N=2 T=5 us: 382,727 input/s
+[1135/1200] vyukov N=4 T=1 us: 3,355,642 input/s
+[1136/1200] wcq N=4 T=1 us: 2,527,453 input/s
+[1137/1200] vyukov N=4 T=2 us: 1,712,665 input/s
+[1138/1200] wcq N=4 T=2 us: 1,493,092 input/s
+[1139/1200] vyukov N=2 T=1 us: 1,742,813 input/s
+[1140/1200] wcq N=2 T=1 us: 1,483,133 input/s
+[1141/1200] vyukov N=1 T=1 us: 940,260 input/s
+[1142/1200] wcq N=1 T=1 us: 768,418 input/s
+[1143/1200] wcq N=1 T=0 us: 5,024,596 input/s
+[1144/1200] vyukov N=1 T=0 us: 9,109,692 input/s
+[1145/1200] vyukov N=1 T=0 us: 9,115,503 input/s
+[1146/1200] wcq N=1 T=0 us: 4,515,532 input/s
+[1147/1200] vyukov N=4 T=0 us: 5,682,909 input/s
+[1148/1200] wcq N=4 T=0 us: 679,153 input/s
+[1149/1200] vyukov N=2 T=2 us: 961,118 input/s
+[1150/1200] wcq N=2 T=2 us: 827,331 input/s
+[1151/1200] vyukov N=1 T=2 us: 490,902 input/s
+[1152/1200] wcq N=1 T=2 us: 420,251 input/s
+[1153/1200] vyukov N=4 T=2 us: 1,717,602 input/s
+[1154/1200] wcq N=4 T=2 us: 1,428,578 input/s
+[1155/1200] vyukov N=1 T=1 us: 767,935 input/s
+[1156/1200] wcq N=1 T=1 us: 792,604 input/s
+[1157/1200] vyukov N=1 T=5 us: 197,656 input/s
+[1158/1200] wcq N=1 T=5 us: 185,370 input/s
+[1159/1200] wcq N=1 T=5 us: 191,856 input/s
+[1160/1200] vyukov N=1 T=5 us: 197,109 input/s
+[1161/1200] vyukov N=2 T=1 us: 1,806,922 input/s
+[1162/1200] wcq N=2 T=1 us: 1,387,181 input/s
+[1163/1200] vyukov N=4 T=5 us: 687,478 input/s
+[1164/1200] wcq N=4 T=5 us: 660,691 input/s
+[1165/1200] wcq N=2 T=5 us: 367,241 input/s
+[1166/1200] vyukov N=2 T=5 us: 383,521 input/s
+[1167/1200] vyukov N=1 T=1 us: 931,917 input/s
+[1168/1200] wcq N=1 T=1 us: 741,900 input/s
+[1169/1200] vyukov N=2 T=0 us: 6,729,215 input/s
+[1170/1200] wcq N=2 T=0 us: 2,039,646 input/s
+[1171/1200] wcq N=2 T=5 us: 344,977 input/s
+[1172/1200] vyukov N=2 T=5 us: 384,001 input/s
+[1173/1200] vyukov N=2 T=2 us: 949,482 input/s
+[1174/1200] wcq N=2 T=2 us: 827,612 input/s
+[1175/1200] vyukov N=4 T=5 us: 699,558 input/s
+[1176/1200] wcq N=4 T=5 us: 664,773 input/s
+[1177/1200] vyukov N=1 T=2 us: 496,336 input/s
+[1178/1200] wcq N=1 T=2 us: 436,940 input/s
+[1179/1200] vyukov N=4 T=2 us: 1,711,056 input/s
+[1180/1200] wcq N=4 T=2 us: 1,494,691 input/s
+[1181/1200] vyukov N=1 T=0 us: 5,846,871 input/s
+[1182/1200] wcq N=1 T=0 us: 2,782,604 input/s
+[1183/1200] wcq N=4 T=1 us: 2,670,628 input/s
+[1184/1200] vyukov N=4 T=1 us: 3,005,422 input/s
+[1185/1200] vyukov N=1 T=2 us: 487,985 input/s
+[1186/1200] wcq N=1 T=2 us: 420,529 input/s
+[1187/1200] wcq N=4 T=2 us: 1,348,658 input/s
+[1188/1200] vyukov N=4 T=2 us: 1,610,414 input/s
+[1189/1200] vyukov N=2 T=5 us: 369,227 input/s
+[1190/1200] wcq N=2 T=5 us: 369,175 input/s
+[1191/1200] vyukov N=1 T=0 us: 10,049,241 input/s
+[1192/1200] wcq N=1 T=0 us: 4,311,583 input/s
+[1193/1200] wcq N=2 T=5 us: 354,650 input/s
+[1194/1200] vyukov N=2 T=5 us: 385,347 input/s
+[1195/1200] vyukov N=4 T=1 us: 3,190,069 input/s
+[1196/1200] wcq N=4 T=1 us: 2,603,746 input/s
+[1197/1200] vyukov N=2 T=0 us: 2,910,749 input/s
+[1198/1200] wcq N=2 T=0 us: 1,943,890 input/s
+[1199/1200] wcq N=1 T=2 us: 426,575 input/s
+[1200/1200] vyukov N=1 T=2 us: 492,704 input/s
+Risultati: /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali/FarmThroughput
+Grafici salvati in /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali/FarmThroughput
+Analisi salvata in /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali/FarmThroughput
+[1/950] vyukov 512x512 rows=16 N=1: 7966.4 img/s, p95=3.798 ms, output uguale
+[2/950] wcq 512x512 rows=16 N=1: 7886.8 img/s, p95=3.727 ms, output uguale
+[3/950] vyukov 512x512 rows=1 N=4: 9264.0 img/s, p95=0.334 ms, output uguale
+[4/950] wcq 512x512 rows=1 N=4: 4716.5 img/s, p95=0.582 ms, output uguale
+[5/950] wcq 512x512 rows=16 N=2: 9524.7 img/s, p95=3.110 ms, output uguale
+[6/950] vyukov 512x512 rows=16 N=2: 11273.5 img/s, p95=2.670 ms, output uguale
+[7/950] wcq 512x512 rows=16 N=4: 8330.0 img/s, p95=3.418 ms, output uguale
+[8/950] vyukov 512x512 rows=16 N=4: 9092.2 img/s, p95=3.313 ms, output uguale
+[9/950] wcq 512x512 rows=1 N=4: 6710.6 img/s, p95=0.489 ms, output uguale
+[10/950] vyukov 512x512 rows=1 N=4: 8688.3 img/s, p95=0.382 ms, output uguale
+[11/950] wcq 512x512 rows=1 N=2: 3634.4 img/s, p95=0.843 ms, output uguale
+[12/950] vyukov 512x512 rows=1 N=2: 7703.0 img/s, p95=0.437 ms, output uguale
+[13/950] vyukov 512x512 rows=16 N=2: 10789.1 img/s, p95=2.696 ms, output uguale
+[14/950] wcq 512x512 rows=16 N=2: 10553.7 img/s, p95=2.785 ms, output uguale
+[15/950] wcq 512x512 rows=128 N=4: 10905.7 img/s, p95=2.801 ms, output uguale
+[16/950] vyukov 512x512 rows=128 N=4: 10864.5 img/s, p95=2.793 ms, output uguale
+[17/950] vyukov 512x512 rows=16 N=1: 8497.2 img/s, p95=3.580 ms, output uguale
+[18/950] wcq 512x512 rows=16 N=1: 7921.8 img/s, p95=3.667 ms, output uguale
+[19/950] wcq 512x512 rows=1 N=4: 6428.1 img/s, p95=0.440 ms, output uguale
+[20/950] vyukov 512x512 rows=1 N=4: 8750.3 img/s, p95=0.349 ms, output uguale
+[21/950] vyukov 512x512 rows=1 N=4: 9093.3 img/s, p95=0.333 ms, output uguale
+[22/950] wcq 512x512 rows=1 N=4: 4714.4 img/s, p95=0.587 ms, output uguale
+[23/950] wcq 512x512 rows=16 N=2: 8675.0 img/s, p95=3.055 ms, output uguale
+[24/950] vyukov 512x512 rows=16 N=2: 11001.1 img/s, p95=2.763 ms, output uguale
+[25/950] vyukov 512x512 rows=1 N=2: 7401.2 img/s, p95=0.452 ms, output uguale
+[26/950] wcq 512x512 rows=1 N=2: 3187.4 img/s, p95=1.086 ms, output uguale
+[27/950] vyukov 512x512 rows=16 N=2: 7579.0 img/s, p95=3.877 ms, output uguale
+[28/950] wcq 512x512 rows=16 N=2: 10288.7 img/s, p95=2.790 ms, output uguale
+[29/950] wcq 512x512 rows=128 N=4: 10952.2 img/s, p95=2.801 ms, output uguale
+[30/950] vyukov 512x512 rows=128 N=4: 11473.3 img/s, p95=2.693 ms, output uguale
+[31/950] wcq 512x512 rows=128 N=4: 11092.8 img/s, p95=2.752 ms, output uguale
+[32/950] vyukov 512x512 rows=128 N=4: 10334.4 img/s, p95=2.942 ms, output uguale
+[33/950] vyukov 512x512 rows=128 N=2: 9620.0 img/s, p95=3.178 ms, output uguale
+[34/950] wcq 512x512 rows=128 N=2: 10878.4 img/s, p95=2.737 ms, output uguale
+[35/950] wcq 512x512 rows=1 N=4: 6862.9 img/s, p95=0.438 ms, output uguale
+[36/950] vyukov 512x512 rows=1 N=4: 6898.7 img/s, p95=0.508 ms, output uguale
+[37/950] serial 512x512 rows=0 N=0: 8892.7 img/s, p95=0.135 ms, output uguale
+[38/950] wcq 512x512 rows=1 N=1: 2097.5 img/s, p95=1.823 ms, output uguale
+[39/950] vyukov 512x512 rows=1 N=1: 4833.9 img/s, p95=0.709 ms, output uguale
+[40/950] vyukov 512x512 rows=1 N=4: 8453.0 img/s, p95=0.394 ms, output uguale
+[41/950] wcq 512x512 rows=1 N=4: 6827.0 img/s, p95=0.425 ms, output uguale
+[42/950] serial 512x512 rows=0 N=0: 7751.7 img/s, p95=0.163 ms, output uguale
+[43/950] wcq 512x512 rows=128 N=4: 10582.3 img/s, p95=2.830 ms, output uguale
+[44/950] vyukov 512x512 rows=128 N=4: 9513.2 img/s, p95=3.170 ms, output uguale
+[45/950] wcq 512x512 rows=128 N=4: 10417.8 img/s, p95=2.940 ms, output uguale
+[46/950] vyukov 512x512 rows=128 N=4: 11080.4 img/s, p95=2.773 ms, output uguale
+[47/950] wcq 512x512 rows=128 N=1: 9252.5 img/s, p95=3.260 ms, output uguale
+[48/950] vyukov 512x512 rows=128 N=1: 7919.9 img/s, p95=3.819 ms, output uguale
+[49/950] wcq 512x512 rows=1 N=2: 3777.7 img/s, p95=0.895 ms, output uguale
+[50/950] vyukov 512x512 rows=1 N=2: 8023.5 img/s, p95=0.445 ms, output uguale
+[51/950] wcq 512x512 rows=128 N=4: 10763.9 img/s, p95=2.812 ms, output uguale
+[52/950] vyukov 512x512 rows=128 N=4: 10603.0 img/s, p95=2.860 ms, output uguale
+[53/950] wcq 512x512 rows=128 N=2: 11293.3 img/s, p95=2.662 ms, output uguale
+[54/950] vyukov 512x512 rows=128 N=2: 10738.0 img/s, p95=2.816 ms, output uguale
+[55/950] vyukov 512x512 rows=16 N=2: 10009.2 img/s, p95=3.027 ms, output uguale
+[56/950] wcq 512x512 rows=16 N=2: 10466.5 img/s, p95=2.783 ms, output uguale
+[57/950] vyukov 512x512 rows=1 N=1: 5303.2 img/s, p95=0.703 ms, output uguale
+[58/950] wcq 512x512 rows=1 N=1: 2084.4 img/s, p95=1.676 ms, output uguale
+[59/950] wcq 512x512 rows=128 N=4: 9598.2 img/s, p95=3.156 ms, output uguale
+[60/950] vyukov 512x512 rows=128 N=4: 9958.0 img/s, p95=3.037 ms, output uguale
+[61/950] wcq 512x512 rows=1 N=2: 3327.9 img/s, p95=0.998 ms, output uguale
+[62/950] vyukov 512x512 rows=1 N=2: 7844.4 img/s, p95=0.416 ms, output uguale
+[63/950] vyukov 512x512 rows=1 N=4: 9344.4 img/s, p95=0.359 ms, output uguale
+[64/950] wcq 512x512 rows=1 N=4: 6055.1 img/s, p95=0.493 ms, output uguale
+[65/950] wcq 512x512 rows=1 N=1: 2262.4 img/s, p95=1.566 ms, output uguale
+[66/950] vyukov 512x512 rows=1 N=1: 5753.0 img/s, p95=0.543 ms, output uguale
+[67/950] wcq 512x512 rows=128 N=2: 10486.9 img/s, p95=2.845 ms, output uguale
+[68/950] vyukov 512x512 rows=128 N=2: 7911.3 img/s, p95=3.794 ms, output uguale
+[69/950] vyukov 512x512 rows=1 N=1: 4996.3 img/s, p95=0.652 ms, output uguale
+[70/950] wcq 512x512 rows=1 N=1: 2133.9 img/s, p95=1.724 ms, output uguale
+[71/950] wcq 512x512 rows=16 N=1: 7598.9 img/s, p95=3.839 ms, output uguale
+[72/950] vyukov 512x512 rows=16 N=1: 7214.4 img/s, p95=4.211 ms, output uguale
+[73/950] wcq 512x512 rows=128 N=2: 10815.8 img/s, p95=2.780 ms, output uguale
+[74/950] vyukov 512x512 rows=128 N=2: 8866.7 img/s, p95=3.401 ms, output uguale
+[75/950] vyukov 512x512 rows=128 N=1: 7128.5 img/s, p95=4.291 ms, output uguale
+[76/950] wcq 512x512 rows=128 N=1: 8383.7 img/s, p95=3.585 ms, output uguale
+[77/950] wcq 512x512 rows=1 N=1: 2116.8 img/s, p95=1.618 ms, output uguale
+[78/950] vyukov 512x512 rows=1 N=1: 6129.6 img/s, p95=0.590 ms, output uguale
+[79/950] wcq 512x512 rows=128 N=4: 10837.2 img/s, p95=2.756 ms, output uguale
+[80/950] vyukov 512x512 rows=128 N=4: 11168.5 img/s, p95=2.740 ms, output uguale
+[81/950] wcq 512x512 rows=128 N=1: 6176.5 img/s, p95=4.949 ms, output uguale
+[82/950] vyukov 512x512 rows=128 N=1: 8344.2 img/s, p95=3.591 ms, output uguale
+[83/950] wcq 512x512 rows=16 N=1: 7023.1 img/s, p95=4.150 ms, output uguale
+[84/950] vyukov 512x512 rows=16 N=1: 8912.6 img/s, p95=3.392 ms, output uguale
+[85/950] wcq 512x512 rows=128 N=1: 6417.2 img/s, p95=4.709 ms, output uguale
+[86/950] vyukov 512x512 rows=128 N=1: 7640.8 img/s, p95=3.993 ms, output uguale
+[87/950] vyukov 512x512 rows=128 N=1: 8535.1 img/s, p95=3.503 ms, output uguale
+[88/950] wcq 512x512 rows=128 N=1: 8441.2 img/s, p95=3.615 ms, output uguale
+[89/950] wcq 512x512 rows=128 N=4: 10193.8 img/s, p95=2.968 ms, output uguale
+[90/950] vyukov 512x512 rows=128 N=4: 8655.5 img/s, p95=3.495 ms, output uguale
+[91/950] vyukov 512x512 rows=1 N=1: 5648.1 img/s, p95=0.583 ms, output uguale
+[92/950] wcq 512x512 rows=1 N=1: 2361.4 img/s, p95=1.333 ms, output uguale
+[93/950] vyukov 512x512 rows=16 N=4: 10267.2 img/s, p95=2.946 ms, output uguale
+[94/950] wcq 512x512 rows=16 N=4: 9385.1 img/s, p95=3.078 ms, output uguale
+[95/950] wcq 512x512 rows=16 N=2: 10920.6 img/s, p95=2.653 ms, output uguale
+[96/950] vyukov 512x512 rows=16 N=2: 10337.6 img/s, p95=2.896 ms, output uguale
+[97/950] serial 512x512 rows=0 N=0: 7348.5 img/s, p95=0.185 ms, output uguale
+[98/950] wcq 512x512 rows=128 N=2: 10029.5 img/s, p95=3.016 ms, output uguale
+[99/950] vyukov 512x512 rows=128 N=2: 11064.4 img/s, p95=2.761 ms, output uguale
+[100/950] vyukov 512x512 rows=16 N=4: 10328.9 img/s, p95=2.895 ms, output uguale
+[101/950] wcq 512x512 rows=16 N=4: 8986.8 img/s, p95=3.201 ms, output uguale
+[102/950] vyukov 512x512 rows=128 N=4: 11032.5 img/s, p95=2.817 ms, output uguale
+[103/950] wcq 512x512 rows=128 N=4: 11208.3 img/s, p95=2.757 ms, output uguale
+[104/950] wcq 512x512 rows=1 N=4: 6604.7 img/s, p95=0.301 ms, output uguale
+[105/950] vyukov 512x512 rows=1 N=4: 9040.0 img/s, p95=0.339 ms, output uguale
+[106/950] serial 512x512 rows=0 N=0: 8274.7 img/s, p95=0.187 ms, output uguale
+[107/950] vyukov 512x512 rows=128 N=4: 10109.2 img/s, p95=3.049 ms, output uguale
+[108/950] wcq 512x512 rows=128 N=4: 10386.6 img/s, p95=2.892 ms, output uguale
+[109/950] vyukov 512x512 rows=128 N=1: 7842.9 img/s, p95=3.902 ms, output uguale
+[110/950] wcq 512x512 rows=128 N=1: 7160.8 img/s, p95=4.245 ms, output uguale
+[111/950] vyukov 512x512 rows=1 N=1: 6027.0 img/s, p95=0.572 ms, output uguale
+[112/950] wcq 512x512 rows=1 N=1: 2144.4 img/s, p95=1.691 ms, output uguale
+[113/950] serial 512x512 rows=0 N=0: 9607.3 img/s, p95=0.109 ms, output uguale
+[114/950] vyukov 512x512 rows=128 N=2: 10881.2 img/s, p95=2.746 ms, output uguale
+[115/950] wcq 512x512 rows=128 N=2: 10330.6 img/s, p95=2.902 ms, output uguale
+[116/950] serial 512x512 rows=0 N=0: 9217.8 img/s, p95=0.130 ms, output uguale
+[117/950] serial 512x512 rows=0 N=0: 9687.1 img/s, p95=0.109 ms, output uguale
+[118/950] vyukov 512x512 rows=128 N=1: 8709.6 img/s, p95=3.492 ms, output uguale
+[119/950] wcq 512x512 rows=128 N=1: 7257.8 img/s, p95=4.109 ms, output uguale
+[120/950] serial 512x512 rows=0 N=0: 9282.4 img/s, p95=0.115 ms, output uguale
+[121/950] vyukov 512x512 rows=16 N=1: 8604.8 img/s, p95=3.510 ms, output uguale
+[122/950] wcq 512x512 rows=16 N=1: 7142.9 img/s, p95=4.128 ms, output uguale
+[123/950] wcq 512x512 rows=1 N=4: 6563.3 img/s, p95=0.467 ms, output uguale
+[124/950] vyukov 512x512 rows=1 N=4: 9268.3 img/s, p95=0.342 ms, output uguale
+[125/950] vyukov 512x512 rows=16 N=1: 7504.0 img/s, p95=4.029 ms, output uguale
+[126/950] wcq 512x512 rows=16 N=1: 7452.9 img/s, p95=3.978 ms, output uguale
+[127/950] wcq 512x512 rows=128 N=2: 10695.6 img/s, p95=2.814 ms, output uguale
+[128/950] vyukov 512x512 rows=128 N=2: 8240.3 img/s, p95=3.663 ms, output uguale
+[129/950] wcq 512x512 rows=16 N=1: 7904.0 img/s, p95=3.785 ms, output uguale
+[130/950] vyukov 512x512 rows=16 N=1: 8402.9 img/s, p95=3.594 ms, output uguale
+[131/950] vyukov 512x512 rows=1 N=4: 9058.5 img/s, p95=0.339 ms, output uguale
+[132/950] wcq 512x512 rows=1 N=4: 6917.4 img/s, p95=0.438 ms, output uguale
+[133/950] wcq 512x512 rows=16 N=1: 7975.3 img/s, p95=3.744 ms, output uguale
+[134/950] vyukov 512x512 rows=16 N=1: 8340.5 img/s, p95=3.608 ms, output uguale
+[135/950] wcq 512x512 rows=128 N=2: 11191.8 img/s, p95=2.734 ms, output uguale
+[136/950] vyukov 512x512 rows=128 N=2: 10670.3 img/s, p95=2.826 ms, output uguale
+[137/950] wcq 512x512 rows=1 N=2: 3822.7 img/s, p95=0.871 ms, output uguale
+[138/950] vyukov 512x512 rows=1 N=2: 7741.2 img/s, p95=0.436 ms, output uguale
+[139/950] serial 512x512 rows=0 N=0: 9771.7 img/s, p95=0.107 ms, output uguale
+[140/950] vyukov 512x512 rows=128 N=1: 8895.3 img/s, p95=3.413 ms, output uguale
+[141/950] wcq 512x512 rows=128 N=1: 8708.7 img/s, p95=3.479 ms, output uguale
+[142/950] vyukov 512x512 rows=128 N=2: 10408.0 img/s, p95=2.933 ms, output uguale
+[143/950] wcq 512x512 rows=128 N=2: 10201.6 img/s, p95=2.984 ms, output uguale
+[144/950] vyukov 512x512 rows=128 N=1: 8439.5 img/s, p95=3.601 ms, output uguale
+[145/950] wcq 512x512 rows=128 N=1: 6819.5 img/s, p95=4.466 ms, output uguale
+[146/950] vyukov 512x512 rows=16 N=1: 6143.9 img/s, p95=4.901 ms, output uguale
+[147/950] wcq 512x512 rows=16 N=1: 7742.4 img/s, p95=3.805 ms, output uguale
+[148/950] wcq 512x512 rows=1 N=4: 5510.8 img/s, p95=0.518 ms, output uguale
+[149/950] vyukov 512x512 rows=1 N=4: 8828.2 img/s, p95=0.371 ms, output uguale
+[150/950] vyukov 512x512 rows=128 N=1: 8712.9 img/s, p95=3.429 ms, output uguale
+[151/950] wcq 512x512 rows=128 N=1: 7145.4 img/s, p95=4.256 ms, output uguale
+[152/950] vyukov 512x512 rows=1 N=1: 5400.3 img/s, p95=0.704 ms, output uguale
+[153/950] wcq 512x512 rows=1 N=1: 2200.9 img/s, p95=1.672 ms, output uguale
+[154/950] wcq 512x512 rows=16 N=4: 8520.1 img/s, p95=3.300 ms, output uguale
+[155/950] vyukov 512x512 rows=16 N=4: 11014.0 img/s, p95=2.767 ms, output uguale
+[156/950] vyukov 512x512 rows=1 N=2: 7973.7 img/s, p95=0.390 ms, output uguale
+[157/950] wcq 512x512 rows=1 N=2: 3732.6 img/s, p95=0.935 ms, output uguale
+[158/950] vyukov 512x512 rows=16 N=4: 10631.2 img/s, p95=2.773 ms, output uguale
+[159/950] wcq 512x512 rows=16 N=4: 11194.5 img/s, p95=2.561 ms, output uguale
+[160/950] vyukov 512x512 rows=16 N=4: 10838.2 img/s, p95=2.765 ms, output uguale
+[161/950] wcq 512x512 rows=16 N=4: 11285.7 img/s, p95=2.587 ms, output uguale
+[162/950] wcq 512x512 rows=16 N=2: 9985.9 img/s, p95=2.868 ms, output uguale
+[163/950] vyukov 512x512 rows=16 N=2: 8778.9 img/s, p95=3.453 ms, output uguale
+[164/950] vyukov 512x512 rows=16 N=2: 10369.6 img/s, p95=2.865 ms, output uguale
+[165/950] wcq 512x512 rows=16 N=2: 10154.4 img/s, p95=2.903 ms, output uguale
+[166/950] wcq 512x512 rows=128 N=4: 10712.0 img/s, p95=2.860 ms, output uguale
+[167/950] vyukov 512x512 rows=128 N=4: 10803.7 img/s, p95=2.839 ms, output uguale
+[168/950] wcq 512x512 rows=16 N=4: 9002.7 img/s, p95=3.191 ms, output uguale
+[169/950] vyukov 512x512 rows=16 N=4: 11096.4 img/s, p95=2.709 ms, output uguale
+[170/950] wcq 512x512 rows=16 N=4: 10691.7 img/s, p95=2.645 ms, output uguale
+[171/950] vyukov 512x512 rows=16 N=4: 10876.6 img/s, p95=2.764 ms, output uguale
+[172/950] wcq 512x512 rows=128 N=1: 7820.3 img/s, p95=3.905 ms, output uguale
+[173/950] vyukov 512x512 rows=128 N=1: 8149.6 img/s, p95=3.717 ms, output uguale
+[174/950] wcq 512x512 rows=16 N=1: 6296.3 img/s, p95=4.634 ms, output uguale
+[175/950] vyukov 512x512 rows=16 N=1: 7954.5 img/s, p95=3.783 ms, output uguale
+[176/950] vyukov 512x512 rows=1 N=2: 6525.4 img/s, p95=0.533 ms, output uguale
+[177/950] wcq 512x512 rows=1 N=2: 3648.9 img/s, p95=0.894 ms, output uguale
+[178/950] wcq 512x512 rows=128 N=1: 7129.1 img/s, p95=4.201 ms, output uguale
+[179/950] vyukov 512x512 rows=128 N=1: 8960.1 img/s, p95=3.384 ms, output uguale
+[180/950] wcq 512x512 rows=1 N=2: 3799.2 img/s, p95=0.842 ms, output uguale
+[181/950] vyukov 512x512 rows=1 N=2: 6623.1 img/s, p95=0.504 ms, output uguale
+[182/950] wcq 512x512 rows=16 N=2: 9318.3 img/s, p95=2.998 ms, output uguale
+[183/950] vyukov 512x512 rows=16 N=2: 10680.9 img/s, p95=2.796 ms, output uguale
+[184/950] serial 512x512 rows=0 N=0: 9716.4 img/s, p95=0.109 ms, output uguale
+[185/950] vyukov 512x512 rows=128 N=4: 10990.8 img/s, p95=2.819 ms, output uguale
+[186/950] wcq 512x512 rows=128 N=4: 10629.6 img/s, p95=2.882 ms, output uguale
+[187/950] wcq 512x512 rows=16 N=1: 8388.9 img/s, p95=3.545 ms, output uguale
+[188/950] vyukov 512x512 rows=16 N=1: 9168.6 img/s, p95=3.330 ms, output uguale
+[189/950] wcq 512x512 rows=16 N=2: 9212.9 img/s, p95=3.041 ms, output uguale
+[190/950] vyukov 512x512 rows=16 N=2: 10626.3 img/s, p95=2.867 ms, output uguale
+[191/950] serial 512x512 rows=0 N=0: 9562.7 img/s, p95=0.116 ms, output uguale
+[192/950] vyukov 512x512 rows=1 N=2: 7898.9 img/s, p95=0.412 ms, output uguale
+[193/950] wcq 512x512 rows=1 N=2: 3683.4 img/s, p95=0.890 ms, output uguale
+[194/950] wcq 512x512 rows=128 N=1: 7413.8 img/s, p95=4.051 ms, output uguale
+[195/950] vyukov 512x512 rows=128 N=1: 8159.9 img/s, p95=3.754 ms, output uguale
+[196/950] wcq 512x512 rows=1 N=4: 6321.4 img/s, p95=0.461 ms, output uguale
+[197/950] vyukov 512x512 rows=1 N=4: 9463.2 img/s, p95=0.324 ms, output uguale
+[198/950] vyukov 512x512 rows=16 N=2: 9302.5 img/s, p95=3.220 ms, output uguale
+[199/950] wcq 512x512 rows=16 N=2: 10857.3 img/s, p95=2.665 ms, output uguale
+[200/950] wcq 512x512 rows=1 N=4: 6645.5 img/s, p95=0.475 ms, output uguale
+[201/950] vyukov 512x512 rows=1 N=4: 9025.0 img/s, p95=0.339 ms, output uguale
+[202/950] vyukov 512x512 rows=1 N=1: 6548.6 img/s, p95=0.497 ms, output uguale
+[203/950] wcq 512x512 rows=1 N=1: 2278.9 img/s, p95=1.378 ms, output uguale
+[204/950] wcq 512x512 rows=1 N=4: 6762.4 img/s, p95=0.501 ms, output uguale
+[205/950] vyukov 512x512 rows=1 N=4: 9300.0 img/s, p95=0.333 ms, output uguale
+[206/950] wcq 512x512 rows=1 N=4: 6588.6 img/s, p95=0.431 ms, output uguale
+[207/950] vyukov 512x512 rows=1 N=4: 6329.8 img/s, p95=0.376 ms, output uguale
+[208/950] wcq 512x512 rows=1 N=4: 5840.4 img/s, p95=0.491 ms, output uguale
+[209/950] vyukov 512x512 rows=1 N=4: 8938.2 img/s, p95=0.364 ms, output uguale
+[210/950] vyukov 512x512 rows=128 N=2: 10192.2 img/s, p95=3.046 ms, output uguale
+[211/950] wcq 512x512 rows=128 N=2: 10698.6 img/s, p95=2.765 ms, output uguale
+[212/950] vyukov 512x512 rows=1 N=2: 6524.7 img/s, p95=0.550 ms, output uguale
+[213/950] wcq 512x512 rows=1 N=2: 3349.9 img/s, p95=1.049 ms, output uguale
+[214/950] vyukov 512x512 rows=128 N=4: 10756.7 img/s, p95=2.840 ms, output uguale
+[215/950] wcq 512x512 rows=128 N=4: 10930.8 img/s, p95=2.753 ms, output uguale
+[216/950] vyukov 512x512 rows=16 N=4: 11042.7 img/s, p95=2.740 ms, output uguale
+[217/950] wcq 512x512 rows=16 N=4: 10209.8 img/s, p95=2.780 ms, output uguale
+[218/950] wcq 512x512 rows=128 N=2: 9564.2 img/s, p95=3.200 ms, output uguale
+[219/950] vyukov 512x512 rows=128 N=2: 11014.7 img/s, p95=2.786 ms, output uguale
+[220/950] vyukov 512x512 rows=128 N=4: 10795.8 img/s, p95=2.807 ms, output uguale
+[221/950] wcq 512x512 rows=128 N=4: 9956.8 img/s, p95=3.018 ms, output uguale
+[222/950] vyukov 512x512 rows=128 N=2: 10723.8 img/s, p95=2.822 ms, output uguale
+[223/950] wcq 512x512 rows=128 N=2: 8324.0 img/s, p95=3.614 ms, output uguale
+[224/950] vyukov 512x512 rows=128 N=2: 9716.3 img/s, p95=3.136 ms, output uguale
+[225/950] wcq 512x512 rows=128 N=2: 10864.5 img/s, p95=2.842 ms, output uguale
+[226/950] wcq 512x512 rows=1 N=1: 2351.1 img/s, p95=1.397 ms, output uguale
+[227/950] vyukov 512x512 rows=1 N=1: 4771.2 img/s, p95=0.705 ms, output uguale
+[228/950] wcq 512x512 rows=16 N=1: 7050.1 img/s, p95=4.178 ms, output uguale
+[229/950] vyukov 512x512 rows=16 N=1: 7992.6 img/s, p95=3.796 ms, output uguale
+[230/950] wcq 512x512 rows=128 N=2: 10294.1 img/s, p95=2.930 ms, output uguale
+[231/950] vyukov 512x512 rows=128 N=2: 8413.8 img/s, p95=3.598 ms, output uguale
+[232/950] wcq 512x512 rows=128 N=1: 7741.6 img/s, p95=3.916 ms, output uguale
+[233/950] vyukov 512x512 rows=128 N=1: 6745.0 img/s, p95=4.523 ms, output uguale
+[234/950] wcq 512x512 rows=16 N=2: 10596.9 img/s, p95=2.712 ms, output uguale
+[235/950] vyukov 512x512 rows=16 N=2: 10737.3 img/s, p95=2.740 ms, output uguale
+[236/950] vyukov 512x512 rows=1 N=4: 7958.8 img/s, p95=0.411 ms, output uguale
+[237/950] wcq 512x512 rows=1 N=4: 6437.0 img/s, p95=0.458 ms, output uguale
+[238/950] vyukov 512x512 rows=1 N=1: 5126.1 img/s, p95=0.712 ms, output uguale
+[239/950] wcq 512x512 rows=1 N=1: 1943.0 img/s, p95=1.905 ms, output uguale
+[240/950] wcq 512x512 rows=1 N=1: 1996.3 img/s, p95=1.812 ms, output uguale
+[241/950] vyukov 512x512 rows=1 N=1: 6382.4 img/s, p95=0.498 ms, output uguale
+[242/950] wcq 512x512 rows=1 N=1: 2014.9 img/s, p95=1.774 ms, output uguale
+[243/950] vyukov 512x512 rows=1 N=1: 5922.8 img/s, p95=0.523 ms, output uguale
+[244/950] vyukov 512x512 rows=128 N=2: 10622.9 img/s, p95=2.808 ms, output uguale
+[245/950] wcq 512x512 rows=128 N=2: 10616.7 img/s, p95=2.813 ms, output uguale
+[246/950] wcq 512x512 rows=1 N=2: 3265.1 img/s, p95=1.033 ms, output uguale
+[247/950] vyukov 512x512 rows=1 N=2: 7867.0 img/s, p95=0.436 ms, output uguale
+[248/950] wcq 512x512 rows=16 N=1: 6091.0 img/s, p95=4.894 ms, output uguale
+[249/950] vyukov 512x512 rows=16 N=1: 8337.6 img/s, p95=3.594 ms, output uguale
+[250/950] vyukov 512x512 rows=1 N=2: 6459.2 img/s, p95=0.531 ms, output uguale
+[251/950] wcq 512x512 rows=1 N=2: 3317.7 img/s, p95=1.105 ms, output uguale
+[252/950] wcq 512x512 rows=1 N=2: 3249.5 img/s, p95=1.041 ms, output uguale
+[253/950] vyukov 512x512 rows=1 N=2: 6220.8 img/s, p95=0.590 ms, output uguale
+[254/950] wcq 512x512 rows=128 N=2: 11010.4 img/s, p95=2.740 ms, output uguale
+[255/950] vyukov 512x512 rows=128 N=2: 9174.7 img/s, p95=3.302 ms, output uguale
+[256/950] wcq 512x512 rows=128 N=2: 10587.0 img/s, p95=2.900 ms, output uguale
+[257/950] vyukov 512x512 rows=128 N=2: 10101.0 img/s, p95=3.043 ms, output uguale
+[258/950] wcq 512x512 rows=1 N=4: 6946.3 img/s, p95=0.430 ms, output uguale
+[259/950] vyukov 512x512 rows=1 N=4: 8962.5 img/s, p95=0.360 ms, output uguale
+[260/950] vyukov 512x512 rows=16 N=4: 10868.9 img/s, p95=2.807 ms, output uguale
+[261/950] wcq 512x512 rows=16 N=4: 11265.9 img/s, p95=2.571 ms, output uguale
+[262/950] wcq 512x512 rows=1 N=4: 6795.1 img/s, p95=0.432 ms, output uguale
+[263/950] vyukov 512x512 rows=1 N=4: 9154.6 img/s, p95=0.346 ms, output uguale
+[264/950] vyukov 512x512 rows=16 N=1: 8054.3 img/s, p95=3.645 ms, output uguale
+[265/950] wcq 512x512 rows=16 N=1: 7921.6 img/s, p95=3.679 ms, output uguale
+[266/950] wcq 512x512 rows=1 N=1: 2309.4 img/s, p95=1.451 ms, output uguale
+[267/950] vyukov 512x512 rows=1 N=1: 6038.0 img/s, p95=0.520 ms, output uguale
+[268/950] wcq 512x512 rows=1 N=1: 2180.9 img/s, p95=1.645 ms, output uguale
+[269/950] vyukov 512x512 rows=1 N=1: 4820.5 img/s, p95=0.753 ms, output uguale
+[270/950] wcq 512x512 rows=1 N=4: 6492.9 img/s, p95=0.489 ms, output uguale
+[271/950] vyukov 512x512 rows=1 N=4: 9119.3 img/s, p95=0.345 ms, output uguale
+[272/950] vyukov 512x512 rows=128 N=4: 10592.1 img/s, p95=2.884 ms, output uguale
+[273/950] wcq 512x512 rows=128 N=4: 9839.3 img/s, p95=3.082 ms, output uguale
+[274/950] wcq 512x512 rows=16 N=4: 9071.1 img/s, p95=3.137 ms, output uguale
+[275/950] vyukov 512x512 rows=16 N=4: 10725.5 img/s, p95=2.813 ms, output uguale
+[276/950] wcq 512x512 rows=128 N=4: 10346.9 img/s, p95=2.916 ms, output uguale
+[277/950] vyukov 512x512 rows=128 N=4: 10541.4 img/s, p95=2.908 ms, output uguale
+[278/950] wcq 512x512 rows=1 N=4: 6262.3 img/s, p95=0.495 ms, output uguale
+[279/950] vyukov 512x512 rows=1 N=4: 9377.6 img/s, p95=0.332 ms, output uguale
+[280/950] vyukov 512x512 rows=16 N=1: 9025.0 img/s, p95=3.351 ms, output uguale
+[281/950] wcq 512x512 rows=16 N=1: 7847.6 img/s, p95=3.753 ms, output uguale
+[282/950] wcq 512x512 rows=16 N=4: 10755.4 img/s, p95=2.644 ms, output uguale
+[283/950] vyukov 512x512 rows=16 N=4: 10347.7 img/s, p95=2.867 ms, output uguale
+[284/950] serial 512x512 rows=0 N=0: 9165.2 img/s, p95=0.131 ms, output uguale
+[285/950] vyukov 512x512 rows=128 N=4: 11077.2 img/s, p95=2.770 ms, output uguale
+[286/950] wcq 512x512 rows=128 N=4: 11065.5 img/s, p95=2.758 ms, output uguale
+[287/950] vyukov 512x512 rows=16 N=4: 10725.4 img/s, p95=2.851 ms, output uguale
+[288/950] wcq 512x512 rows=16 N=4: 10323.5 img/s, p95=2.673 ms, output uguale
+[289/950] wcq 512x512 rows=128 N=2: 10996.2 img/s, p95=2.737 ms, output uguale
+[290/950] vyukov 512x512 rows=128 N=2: 11190.5 img/s, p95=2.736 ms, output uguale
+[291/950] vyukov 512x512 rows=16 N=2: 10986.6 img/s, p95=2.744 ms, output uguale
+[292/950] wcq 512x512 rows=16 N=2: 9040.3 img/s, p95=3.255 ms, output uguale
+[293/950] vyukov 512x512 rows=1 N=2: 8011.0 img/s, p95=0.411 ms, output uguale
+[294/950] wcq 512x512 rows=1 N=2: 3562.9 img/s, p95=1.003 ms, output uguale
+[295/950] wcq 512x512 rows=128 N=1: 8351.8 img/s, p95=3.669 ms, output uguale
+[296/950] vyukov 512x512 rows=128 N=1: 8182.6 img/s, p95=3.675 ms, output uguale
+[297/950] vyukov 512x512 rows=1 N=1: 6158.6 img/s, p95=0.578 ms, output uguale
+[298/950] wcq 512x512 rows=1 N=1: 2008.7 img/s, p95=1.777 ms, output uguale
+[299/950] wcq 512x512 rows=16 N=2: 7633.2 img/s, p95=3.810 ms, output uguale
+[300/950] vyukov 512x512 rows=16 N=2: 11212.2 img/s, p95=2.699 ms, output uguale
+[301/950] vyukov 512x512 rows=128 N=1: 8343.4 img/s, p95=3.628 ms, output uguale
+[302/950] wcq 512x512 rows=128 N=1: 7619.6 img/s, p95=3.821 ms, output uguale
+[303/950] vyukov 512x512 rows=128 N=1: 7704.8 img/s, p95=3.954 ms, output uguale
+[304/950] wcq 512x512 rows=128 N=1: 8792.3 img/s, p95=3.439 ms, output uguale
+[305/950] wcq 512x512 rows=128 N=2: 9358.8 img/s, p95=3.246 ms, output uguale
+[306/950] vyukov 512x512 rows=128 N=2: 9350.0 img/s, p95=3.198 ms, output uguale
+[307/950] serial 512x512 rows=0 N=0: 9511.8 img/s, p95=0.114 ms, output uguale
+[308/950] serial 512x512 rows=0 N=0: 7265.5 img/s, p95=0.221 ms, output uguale
+[309/950] wcq 512x512 rows=128 N=2: 9619.2 img/s, p95=3.153 ms, output uguale
+[310/950] vyukov 512x512 rows=128 N=2: 10517.7 img/s, p95=2.937 ms, output uguale
+[311/950] wcq 512x512 rows=16 N=4: 10364.2 img/s, p95=2.788 ms, output uguale
+[312/950] vyukov 512x512 rows=16 N=4: 11038.7 img/s, p95=2.716 ms, output uguale
+[313/950] vyukov 512x512 rows=16 N=4: 11054.7 img/s, p95=2.696 ms, output uguale
+[314/950] wcq 512x512 rows=16 N=4: 10524.4 img/s, p95=2.776 ms, output uguale
+[315/950] wcq 512x512 rows=16 N=4: 8840.3 img/s, p95=3.183 ms, output uguale
+[316/950] vyukov 512x512 rows=16 N=4: 9179.1 img/s, p95=3.271 ms, output uguale
+[317/950] serial 512x512 rows=0 N=0: 7350.3 img/s, p95=0.198 ms, output uguale
+[318/950] wcq 512x512 rows=128 N=4: 10817.3 img/s, p95=2.775 ms, output uguale
+[319/950] vyukov 512x512 rows=128 N=4: 10304.2 img/s, p95=2.976 ms, output uguale
+[320/950] wcq 512x512 rows=1 N=4: 6302.7 img/s, p95=0.494 ms, output uguale
+[321/950] vyukov 512x512 rows=1 N=4: 8837.0 img/s, p95=0.386 ms, output uguale
+[322/950] wcq 512x512 rows=128 N=1: 8184.3 img/s, p95=3.728 ms, output uguale
+[323/950] vyukov 512x512 rows=128 N=1: 9370.2 img/s, p95=3.270 ms, output uguale
+[324/950] wcq 512x512 rows=128 N=2: 9093.8 img/s, p95=3.303 ms, output uguale
+[325/950] vyukov 512x512 rows=128 N=2: 10978.8 img/s, p95=2.737 ms, output uguale
+[326/950] serial 512x512 rows=0 N=0: 9622.7 img/s, p95=0.113 ms, output uguale
+[327/950] wcq 512x512 rows=1 N=1: 2087.7 img/s, p95=1.577 ms, output uguale
+[328/950] vyukov 512x512 rows=1 N=1: 6321.4 img/s, p95=0.562 ms, output uguale
+[329/950] wcq 512x512 rows=128 N=2: 9028.3 img/s, p95=3.356 ms, output uguale
+[330/950] vyukov 512x512 rows=128 N=2: 9540.5 img/s, p95=3.193 ms, output uguale
+[331/950] vyukov 512x512 rows=16 N=1: 6626.0 img/s, p95=4.536 ms, output uguale
+[332/950] wcq 512x512 rows=16 N=1: 7810.4 img/s, p95=3.808 ms, output uguale
+[333/950] wcq 512x512 rows=16 N=2: 9734.6 img/s, p95=3.032 ms, output uguale
+[334/950] vyukov 512x512 rows=16 N=2: 10617.8 img/s, p95=2.859 ms, output uguale
+[335/950] vyukov 512x512 rows=16 N=2: 9641.4 img/s, p95=3.101 ms, output uguale
+[336/950] wcq 512x512 rows=16 N=2: 8668.4 img/s, p95=3.330 ms, output uguale
+[337/950] vyukov 512x512 rows=16 N=1: 7641.6 img/s, p95=3.908 ms, output uguale
+[338/950] wcq 512x512 rows=16 N=1: 6208.7 img/s, p95=4.753 ms, output uguale
+[339/950] wcq 512x512 rows=128 N=4: 9798.0 img/s, p95=3.050 ms, output uguale
+[340/950] vyukov 512x512 rows=128 N=4: 10298.1 img/s, p95=2.929 ms, output uguale
+[341/950] vyukov 512x512 rows=1 N=1: 5802.9 img/s, p95=0.629 ms, output uguale
+[342/950] wcq 512x512 rows=1 N=1: 2239.8 img/s, p95=1.455 ms, output uguale
+[343/950] serial 512x512 rows=0 N=0: 8968.4 img/s, p95=0.154 ms, output uguale
+[344/950] vyukov 512x512 rows=128 N=1: 6739.4 img/s, p95=4.512 ms, output uguale
+[345/950] wcq 512x512 rows=128 N=1: 8288.3 img/s, p95=3.660 ms, output uguale
+[346/950] vyukov 512x512 rows=128 N=2: 10420.1 img/s, p95=2.917 ms, output uguale
+[347/950] wcq 512x512 rows=128 N=2: 8855.0 img/s, p95=3.429 ms, output uguale
+[348/950] vyukov 512x512 rows=1 N=2: 7430.5 img/s, p95=0.465 ms, output uguale
+[349/950] wcq 512x512 rows=1 N=2: 3741.4 img/s, p95=0.912 ms, output uguale
+[350/950] vyukov 512x512 rows=1 N=2: 7542.7 img/s, p95=0.507 ms, output uguale
+[351/950] wcq 512x512 rows=1 N=2: 3595.1 img/s, p95=0.934 ms, output uguale
+[352/950] serial 512x512 rows=0 N=0: 9102.0 img/s, p95=0.147 ms, output uguale
+[353/950] vyukov 512x512 rows=128 N=1: 6303.1 img/s, p95=4.728 ms, output uguale
+[354/950] wcq 512x512 rows=128 N=1: 7389.8 img/s, p95=3.965 ms, output uguale
+[355/950] vyukov 512x512 rows=128 N=4: 10045.9 img/s, p95=3.057 ms, output uguale
+[356/950] wcq 512x512 rows=128 N=4: 11066.0 img/s, p95=2.738 ms, output uguale
+[357/950] vyukov 512x512 rows=16 N=4: 10732.3 img/s, p95=2.752 ms, output uguale
+[358/950] wcq 512x512 rows=16 N=4: 5387.2 img/s, p95=2.626 ms, output uguale
+[359/950] vyukov 512x512 rows=128 N=1: 7589.4 img/s, p95=4.014 ms, output uguale
+[360/950] wcq 512x512 rows=128 N=1: 8562.7 img/s, p95=3.535 ms, output uguale
+[361/950] vyukov 512x512 rows=16 N=4: 10832.3 img/s, p95=2.728 ms, output uguale
+[362/950] wcq 512x512 rows=16 N=4: 10239.3 img/s, p95=2.829 ms, output uguale
+[363/950] wcq 512x512 rows=128 N=4: 11079.9 img/s, p95=2.742 ms, output uguale
+[364/950] vyukov 512x512 rows=128 N=4: 10881.4 img/s, p95=2.827 ms, output uguale
+[365/950] vyukov 512x512 rows=128 N=2: 9139.6 img/s, p95=3.317 ms, output uguale
+[366/950] wcq 512x512 rows=128 N=2: 11132.0 img/s, p95=2.745 ms, output uguale
+[367/950] vyukov 512x512 rows=128 N=2: 10404.8 img/s, p95=2.826 ms, output uguale
+[368/950] wcq 512x512 rows=128 N=2: 10200.2 img/s, p95=2.936 ms, output uguale
+[369/950] wcq 512x512 rows=128 N=1: 7859.5 img/s, p95=3.854 ms, output uguale
+[370/950] vyukov 512x512 rows=128 N=1: 7176.0 img/s, p95=4.249 ms, output uguale
+[371/950] wcq 512x512 rows=16 N=1: 7739.7 img/s, p95=3.820 ms, output uguale
+[372/950] vyukov 512x512 rows=16 N=1: 7790.8 img/s, p95=3.870 ms, output uguale
+[373/950] wcq 512x512 rows=1 N=2: 3448.6 img/s, p95=1.025 ms, output uguale
+[374/950] vyukov 512x512 rows=1 N=2: 5969.0 img/s, p95=0.504 ms, output uguale
+[375/950] vyukov 512x512 rows=1 N=2: 7691.6 img/s, p95=0.427 ms, output uguale
+[376/950] wcq 512x512 rows=1 N=2: 3851.4 img/s, p95=0.890 ms, output uguale
+[377/950] serial 512x512 rows=0 N=0: 8042.9 img/s, p95=0.197 ms, output uguale
+[378/950] vyukov 512x512 rows=1 N=2: 7742.8 img/s, p95=0.447 ms, output uguale
+[379/950] wcq 512x512 rows=1 N=2: 3432.3 img/s, p95=0.865 ms, output uguale
+[380/950] vyukov 512x512 rows=1 N=2: 7687.9 img/s, p95=0.463 ms, output uguale
+[381/950] wcq 512x512 rows=1 N=2: 3495.0 img/s, p95=0.950 ms, output uguale
+[382/950] wcq 512x512 rows=16 N=4: 10788.1 img/s, p95=2.602 ms, output uguale
+[383/950] vyukov 512x512 rows=16 N=4: 10143.8 img/s, p95=2.928 ms, output uguale
+[384/950] vyukov 512x512 rows=16 N=1: 7248.1 img/s, p95=4.227 ms, output uguale
+[385/950] wcq 512x512 rows=16 N=1: 7537.4 img/s, p95=3.886 ms, output uguale
+[386/950] vyukov 512x512 rows=16 N=1: 7823.5 img/s, p95=3.800 ms, output uguale
+[387/950] wcq 512x512 rows=16 N=1: 8218.5 img/s, p95=3.604 ms, output uguale
+[388/950] wcq 512x512 rows=128 N=1: 8814.6 img/s, p95=3.473 ms, output uguale
+[389/950] vyukov 512x512 rows=128 N=1: 8215.1 img/s, p95=3.691 ms, output uguale
+[390/950] wcq 512x512 rows=16 N=4: 10728.3 img/s, p95=2.622 ms, output uguale
+[391/950] vyukov 512x512 rows=16 N=4: 10914.8 img/s, p95=2.776 ms, output uguale
+[392/950] wcq 512x512 rows=16 N=2: 10638.6 img/s, p95=2.721 ms, output uguale
+[393/950] vyukov 512x512 rows=16 N=2: 10358.6 img/s, p95=2.903 ms, output uguale
+[394/950] vyukov 512x512 rows=1 N=4: 9098.6 img/s, p95=0.346 ms, output uguale
+[395/950] wcq 512x512 rows=1 N=4: 6740.7 img/s, p95=0.459 ms, output uguale
+[396/950] vyukov 512x512 rows=128 N=4: 11134.4 img/s, p95=2.751 ms, output uguale
+[397/950] wcq 512x512 rows=128 N=4: 10664.3 img/s, p95=2.856 ms, output uguale
+[398/950] vyukov 512x512 rows=128 N=2: 10193.7 img/s, p95=3.029 ms, output uguale
+[399/950] wcq 512x512 rows=128 N=2: 10099.1 img/s, p95=3.040 ms, output uguale
+[400/950] vyukov 512x512 rows=128 N=2: 8487.1 img/s, p95=3.621 ms, output uguale
+[401/950] wcq 512x512 rows=128 N=2: 10667.0 img/s, p95=2.842 ms, output uguale
+[402/950] wcq 512x512 rows=16 N=1: 8205.8 img/s, p95=3.609 ms, output uguale
+[403/950] vyukov 512x512 rows=16 N=1: 8472.8 img/s, p95=3.580 ms, output uguale
+[404/950] vyukov 512x512 rows=16 N=2: 10334.4 img/s, p95=2.912 ms, output uguale
+[405/950] wcq 512x512 rows=16 N=2: 8284.0 img/s, p95=3.410 ms, output uguale
+[406/950] vyukov 512x512 rows=128 N=1: 6982.3 img/s, p95=4.372 ms, output uguale
+[407/950] wcq 512x512 rows=128 N=1: 8252.1 img/s, p95=3.677 ms, output uguale
+[408/950] wcq 512x512 rows=1 N=4: 5014.6 img/s, p95=0.518 ms, output uguale
+[409/950] vyukov 512x512 rows=1 N=4: 9007.8 img/s, p95=0.353 ms, output uguale
+[410/950] wcq 512x512 rows=1 N=4: 2364.1 img/s, p95=1.676 ms, output uguale
+[411/950] vyukov 512x512 rows=1 N=4: 9335.0 img/s, p95=0.346 ms, output uguale
+[412/950] wcq 512x512 rows=128 N=2: 10200.5 img/s, p95=2.880 ms, output uguale
+[413/950] vyukov 512x512 rows=128 N=2: 9570.6 img/s, p95=3.163 ms, output uguale
+[414/950] vyukov 512x512 rows=1 N=1: 5812.5 img/s, p95=0.578 ms, output uguale
+[415/950] wcq 512x512 rows=1 N=1: 2124.5 img/s, p95=1.798 ms, output uguale
+[416/950] wcq 512x512 rows=16 N=4: 9882.4 img/s, p95=2.879 ms, output uguale
+[417/950] vyukov 512x512 rows=16 N=4: 11102.6 img/s, p95=2.745 ms, output uguale
+[418/950] vyukov 512x512 rows=16 N=2: 10398.9 img/s, p95=2.921 ms, output uguale
+[419/950] wcq 512x512 rows=16 N=2: 10634.1 img/s, p95=2.705 ms, output uguale
+[420/950] wcq 512x512 rows=128 N=1: 8459.0 img/s, p95=3.589 ms, output uguale
+[421/950] vyukov 512x512 rows=128 N=1: 8168.5 img/s, p95=3.675 ms, output uguale
+[422/950] serial 512x512 rows=0 N=0: 8980.9 img/s, p95=0.136 ms, output uguale
+[423/950] wcq 512x512 rows=128 N=4: 11237.5 img/s, p95=2.729 ms, output uguale
+[424/950] vyukov 512x512 rows=128 N=4: 10067.8 img/s, p95=2.861 ms, output uguale
+[425/950] vyukov 512x512 rows=16 N=4: 10348.1 img/s, p95=2.914 ms, output uguale
+[426/950] wcq 512x512 rows=16 N=4: 11261.9 img/s, p95=2.504 ms, output uguale
+[427/950] wcq 512x512 rows=1 N=1: 2168.5 img/s, p95=1.660 ms, output uguale
+[428/950] vyukov 512x512 rows=1 N=1: 5157.4 img/s, p95=0.862 ms, output uguale
+[429/950] wcq 512x512 rows=1 N=4: 6568.8 img/s, p95=0.494 ms, output uguale
+[430/950] vyukov 512x512 rows=1 N=4: 8709.5 img/s, p95=0.363 ms, output uguale
+[431/950] wcq 512x512 rows=1 N=1: 2259.2 img/s, p95=1.541 ms, output uguale
+[432/950] vyukov 512x512 rows=1 N=1: 6307.8 img/s, p95=0.534 ms, output uguale
+[433/950] vyukov 512x512 rows=16 N=2: 11127.6 img/s, p95=2.749 ms, output uguale
+[434/950] wcq 512x512 rows=16 N=2: 10620.8 img/s, p95=2.702 ms, output uguale
+[435/950] wcq 512x512 rows=128 N=1: 8544.0 img/s, p95=3.541 ms, output uguale
+[436/950] vyukov 512x512 rows=128 N=1: 8060.0 img/s, p95=3.797 ms, output uguale
+[437/950] vyukov 512x512 rows=128 N=1: 8471.5 img/s, p95=3.577 ms, output uguale
+[438/950] wcq 512x512 rows=128 N=1: 8223.1 img/s, p95=3.679 ms, output uguale
+[439/950] serial 512x512 rows=0 N=0: 9420.4 img/s, p95=0.120 ms, output uguale
+[440/950] wcq 512x512 rows=16 N=2: 10497.0 img/s, p95=2.767 ms, output uguale
+[441/950] vyukov 512x512 rows=16 N=2: 10720.0 img/s, p95=2.750 ms, output uguale
+[442/950] serial 512x512 rows=0 N=0: 9631.0 img/s, p95=0.111 ms, output uguale
+[443/950] wcq 512x512 rows=1 N=1: 2254.2 img/s, p95=1.547 ms, output uguale
+[444/950] vyukov 512x512 rows=1 N=1: 5833.7 img/s, p95=0.669 ms, output uguale
+[445/950] wcq 512x512 rows=16 N=4: 10356.0 img/s, p95=2.739 ms, output uguale
+[446/950] vyukov 512x512 rows=16 N=4: 10013.8 img/s, p95=2.990 ms, output uguale
+[447/950] wcq 512x512 rows=16 N=2: 10027.5 img/s, p95=2.886 ms, output uguale
+[448/950] vyukov 512x512 rows=16 N=2: 9251.2 img/s, p95=3.211 ms, output uguale
+[449/950] wcq 512x512 rows=1 N=1: 2066.9 img/s, p95=1.711 ms, output uguale
+[450/950] vyukov 512x512 rows=1 N=1: 6085.2 img/s, p95=0.592 ms, output uguale
+[451/950] serial 512x512 rows=0 N=0: 7225.7 img/s, p95=0.219 ms, output uguale
+[452/950] wcq 512x512 rows=1 N=2: 3366.9 img/s, p95=1.078 ms, output uguale
+[453/950] vyukov 512x512 rows=1 N=2: 6860.1 img/s, p95=0.487 ms, output uguale
+[454/950] vyukov 512x512 rows=128 N=2: 10521.2 img/s, p95=2.837 ms, output uguale
+[455/950] wcq 512x512 rows=128 N=2: 10768.1 img/s, p95=2.810 ms, output uguale
+[456/950] serial 512x512 rows=0 N=0: 9379.5 img/s, p95=0.122 ms, output uguale
+[457/950] vyukov 512x512 rows=1 N=2: 7391.9 img/s, p95=0.501 ms, output uguale
+[458/950] wcq 512x512 rows=1 N=2: 3723.2 img/s, p95=0.985 ms, output uguale
+[459/950] wcq 512x512 rows=128 N=2: 9861.6 img/s, p95=3.022 ms, output uguale
+[460/950] vyukov 512x512 rows=128 N=2: 8102.5 img/s, p95=3.741 ms, output uguale
+[461/950] wcq 512x512 rows=16 N=1: 7081.5 img/s, p95=4.131 ms, output uguale
+[462/950] vyukov 512x512 rows=16 N=1: 7972.9 img/s, p95=3.836 ms, output uguale
+[463/950] vyukov 512x512 rows=16 N=4: 11116.4 img/s, p95=2.718 ms, output uguale
+[464/950] wcq 512x512 rows=16 N=4: 11161.4 img/s, p95=2.595 ms, output uguale
+[465/950] wcq 512x512 rows=128 N=1: 8428.5 img/s, p95=3.618 ms, output uguale
+[466/950] vyukov 512x512 rows=128 N=1: 8544.8 img/s, p95=3.539 ms, output uguale
+[467/950] serial 512x512 rows=0 N=0: 8676.8 img/s, p95=0.161 ms, output uguale
+[468/950] wcq 512x512 rows=1 N=2: 3560.0 img/s, p95=0.971 ms, output uguale
+[469/950] vyukov 512x512 rows=1 N=2: 7339.1 img/s, p95=0.499 ms, output uguale
+[470/950] wcq 512x512 rows=128 N=1: 7094.0 img/s, p95=4.279 ms, output uguale
+[471/950] vyukov 512x512 rows=128 N=1: 9065.1 img/s, p95=3.379 ms, output uguale
+[472/950] vyukov 512x512 rows=128 N=1: 6287.6 img/s, p95=4.824 ms, output uguale
+[473/950] wcq 512x512 rows=128 N=1: 8251.9 img/s, p95=3.658 ms, output uguale
+[474/950] wcq 512x512 rows=16 N=4: 10212.8 img/s, p95=2.803 ms, output uguale
+[475/950] vyukov 512x512 rows=16 N=4: 10591.9 img/s, p95=2.863 ms, output uguale
+[476/950] wcq 512x512 rows=16 N=2: 10131.8 img/s, p95=2.811 ms, output uguale
+[477/950] vyukov 512x512 rows=16 N=2: 11148.0 img/s, p95=2.759 ms, output uguale
+[478/950] vyukov 512x512 rows=1 N=1: 6469.0 img/s, p95=0.520 ms, output uguale
+[479/950] wcq 512x512 rows=1 N=1: 2101.0 img/s, p95=1.596 ms, output uguale
+[480/950] wcq 512x512 rows=16 N=1: 6162.7 img/s, p95=4.677 ms, output uguale
+[481/950] vyukov 512x512 rows=16 N=1: 8141.6 img/s, p95=3.536 ms, output uguale
+[482/950] vyukov 512x512 rows=1 N=1: 6005.3 img/s, p95=0.526 ms, output uguale
+[483/950] wcq 512x512 rows=1 N=1: 2318.6 img/s, p95=1.452 ms, output uguale
+[484/950] wcq 512x512 rows=1 N=1: 2320.0 img/s, p95=1.399 ms, output uguale
+[485/950] vyukov 512x512 rows=1 N=1: 5704.0 img/s, p95=0.655 ms, output uguale
+[486/950] wcq 512x512 rows=128 N=4: 10578.5 img/s, p95=2.808 ms, output uguale
+[487/950] vyukov 512x512 rows=128 N=4: 9092.0 img/s, p95=3.388 ms, output uguale
+[488/950] wcq 512x512 rows=16 N=1: 5786.2 img/s, p95=5.097 ms, output uguale
+[489/950] vyukov 512x512 rows=16 N=1: 7828.8 img/s, p95=3.871 ms, output uguale
+[490/950] serial 512x512 rows=0 N=0: 7460.1 img/s, p95=0.156 ms, output uguale
+[491/950] wcq 512x512 rows=1 N=1: 2323.7 img/s, p95=1.390 ms, output uguale
+[492/950] vyukov 512x512 rows=1 N=1: 5424.6 img/s, p95=0.688 ms, output uguale
+[493/950] wcq 512x512 rows=16 N=2: 10581.2 img/s, p95=2.658 ms, output uguale
+[494/950] vyukov 512x512 rows=16 N=2: 9373.6 img/s, p95=3.227 ms, output uguale
+[495/950] vyukov 512x512 rows=128 N=4: 10474.4 img/s, p95=2.861 ms, output uguale
+[496/950] wcq 512x512 rows=128 N=4: 9415.3 img/s, p95=3.194 ms, output uguale
+[497/950] vyukov 512x512 rows=1 N=1: 5526.9 img/s, p95=0.660 ms, output uguale
+[498/950] wcq 512x512 rows=1 N=1: 2317.5 img/s, p95=1.418 ms, output uguale
+[499/950] vyukov 512x512 rows=16 N=1: 8445.0 img/s, p95=3.629 ms, output uguale
+[500/950] wcq 512x512 rows=16 N=1: 7599.5 img/s, p95=3.932 ms, output uguale
+[501/950] vyukov 512x512 rows=128 N=2: 10813.4 img/s, p95=2.800 ms, output uguale
+[502/950] wcq 512x512 rows=128 N=2: 10645.6 img/s, p95=2.854 ms, output uguale
+[503/950] serial 512x512 rows=0 N=0: 8030.9 img/s, p95=0.179 ms, output uguale
+[504/950] serial 512x512 rows=0 N=0: 9600.2 img/s, p95=0.110 ms, output uguale
+[505/950] wcq 512x512 rows=1 N=1: 2334.9 img/s, p95=1.465 ms, output uguale
+[506/950] vyukov 512x512 rows=1 N=1: 5148.7 img/s, p95=0.688 ms, output uguale
+[507/950] wcq 512x512 rows=16 N=1: 7009.3 img/s, p95=4.190 ms, output uguale
+[508/950] vyukov 512x512 rows=16 N=1: 8219.4 img/s, p95=3.678 ms, output uguale
+[509/950] vyukov 512x512 rows=1 N=2: 7490.8 img/s, p95=0.473 ms, output uguale
+[510/950] wcq 512x512 rows=1 N=2: 3629.7 img/s, p95=0.905 ms, output uguale
+[511/950] serial 512x512 rows=0 N=0: 9678.0 img/s, p95=0.109 ms, output uguale
+[512/950] wcq 512x512 rows=1 N=4: 6505.6 img/s, p95=0.463 ms, output uguale
+[513/950] vyukov 512x512 rows=1 N=4: 8585.5 img/s, p95=0.375 ms, output uguale
+[514/950] wcq 512x512 rows=1 N=2: 3492.6 img/s, p95=1.010 ms, output uguale
+[515/950] vyukov 512x512 rows=1 N=2: 7994.0 img/s, p95=0.445 ms, output uguale
+[516/950] wcq 512x512 rows=16 N=2: 9491.5 img/s, p95=3.009 ms, output uguale
+[517/950] vyukov 512x512 rows=16 N=2: 9543.7 img/s, p95=3.136 ms, output uguale
+[518/950] vyukov 512x512 rows=1 N=4: 6668.0 img/s, p95=0.535 ms, output uguale
+[519/950] wcq 512x512 rows=1 N=4: 6946.9 img/s, p95=0.422 ms, output uguale
+[520/950] vyukov 512x512 rows=1 N=1: 6517.4 img/s, p95=0.491 ms, output uguale
+[521/950] wcq 512x512 rows=1 N=1: 2251.9 img/s, p95=1.505 ms, output uguale
+[522/950] wcq 512x512 rows=1 N=1: 2096.0 img/s, p95=1.782 ms, output uguale
+[523/950] vyukov 512x512 rows=1 N=1: 5176.9 img/s, p95=0.609 ms, output uguale
+[524/950] vyukov 512x512 rows=16 N=1: 7231.2 img/s, p95=4.125 ms, output uguale
+[525/950] wcq 512x512 rows=16 N=1: 8156.7 img/s, p95=3.576 ms, output uguale
+[526/950] wcq 512x512 rows=16 N=1: 6880.5 img/s, p95=4.342 ms, output uguale
+[527/950] vyukov 512x512 rows=16 N=1: 7124.1 img/s, p95=4.252 ms, output uguale
+[528/950] vyukov 512x512 rows=1 N=2: 6671.5 img/s, p95=0.518 ms, output uguale
+[529/950] wcq 512x512 rows=1 N=2: 3766.4 img/s, p95=0.866 ms, output uguale
+[530/950] wcq 512x512 rows=16 N=4: 10595.7 img/s, p95=2.651 ms, output uguale
+[531/950] vyukov 512x512 rows=16 N=4: 10169.1 img/s, p95=2.367 ms, output uguale
+[532/950] wcq 512x512 rows=128 N=4: 10505.9 img/s, p95=2.885 ms, output uguale
+[533/950] vyukov 512x512 rows=128 N=4: 11066.7 img/s, p95=2.796 ms, output uguale
+[534/950] wcq 512x512 rows=1 N=2: 3526.2 img/s, p95=0.944 ms, output uguale
+[535/950] vyukov 512x512 rows=1 N=2: 5985.1 img/s, p95=0.563 ms, output uguale
+[536/950] serial 512x512 rows=0 N=0: 9625.3 img/s, p95=0.111 ms, output uguale
+[537/950] wcq 512x512 rows=1 N=2: 3729.6 img/s, p95=0.905 ms, output uguale
+[538/950] vyukov 512x512 rows=1 N=2: 7653.0 img/s, p95=0.465 ms, output uguale
+[539/950] wcq 512x512 rows=16 N=1: 7578.9 img/s, p95=3.890 ms, output uguale
+[540/950] vyukov 512x512 rows=16 N=1: 8835.3 img/s, p95=3.358 ms, output uguale
+[541/950] wcq 512x512 rows=128 N=1: 6430.5 img/s, p95=4.603 ms, output uguale
+[542/950] vyukov 512x512 rows=128 N=1: 6497.7 img/s, p95=4.587 ms, output uguale
+[543/950] wcq 512x512 rows=16 N=2: 8860.9 img/s, p95=3.328 ms, output uguale
+[544/950] vyukov 512x512 rows=16 N=2: 10492.8 img/s, p95=2.792 ms, output uguale
+[545/950] wcq 512x512 rows=16 N=1: 7151.9 img/s, p95=4.142 ms, output uguale
+[546/950] vyukov 512x512 rows=16 N=1: 8035.6 img/s, p95=3.715 ms, output uguale
+[547/950] wcq 512x512 rows=1 N=1: 1917.8 img/s, p95=1.798 ms, output uguale
+[548/950] vyukov 512x512 rows=1 N=1: 6107.5 img/s, p95=0.578 ms, output uguale
+[549/950] wcq 512x512 rows=1 N=4: 6623.7 img/s, p95=0.452 ms, output uguale
+[550/950] vyukov 512x512 rows=1 N=4: 6393.6 img/s, p95=0.577 ms, output uguale
+[551/950] wcq 512x512 rows=16 N=2: 10383.4 img/s, p95=2.824 ms, output uguale
+[552/950] vyukov 512x512 rows=16 N=2: 10766.0 img/s, p95=2.813 ms, output uguale
+[553/950] vyukov 512x512 rows=16 N=1: 8535.8 img/s, p95=3.539 ms, output uguale
+[554/950] wcq 512x512 rows=16 N=1: 6104.6 img/s, p95=4.741 ms, output uguale
+[555/950] vyukov 512x512 rows=1 N=2: 7658.7 img/s, p95=0.473 ms, output uguale
+[556/950] wcq 512x512 rows=1 N=2: 3689.9 img/s, p95=0.856 ms, output uguale
+[557/950] vyukov 512x512 rows=1 N=4: 8605.7 img/s, p95=0.369 ms, output uguale
+[558/950] wcq 512x512 rows=1 N=4: 6456.6 img/s, p95=0.476 ms, output uguale
+[559/950] wcq 512x512 rows=128 N=2: 9539.3 img/s, p95=3.187 ms, output uguale
+[560/950] vyukov 512x512 rows=128 N=2: 9203.3 img/s, p95=3.274 ms, output uguale
+[561/950] vyukov 512x512 rows=1 N=4: 9050.0 img/s, p95=0.349 ms, output uguale
+[562/950] wcq 512x512 rows=1 N=4: 6476.2 img/s, p95=0.493 ms, output uguale
+[563/950] vyukov 512x512 rows=128 N=1: 8780.5 img/s, p95=3.421 ms, output uguale
+[564/950] wcq 512x512 rows=128 N=1: 8598.6 img/s, p95=3.529 ms, output uguale
+[565/950] vyukov 512x512 rows=16 N=2: 10975.1 img/s, p95=2.708 ms, output uguale
+[566/950] wcq 512x512 rows=16 N=2: 9996.5 img/s, p95=2.922 ms, output uguale
+[567/950] vyukov 512x512 rows=1 N=4: 6699.0 img/s, p95=0.366 ms, output uguale
+[568/950] wcq 512x512 rows=1 N=4: 6794.1 img/s, p95=0.446 ms, output uguale
+[569/950] wcq 512x512 rows=128 N=4: 10866.6 img/s, p95=2.759 ms, output uguale
+[570/950] vyukov 512x512 rows=128 N=4: 9717.9 img/s, p95=3.136 ms, output uguale
+[571/950] wcq 512x512 rows=1 N=2: 3414.5 img/s, p95=0.970 ms, output uguale
+[572/950] vyukov 512x512 rows=1 N=2: 6828.4 img/s, p95=0.629 ms, output uguale
+[573/950] wcq 512x512 rows=128 N=1: 6371.9 img/s, p95=4.665 ms, output uguale
+[574/950] vyukov 512x512 rows=128 N=1: 7938.6 img/s, p95=3.783 ms, output uguale
+[575/950] vyukov 512x512 rows=16 N=2: 7979.6 img/s, p95=3.626 ms, output uguale
+[576/950] wcq 512x512 rows=16 N=2: 9822.9 img/s, p95=2.969 ms, output uguale
+[577/950] serial 512x512 rows=0 N=0: 7349.8 img/s, p95=0.191 ms, output uguale
+[578/950] vyukov 512x512 rows=128 N=4: 11226.8 img/s, p95=2.733 ms, output uguale
+[579/950] wcq 512x512 rows=128 N=4: 10374.7 img/s, p95=2.939 ms, output uguale
+[580/950] serial 512x512 rows=0 N=0: 9702.5 img/s, p95=0.108 ms, output uguale
+[581/950] wcq 512x512 rows=16 N=2: 8504.5 img/s, p95=3.427 ms, output uguale
+[582/950] vyukov 512x512 rows=16 N=2: 10611.0 img/s, p95=2.755 ms, output uguale
+[583/950] vyukov 512x512 rows=16 N=4: 9721.7 img/s, p95=3.050 ms, output uguale
+[584/950] wcq 512x512 rows=16 N=4: 10885.9 img/s, p95=2.581 ms, output uguale
+[585/950] serial 512x512 rows=0 N=0: 8974.3 img/s, p95=0.159 ms, output uguale
+[586/950] wcq 512x512 rows=1 N=1: 1248.2 img/s, p95=2.832 ms, output uguale
+[587/950] vyukov 512x512 rows=1 N=1: 5679.8 img/s, p95=0.669 ms, output uguale
+[588/950] vyukov 512x512 rows=16 N=4: 10320.4 img/s, p95=2.905 ms, output uguale
+[589/950] wcq 512x512 rows=16 N=4: 10230.7 img/s, p95=2.798 ms, output uguale
+[590/950] wcq 512x512 rows=1 N=2: 3592.2 img/s, p95=0.953 ms, output uguale
+[591/950] vyukov 512x512 rows=1 N=2: 7199.5 img/s, p95=0.540 ms, output uguale
+[592/950] vyukov 512x512 rows=1 N=1: 5551.5 img/s, p95=0.619 ms, output uguale
+[593/950] wcq 512x512 rows=1 N=1: 2270.4 img/s, p95=1.464 ms, output uguale
+[594/950] vyukov 512x512 rows=128 N=1: 8673.6 img/s, p95=3.494 ms, output uguale
+[595/950] wcq 512x512 rows=128 N=1: 6750.6 img/s, p95=4.452 ms, output uguale
+[596/950] wcq 512x512 rows=1 N=4: 5930.0 img/s, p95=0.413 ms, output uguale
+[597/950] vyukov 512x512 rows=1 N=4: 9179.6 img/s, p95=0.346 ms, output uguale
+[598/950] vyukov 512x512 rows=128 N=4: 9498.3 img/s, p95=3.227 ms, output uguale
+[599/950] wcq 512x512 rows=128 N=4: 11070.6 img/s, p95=2.759 ms, output uguale
+[600/950] vyukov 512x512 rows=128 N=4: 8750.9 img/s, p95=3.446 ms, output uguale
+[601/950] wcq 512x512 rows=128 N=4: 11243.5 img/s, p95=2.747 ms, output uguale
+[602/950] wcq 512x512 rows=1 N=2: 3497.3 img/s, p95=0.949 ms, output uguale
+[603/950] vyukov 512x512 rows=1 N=2: 7762.0 img/s, p95=0.430 ms, output uguale
+[604/950] vyukov 512x512 rows=16 N=1: 6499.0 img/s, p95=4.680 ms, output uguale
+[605/950] wcq 512x512 rows=16 N=1: 8521.8 img/s, p95=3.497 ms, output uguale
+[606/950] wcq 512x512 rows=128 N=4: 9879.9 img/s, p95=2.926 ms, output uguale
+[607/950] vyukov 512x512 rows=128 N=4: 10893.3 img/s, p95=2.817 ms, output uguale
+[608/950] vyukov 512x512 rows=1 N=1: 6370.8 img/s, p95=0.543 ms, output uguale
+[609/950] wcq 512x512 rows=1 N=1: 2056.5 img/s, p95=1.788 ms, output uguale
+[610/950] vyukov 512x512 rows=16 N=4: 10247.9 img/s, p95=2.925 ms, output uguale
+[611/950] wcq 512x512 rows=16 N=4: 10004.8 img/s, p95=2.758 ms, output uguale
+[612/950] serial 512x512 rows=0 N=0: 9615.2 img/s, p95=0.109 ms, output uguale
+[613/950] wcq 512x512 rows=1 N=1: 2157.7 img/s, p95=1.605 ms, output uguale
+[614/950] vyukov 512x512 rows=1 N=1: 4693.6 img/s, p95=0.775 ms, output uguale
+[615/950] wcq 512x512 rows=128 N=4: 10914.8 img/s, p95=2.804 ms, output uguale
+[616/950] vyukov 512x512 rows=128 N=4: 10385.4 img/s, p95=2.844 ms, output uguale
+[617/950] serial 512x512 rows=0 N=0: 7568.4 img/s, p95=0.198 ms, output uguale
+[618/950] wcq 512x512 rows=1 N=2: 3853.1 img/s, p95=0.911 ms, output uguale
+[619/950] vyukov 512x512 rows=1 N=2: 6799.7 img/s, p95=0.519 ms, output uguale
+[620/950] wcq 512x512 rows=1 N=1: 1907.2 img/s, p95=2.208 ms, output uguale
+[621/950] vyukov 512x512 rows=1 N=1: 5660.6 img/s, p95=0.623 ms, output uguale
+[622/950] wcq 512x512 rows=128 N=2: 8769.2 img/s, p95=3.500 ms, output uguale
+[623/950] vyukov 512x512 rows=128 N=2: 6389.3 img/s, p95=3.163 ms, output uguale
+[624/950] vyukov 512x512 rows=16 N=2: 11252.4 img/s, p95=2.715 ms, output uguale
+[625/950] wcq 512x512 rows=16 N=2: 10574.8 img/s, p95=2.735 ms, output uguale
+[626/950] vyukov 512x512 rows=128 N=2: 10573.3 img/s, p95=2.840 ms, output uguale
+[627/950] wcq 512x512 rows=128 N=2: 10518.4 img/s, p95=2.840 ms, output uguale
+[628/950] wcq 512x512 rows=16 N=1: 7290.0 img/s, p95=4.057 ms, output uguale
+[629/950] vyukov 512x512 rows=16 N=1: 8539.3 img/s, p95=3.550 ms, output uguale
+[630/950] wcq 512x512 rows=16 N=4: 11118.1 img/s, p95=2.560 ms, output uguale
+[631/950] vyukov 512x512 rows=16 N=4: 10864.0 img/s, p95=2.739 ms, output uguale
+[632/950] vyukov 512x512 rows=128 N=2: 10041.8 img/s, p95=3.035 ms, output uguale
+[633/950] wcq 512x512 rows=128 N=2: 10199.3 img/s, p95=2.817 ms, output uguale
+[634/950] vyukov 512x512 rows=16 N=2: 9406.4 img/s, p95=3.192 ms, output uguale
+[635/950] wcq 512x512 rows=16 N=2: 10612.2 img/s, p95=2.722 ms, output uguale
+[636/950] wcq 512x512 rows=1 N=4: 6266.9 img/s, p95=0.500 ms, output uguale
+[637/950] vyukov 512x512 rows=1 N=4: 8214.9 img/s, p95=0.395 ms, output uguale
+[638/950] wcq 512x512 rows=128 N=2: 11080.3 img/s, p95=2.770 ms, output uguale
+[639/950] vyukov 512x512 rows=128 N=2: 10936.9 img/s, p95=2.767 ms, output uguale
+[640/950] serial 512x512 rows=0 N=0: 7508.3 img/s, p95=0.172 ms, output uguale
+[641/950] vyukov 512x512 rows=128 N=4: 9471.0 img/s, p95=3.160 ms, output uguale
+[642/950] wcq 512x512 rows=128 N=4: 10154.2 img/s, p95=2.993 ms, output uguale
+[643/950] vyukov 512x512 rows=16 N=2: 7959.0 img/s, p95=3.601 ms, output uguale
+[644/950] wcq 512x512 rows=16 N=2: 10392.6 img/s, p95=2.772 ms, output uguale
+[645/950] vyukov 512x512 rows=16 N=2: 8446.4 img/s, p95=3.562 ms, output uguale
+[646/950] wcq 512x512 rows=16 N=2: 9008.5 img/s, p95=3.138 ms, output uguale
+[647/950] vyukov 512x512 rows=128 N=1: 6989.1 img/s, p95=4.404 ms, output uguale
+[648/950] wcq 512x512 rows=128 N=1: 8735.1 img/s, p95=3.499 ms, output uguale
+[649/950] wcq 512x512 rows=1 N=2: 3123.8 img/s, p95=1.013 ms, output uguale
+[650/950] vyukov 512x512 rows=1 N=2: 7918.9 img/s, p95=0.422 ms, output uguale
+[651/950] vyukov 512x512 rows=16 N=2: 10471.9 img/s, p95=2.830 ms, output uguale
+[652/950] wcq 512x512 rows=16 N=2: 9129.9 img/s, p95=3.070 ms, output uguale
+[653/950] vyukov 512x512 rows=128 N=1: 8752.4 img/s, p95=3.471 ms, output uguale
+[654/950] wcq 512x512 rows=128 N=1: 8922.1 img/s, p95=3.390 ms, output uguale
+[655/950] vyukov 512x512 rows=128 N=2: 11084.7 img/s, p95=2.765 ms, output uguale
+[656/950] wcq 512x512 rows=128 N=2: 10989.3 img/s, p95=2.787 ms, output uguale
+[657/950] wcq 512x512 rows=128 N=4: 9850.7 img/s, p95=2.790 ms, output uguale
+[658/950] vyukov 512x512 rows=128 N=4: 10280.5 img/s, p95=2.958 ms, output uguale
+[659/950] vyukov 512x512 rows=128 N=2: 8619.5 img/s, p95=3.528 ms, output uguale
+[660/950] wcq 512x512 rows=128 N=2: 10403.2 img/s, p95=2.860 ms, output uguale
+[661/950] wcq 512x512 rows=16 N=4: 10074.3 img/s, p95=2.730 ms, output uguale
+[662/950] vyukov 512x512 rows=16 N=4: 10778.2 img/s, p95=2.790 ms, output uguale
+[663/950] wcq 512x512 rows=16 N=1: 7150.1 img/s, p95=4.081 ms, output uguale
+[664/950] vyukov 512x512 rows=16 N=1: 8819.9 img/s, p95=3.445 ms, output uguale
+[665/950] wcq 512x512 rows=16 N=4: 10562.5 img/s, p95=2.701 ms, output uguale
+[666/950] vyukov 512x512 rows=16 N=4: 10727.3 img/s, p95=2.783 ms, output uguale
+[667/950] wcq 512x512 rows=1 N=2: 3861.6 img/s, p95=0.841 ms, output uguale
+[668/950] vyukov 512x512 rows=1 N=2: 7528.0 img/s, p95=0.450 ms, output uguale
+[669/950] serial 512x512 rows=0 N=0: 9591.3 img/s, p95=0.109 ms, output uguale
+[670/950] serial 512x512 rows=0 N=0: 9616.5 img/s, p95=0.113 ms, output uguale
+[671/950] wcq 512x512 rows=16 N=4: 8745.4 img/s, p95=3.335 ms, output uguale
+[672/950] vyukov 512x512 rows=16 N=4: 10639.5 img/s, p95=2.844 ms, output uguale
+[673/950] wcq 512x512 rows=128 N=1: 8046.5 img/s, p95=3.705 ms, output uguale
+[674/950] vyukov 512x512 rows=128 N=1: 9024.2 img/s, p95=3.375 ms, output uguale
+[675/950] vyukov 512x512 rows=16 N=1: 8918.1 img/s, p95=3.388 ms, output uguale
+[676/950] wcq 512x512 rows=16 N=1: 7818.7 img/s, p95=3.771 ms, output uguale
+[677/950] vyukov 512x512 rows=128 N=2: 10963.1 img/s, p95=2.816 ms, output uguale
+[678/950] wcq 512x512 rows=128 N=2: 11090.1 img/s, p95=2.749 ms, output uguale
+[679/950] vyukov 512x512 rows=128 N=4: 10829.7 img/s, p95=2.832 ms, output uguale
+[680/950] wcq 512x512 rows=128 N=4: 10550.7 img/s, p95=2.842 ms, output uguale
+[681/950] vyukov 512x512 rows=128 N=4: 10846.2 img/s, p95=2.825 ms, output uguale
+[682/950] wcq 512x512 rows=128 N=4: 11076.9 img/s, p95=2.739 ms, output uguale
+[683/950] wcq 512x512 rows=16 N=1: 6465.0 img/s, p95=4.604 ms, output uguale
+[684/950] vyukov 512x512 rows=16 N=1: 8709.8 img/s, p95=3.463 ms, output uguale
+[685/950] vyukov 512x512 rows=16 N=2: 11065.9 img/s, p95=2.721 ms, output uguale
+[686/950] wcq 512x512 rows=16 N=2: 9513.6 img/s, p95=3.086 ms, output uguale
+[687/950] vyukov 512x512 rows=16 N=1: 7959.3 img/s, p95=3.792 ms, output uguale
+[688/950] wcq 512x512 rows=16 N=1: 7907.1 img/s, p95=3.664 ms, output uguale
+[689/950] vyukov 512x512 rows=16 N=4: 10690.9 img/s, p95=2.864 ms, output uguale
+[690/950] wcq 512x512 rows=16 N=4: 10165.1 img/s, p95=2.756 ms, output uguale
+[691/950] vyukov 512x512 rows=1 N=2: 6426.5 img/s, p95=0.551 ms, output uguale
+[692/950] wcq 512x512 rows=1 N=2: 3866.4 img/s, p95=0.881 ms, output uguale
+[693/950] vyukov 512x512 rows=1 N=1: 6733.5 img/s, p95=0.481 ms, output uguale
+[694/950] wcq 512x512 rows=1 N=1: 2258.4 img/s, p95=1.527 ms, output uguale
+[695/950] vyukov 512x512 rows=1 N=4: 9147.3 img/s, p95=0.340 ms, output uguale
+[696/950] wcq 512x512 rows=1 N=4: 6919.7 img/s, p95=0.423 ms, output uguale
+[697/950] vyukov 512x512 rows=16 N=1: 8837.8 img/s, p95=3.431 ms, output uguale
+[698/950] wcq 512x512 rows=16 N=1: 7492.2 img/s, p95=3.951 ms, output uguale
+[699/950] wcq 512x512 rows=128 N=4: 10108.0 img/s, p95=2.883 ms, output uguale
+[700/950] vyukov 512x512 rows=128 N=4: 10012.3 img/s, p95=3.074 ms, output uguale
+[701/950] wcq 512x512 rows=1 N=2: 3241.6 img/s, p95=1.100 ms, output uguale
+[702/950] vyukov 512x512 rows=1 N=2: 7423.6 img/s, p95=0.513 ms, output uguale
+[703/950] wcq 512x512 rows=16 N=2: 8825.8 img/s, p95=3.248 ms, output uguale
+[704/950] vyukov 512x512 rows=16 N=2: 10603.2 img/s, p95=2.817 ms, output uguale
+[705/950] wcq 512x512 rows=16 N=2: 10284.4 img/s, p95=2.787 ms, output uguale
+[706/950] vyukov 512x512 rows=16 N=2: 10290.4 img/s, p95=2.940 ms, output uguale
+[707/950] vyukov 512x512 rows=16 N=4: 10017.4 img/s, p95=2.984 ms, output uguale
+[708/950] wcq 512x512 rows=16 N=4: 10629.7 img/s, p95=2.682 ms, output uguale
+[709/950] serial 512x512 rows=0 N=0: 9672.7 img/s, p95=0.107 ms, output uguale
+[710/950] vyukov 512x512 rows=128 N=1: 8960.6 img/s, p95=3.369 ms, output uguale
+[711/950] wcq 512x512 rows=128 N=1: 9169.7 img/s, p95=3.319 ms, output uguale
+[712/950] serial 512x512 rows=0 N=0: 9631.2 img/s, p95=0.108 ms, output uguale
+[713/950] wcq 512x512 rows=128 N=2: 8400.0 img/s, p95=3.580 ms, output uguale
+[714/950] vyukov 512x512 rows=128 N=2: 11013.8 img/s, p95=2.763 ms, output uguale
+[715/950] wcq 512x512 rows=1 N=4: 6750.5 img/s, p95=0.299 ms, output uguale
+[716/950] vyukov 512x512 rows=1 N=4: 8573.0 img/s, p95=0.375 ms, output uguale
+[717/950] wcq 512x512 rows=128 N=1: 6566.2 img/s, p95=4.515 ms, output uguale
+[718/950] vyukov 512x512 rows=128 N=1: 6950.9 img/s, p95=4.431 ms, output uguale
+[719/950] vyukov 512x512 rows=16 N=2: 10482.0 img/s, p95=2.879 ms, output uguale
+[720/950] wcq 512x512 rows=16 N=2: 8716.4 img/s, p95=3.311 ms, output uguale
+[721/950] vyukov 512x512 rows=1 N=1: 6325.3 img/s, p95=0.575 ms, output uguale
+[722/950] wcq 512x512 rows=1 N=1: 2335.7 img/s, p95=1.387 ms, output uguale
+[723/950] wcq 512x512 rows=1 N=2: 3817.5 img/s, p95=0.876 ms, output uguale
+[724/950] vyukov 512x512 rows=1 N=2: 7674.7 img/s, p95=0.484 ms, output uguale
+[725/950] vyukov 512x512 rows=128 N=1: 8026.4 img/s, p95=3.762 ms, output uguale
+[726/950] wcq 512x512 rows=128 N=1: 8250.2 img/s, p95=3.628 ms, output uguale
+[727/950] wcq 512x512 rows=128 N=2: 10572.7 img/s, p95=2.853 ms, output uguale
+[728/950] vyukov 512x512 rows=128 N=2: 8742.0 img/s, p95=3.458 ms, output uguale
+[729/950] vyukov 512x512 rows=16 N=4: 9330.2 img/s, p95=3.235 ms, output uguale
+[730/950] wcq 512x512 rows=16 N=4: 8994.1 img/s, p95=3.183 ms, output uguale
+[731/950] serial 512x512 rows=0 N=0: 9548.0 img/s, p95=0.112 ms, output uguale
+[732/950] vyukov 512x512 rows=128 N=1: 9443.9 img/s, p95=3.226 ms, output uguale
+[733/950] wcq 512x512 rows=128 N=1: 8966.3 img/s, p95=3.379 ms, output uguale
+[734/950] vyukov 512x512 rows=16 N=2: 10368.7 img/s, p95=2.911 ms, output uguale
+[735/950] wcq 512x512 rows=16 N=2: 10774.5 img/s, p95=2.701 ms, output uguale
+[736/950] wcq 512x512 rows=1 N=2: 3677.7 img/s, p95=0.895 ms, output uguale
+[737/950] vyukov 512x512 rows=1 N=2: 7912.6 img/s, p95=0.457 ms, output uguale
+[738/950] vyukov 512x512 rows=128 N=4: 11069.1 img/s, p95=2.759 ms, output uguale
+[739/950] wcq 512x512 rows=128 N=4: 9990.5 img/s, p95=3.012 ms, output uguale
+[740/950] vyukov 512x512 rows=128 N=2: 8701.9 img/s, p95=3.503 ms, output uguale
+[741/950] wcq 512x512 rows=128 N=2: 11067.6 img/s, p95=2.748 ms, output uguale
+[742/950] vyukov 512x512 rows=1 N=4: 6814.4 img/s, p95=0.370 ms, output uguale
+[743/950] wcq 512x512 rows=1 N=4: 6683.7 img/s, p95=0.358 ms, output uguale
+[744/950] vyukov 512x512 rows=16 N=4: 10920.8 img/s, p95=2.802 ms, output uguale
+[745/950] wcq 512x512 rows=16 N=4: 10892.8 img/s, p95=2.460 ms, output uguale
+[746/950] wcq 512x512 rows=128 N=4: 10718.4 img/s, p95=2.781 ms, output uguale
+[747/950] vyukov 512x512 rows=128 N=4: 11075.1 img/s, p95=2.776 ms, output uguale
+[748/950] wcq 512x512 rows=16 N=1: 8252.4 img/s, p95=3.599 ms, output uguale
+[749/950] vyukov 512x512 rows=16 N=1: 7747.8 img/s, p95=3.799 ms, output uguale
+[750/950] wcq 512x512 rows=128 N=2: 10564.6 img/s, p95=2.883 ms, output uguale
+[751/950] vyukov 512x512 rows=128 N=2: 10668.8 img/s, p95=2.843 ms, output uguale
+[752/950] vyukov 512x512 rows=1 N=4: 7980.1 img/s, p95=0.415 ms, output uguale
+[753/950] wcq 512x512 rows=1 N=4: 6776.2 img/s, p95=0.431 ms, output uguale
+[754/950] wcq 512x512 rows=128 N=1: 9130.5 img/s, p95=3.337 ms, output uguale
+[755/950] vyukov 512x512 rows=128 N=1: 8778.9 img/s, p95=3.477 ms, output uguale
+[756/950] wcq 512x512 rows=1 N=1: 2336.5 img/s, p95=1.385 ms, output uguale
+[757/950] vyukov 512x512 rows=1 N=1: 5955.9 img/s, p95=0.548 ms, output uguale
+[758/950] wcq 512x512 rows=1 N=1: 2196.8 img/s, p95=1.559 ms, output uguale
+[759/950] vyukov 512x512 rows=1 N=1: 6108.5 img/s, p95=0.525 ms, output uguale
+[760/950] wcq 512x512 rows=16 N=4: 10920.2 img/s, p95=2.661 ms, output uguale
+[761/950] vyukov 512x512 rows=16 N=4: 9715.5 img/s, p95=3.129 ms, output uguale
+[762/950] wcq 512x512 rows=1 N=1: 1968.3 img/s, p95=1.796 ms, output uguale
+[763/950] vyukov 512x512 rows=1 N=1: 6110.2 img/s, p95=0.528 ms, output uguale
+[764/950] wcq 512x512 rows=128 N=4: 10698.8 img/s, p95=2.270 ms, output uguale
+[765/950] vyukov 512x512 rows=128 N=4: 8878.6 img/s, p95=3.458 ms, output uguale
+[766/950] serial 512x512 rows=0 N=0: 9808.7 img/s, p95=0.108 ms, output uguale
+[767/950] vyukov 512x512 rows=16 N=4: 11198.3 img/s, p95=2.735 ms, output uguale
+[768/950] wcq 512x512 rows=16 N=4: 9511.9 img/s, p95=3.023 ms, output uguale
+[769/950] vyukov 512x512 rows=1 N=4: 9580.9 img/s, p95=0.315 ms, output uguale
+[770/950] wcq 512x512 rows=1 N=4: 6075.0 img/s, p95=0.542 ms, output uguale
+[771/950] wcq 512x512 rows=128 N=1: 8926.2 img/s, p95=3.415 ms, output uguale
+[772/950] vyukov 512x512 rows=128 N=1: 8367.0 img/s, p95=3.568 ms, output uguale
+[773/950] wcq 512x512 rows=1 N=1: 1948.8 img/s, p95=1.767 ms, output uguale
+[774/950] vyukov 512x512 rows=1 N=1: 5128.5 img/s, p95=0.730 ms, output uguale
+[775/950] wcq 512x512 rows=128 N=4: 10575.5 img/s, p95=2.354 ms, output uguale
+[776/950] vyukov 512x512 rows=128 N=4: 10656.6 img/s, p95=2.903 ms, output uguale
+[777/950] vyukov 512x512 rows=1 N=4: 8305.4 img/s, p95=0.405 ms, output uguale
+[778/950] wcq 512x512 rows=1 N=4: 5714.4 img/s, p95=0.622 ms, output uguale
+[779/950] vyukov 512x512 rows=16 N=4: 10406.0 img/s, p95=2.889 ms, output uguale
+[780/950] wcq 512x512 rows=16 N=4: 10248.3 img/s, p95=2.706 ms, output uguale
+[781/950] vyukov 512x512 rows=16 N=2: 8002.2 img/s, p95=3.695 ms, output uguale
+[782/950] wcq 512x512 rows=16 N=2: 10445.0 img/s, p95=2.778 ms, output uguale
+[783/950] vyukov 512x512 rows=1 N=2: 7138.3 img/s, p95=0.519 ms, output uguale
+[784/950] wcq 512x512 rows=1 N=2: 3885.9 img/s, p95=0.879 ms, output uguale
+[785/950] wcq 512x512 rows=16 N=1: 7532.7 img/s, p95=3.908 ms, output uguale
+[786/950] vyukov 512x512 rows=16 N=1: 8017.8 img/s, p95=3.710 ms, output uguale
+[787/950] vyukov 512x512 rows=128 N=1: 8040.5 img/s, p95=3.691 ms, output uguale
+[788/950] wcq 512x512 rows=128 N=1: 9042.3 img/s, p95=3.369 ms, output uguale
+[789/950] vyukov 512x512 rows=1 N=1: 5078.0 img/s, p95=0.710 ms, output uguale
+[790/950] wcq 512x512 rows=1 N=1: 2100.2 img/s, p95=1.753 ms, output uguale
+[791/950] wcq 512x512 rows=128 N=2: 10735.7 img/s, p95=2.832 ms, output uguale
+[792/950] vyukov 512x512 rows=128 N=2: 10877.3 img/s, p95=2.797 ms, output uguale
+[793/950] wcq 512x512 rows=16 N=1: 7322.4 img/s, p95=4.058 ms, output uguale
+[794/950] vyukov 512x512 rows=16 N=1: 8340.6 img/s, p95=3.579 ms, output uguale
+[795/950] wcq 512x512 rows=128 N=2: 10690.0 img/s, p95=2.739 ms, output uguale
+[796/950] vyukov 512x512 rows=128 N=2: 8205.4 img/s, p95=3.703 ms, output uguale
+[797/950] vyukov 512x512 rows=16 N=2: 8790.1 img/s, p95=3.386 ms, output uguale
+[798/950] wcq 512x512 rows=16 N=2: 8513.7 img/s, p95=2.475 ms, output uguale
+[799/950] wcq 512x512 rows=16 N=4: 10149.6 img/s, p95=2.832 ms, output uguale
+[800/950] vyukov 512x512 rows=16 N=4: 10909.7 img/s, p95=2.762 ms, output uguale
+[801/950] wcq 512x512 rows=128 N=2: 10853.3 img/s, p95=2.709 ms, output uguale
+[802/950] vyukov 512x512 rows=128 N=2: 9368.1 img/s, p95=3.176 ms, output uguale
+[803/950] vyukov 512x512 rows=1 N=4: 8963.1 img/s, p95=0.354 ms, output uguale
+[804/950] wcq 512x512 rows=1 N=4: 5966.9 img/s, p95=0.482 ms, output uguale
+[805/950] wcq 512x512 rows=16 N=2: 11041.1 img/s, p95=2.652 ms, output uguale
+[806/950] vyukov 512x512 rows=16 N=2: 8675.5 img/s, p95=3.527 ms, output uguale
+[807/950] serial 512x512 rows=0 N=0: 8911.5 img/s, p95=0.169 ms, output uguale
+[808/950] wcq 512x512 rows=128 N=2: 11118.5 img/s, p95=2.721 ms, output uguale
+[809/950] vyukov 512x512 rows=128 N=2: 9619.7 img/s, p95=3.159 ms, output uguale
+[810/950] wcq 512x512 rows=16 N=2: 9969.6 img/s, p95=2.913 ms, output uguale
+[811/950] vyukov 512x512 rows=16 N=2: 10133.7 img/s, p95=2.957 ms, output uguale
+[812/950] wcq 512x512 rows=16 N=2: 8528.0 img/s, p95=3.431 ms, output uguale
+[813/950] vyukov 512x512 rows=16 N=2: 10237.3 img/s, p95=2.967 ms, output uguale
+[814/950] wcq 512x512 rows=16 N=4: 10698.1 img/s, p95=2.681 ms, output uguale
+[815/950] vyukov 512x512 rows=16 N=4: 10039.2 img/s, p95=3.005 ms, output uguale
+[816/950] vyukov 512x512 rows=1 N=1: 5077.0 img/s, p95=0.721 ms, output uguale
+[817/950] wcq 512x512 rows=1 N=1: 2020.1 img/s, p95=1.795 ms, output uguale
+[818/950] vyukov 512x512 rows=16 N=1: 6779.1 img/s, p95=4.475 ms, output uguale
+[819/950] wcq 512x512 rows=16 N=1: 7662.9 img/s, p95=3.841 ms, output uguale
+[820/950] serial 512x512 rows=0 N=0: 9010.6 img/s, p95=0.148 ms, output uguale
+[821/950] wcq 512x512 rows=1 N=2: 3514.3 img/s, p95=1.050 ms, output uguale
+[822/950] vyukov 512x512 rows=1 N=2: 7822.3 img/s, p95=0.429 ms, output uguale
+[823/950] serial 512x512 rows=0 N=0: 9640.3 img/s, p95=0.109 ms, output uguale
+[824/950] wcq 512x512 rows=1 N=4: 6652.9 img/s, p95=0.363 ms, output uguale
+[825/950] vyukov 512x512 rows=1 N=4: 8935.3 img/s, p95=0.356 ms, output uguale
+[826/950] wcq 512x512 rows=1 N=4: 6181.9 img/s, p95=0.482 ms, output uguale
+[827/950] vyukov 512x512 rows=1 N=4: 8348.9 img/s, p95=0.399 ms, output uguale
+[828/950] wcq 512x512 rows=16 N=1: 7019.2 img/s, p95=4.192 ms, output uguale
+[829/950] vyukov 512x512 rows=16 N=1: 7500.2 img/s, p95=4.050 ms, output uguale
+[830/950] wcq 512x512 rows=16 N=2: 10124.4 img/s, p95=2.835 ms, output uguale
+[831/950] vyukov 512x512 rows=16 N=2: 10843.8 img/s, p95=2.811 ms, output uguale
+[832/950] vyukov 512x512 rows=1 N=4: 9298.2 img/s, p95=0.333 ms, output uguale
+[833/950] wcq 512x512 rows=1 N=4: 5243.8 img/s, p95=0.468 ms, output uguale
+[834/950] wcq 512x512 rows=1 N=2: 3148.9 img/s, p95=1.093 ms, output uguale
+[835/950] vyukov 512x512 rows=1 N=2: 7671.4 img/s, p95=0.439 ms, output uguale
+[836/950] vyukov 512x512 rows=1 N=4: 9336.8 img/s, p95=0.336 ms, output uguale
+[837/950] wcq 512x512 rows=1 N=4: 6348.9 img/s, p95=0.446 ms, output uguale
+[838/950] wcq 512x512 rows=16 N=2: 10451.9 img/s, p95=2.816 ms, output uguale
+[839/950] vyukov 512x512 rows=16 N=2: 10875.3 img/s, p95=2.805 ms, output uguale
+[840/950] wcq 512x512 rows=128 N=4: 10780.6 img/s, p95=2.844 ms, output uguale
+[841/950] vyukov 512x512 rows=128 N=4: 10743.5 img/s, p95=2.843 ms, output uguale
+[842/950] wcq 512x512 rows=16 N=4: 10908.3 img/s, p95=2.590 ms, output uguale
+[843/950] vyukov 512x512 rows=16 N=4: 11044.6 img/s, p95=2.723 ms, output uguale
+[844/950] vyukov 512x512 rows=1 N=4: 9100.1 img/s, p95=0.359 ms, output uguale
+[845/950] wcq 512x512 rows=1 N=4: 6948.6 img/s, p95=0.446 ms, output uguale
+[846/950] wcq 512x512 rows=1 N=4: 6648.8 img/s, p95=0.447 ms, output uguale
+[847/950] vyukov 512x512 rows=1 N=4: 9296.1 img/s, p95=0.342 ms, output uguale
+[848/950] vyukov 512x512 rows=128 N=4: 10873.5 img/s, p95=2.815 ms, output uguale
+[849/950] wcq 512x512 rows=128 N=4: 11258.7 img/s, p95=2.736 ms, output uguale
+[850/950] wcq 512x512 rows=16 N=1: 7852.4 img/s, p95=3.746 ms, output uguale
+[851/950] vyukov 512x512 rows=16 N=1: 7489.3 img/s, p95=3.986 ms, output uguale
+[852/950] serial 512x512 rows=0 N=0: 7610.9 img/s, p95=0.176 ms, output uguale
+[853/950] serial 512x512 rows=0 N=0: 8618.1 img/s, p95=0.172 ms, output uguale
+[854/950] wcq 512x512 rows=1 N=2: 3341.9 img/s, p95=1.004 ms, output uguale
+[855/950] vyukov 512x512 rows=1 N=2: 6995.4 img/s, p95=0.496 ms, output uguale
+[856/950] serial 512x512 rows=0 N=0: 9699.0 img/s, p95=0.107 ms, output uguale
+[857/950] serial 512x512 rows=0 N=0: 9512.6 img/s, p95=0.113 ms, output uguale
+[858/950] vyukov 512x512 rows=128 N=4: 10303.7 img/s, p95=2.964 ms, output uguale
+[859/950] wcq 512x512 rows=128 N=4: 9448.1 img/s, p95=3.232 ms, output uguale
+[860/950] vyukov 512x512 rows=16 N=1: 8414.6 img/s, p95=3.557 ms, output uguale
+[861/950] wcq 512x512 rows=16 N=1: 7674.5 img/s, p95=3.851 ms, output uguale
+[862/950] wcq 512x512 rows=16 N=1: 7265.6 img/s, p95=4.056 ms, output uguale
+[863/950] vyukov 512x512 rows=16 N=1: 8080.0 img/s, p95=3.751 ms, output uguale
+[864/950] wcq 512x512 rows=1 N=4: 1336.5 img/s, p95=3.813 ms, output uguale
+[865/950] vyukov 512x512 rows=1 N=4: 6884.7 img/s, p95=0.373 ms, output uguale
+[866/950] wcq 512x512 rows=128 N=1: 8698.8 img/s, p95=3.473 ms, output uguale
+[867/950] vyukov 512x512 rows=128 N=1: 9046.7 img/s, p95=3.366 ms, output uguale
+[868/950] vyukov 512x512 rows=1 N=1: 6309.2 img/s, p95=0.492 ms, output uguale
+[869/950] wcq 512x512 rows=1 N=1: 2211.5 img/s, p95=1.707 ms, output uguale
+[870/950] vyukov 512x512 rows=1 N=2: 8226.1 img/s, p95=0.392 ms, output uguale
+[871/950] wcq 512x512 rows=1 N=2: 3883.9 img/s, p95=0.853 ms, output uguale
+[872/950] wcq 512x512 rows=128 N=2: 7019.1 img/s, p95=4.268 ms, output uguale
+[873/950] vyukov 512x512 rows=128 N=2: 10968.3 img/s, p95=2.752 ms, output uguale
+[874/950] vyukov 512x512 rows=1 N=4: 8679.7 img/s, p95=0.384 ms, output uguale
+[875/950] wcq 512x512 rows=1 N=4: 6361.0 img/s, p95=0.464 ms, output uguale
+[876/950] wcq 512x512 rows=16 N=2: 10154.9 img/s, p95=2.804 ms, output uguale
+[877/950] vyukov 512x512 rows=16 N=2: 9321.3 img/s, p95=3.258 ms, output uguale
+[878/950] wcq 512x512 rows=16 N=1: 7832.2 img/s, p95=3.766 ms, output uguale
+[879/950] vyukov 512x512 rows=16 N=1: 8499.1 img/s, p95=3.565 ms, output uguale
+[880/950] wcq 512x512 rows=1 N=2: 3406.3 img/s, p95=0.930 ms, output uguale
+[881/950] vyukov 512x512 rows=1 N=2: 6532.0 img/s, p95=0.521 ms, output uguale
+[882/950] vyukov 512x512 rows=1 N=1: 4937.8 img/s, p95=0.708 ms, output uguale
+[883/950] wcq 512x512 rows=1 N=1: 2130.4 img/s, p95=1.674 ms, output uguale
+[884/950] vyukov 512x512 rows=128 N=4: 10828.0 img/s, p95=2.856 ms, output uguale
+[885/950] wcq 512x512 rows=128 N=4: 11133.6 img/s, p95=2.764 ms, output uguale
+[886/950] vyukov 512x512 rows=1 N=2: 7187.5 img/s, p95=0.466 ms, output uguale
+[887/950] wcq 512x512 rows=1 N=2: 3736.0 img/s, p95=0.897 ms, output uguale
+[888/950] vyukov 512x512 rows=16 N=1: 8654.0 img/s, p95=3.491 ms, output uguale
+[889/950] wcq 512x512 rows=16 N=1: 7864.4 img/s, p95=3.681 ms, output uguale
+[890/950] wcq 512x512 rows=16 N=4: 11001.8 img/s, p95=2.617 ms, output uguale
+[891/950] vyukov 512x512 rows=16 N=4: 11088.6 img/s, p95=2.749 ms, output uguale
+[892/950] vyukov 512x512 rows=128 N=4: 10894.2 img/s, p95=2.839 ms, output uguale
+[893/950] wcq 512x512 rows=128 N=4: 11144.8 img/s, p95=2.768 ms, output uguale
+[894/950] wcq 512x512 rows=1 N=2: 3771.5 img/s, p95=0.935 ms, output uguale
+[895/950] vyukov 512x512 rows=1 N=2: 7535.1 img/s, p95=0.449 ms, output uguale
+[896/950] vyukov 512x512 rows=16 N=4: 8581.6 img/s, p95=3.525 ms, output uguale
+[897/950] wcq 512x512 rows=16 N=4: 11114.4 img/s, p95=2.626 ms, output uguale
+[898/950] vyukov 512x512 rows=1 N=1: 6639.1 img/s, p95=0.509 ms, output uguale
+[899/950] wcq 512x512 rows=1 N=1: 2175.2 img/s, p95=1.576 ms, output uguale
+[900/950] vyukov 512x512 rows=128 N=1: 6510.9 img/s, p95=4.694 ms, output uguale
+[901/950] wcq 512x512 rows=128 N=1: 9039.8 img/s, p95=3.294 ms, output uguale
+[902/950] wcq 512x512 rows=1 N=4: 3932.8 img/s, p95=1.037 ms, output uguale
+[903/950] vyukov 512x512 rows=1 N=4: 8238.7 img/s, p95=0.399 ms, output uguale
+[904/950] vyukov 512x512 rows=128 N=2: 11100.5 img/s, p95=2.707 ms, output uguale
+[905/950] wcq 512x512 rows=128 N=2: 8172.6 img/s, p95=3.756 ms, output uguale
+[906/950] vyukov 512x512 rows=128 N=2: 8792.2 img/s, p95=3.449 ms, output uguale
+[907/950] wcq 512x512 rows=128 N=2: 10526.1 img/s, p95=2.858 ms, output uguale
+[908/950] wcq 512x512 rows=128 N=4: 11027.0 img/s, p95=2.758 ms, output uguale
+[909/950] vyukov 512x512 rows=128 N=4: 10958.6 img/s, p95=2.795 ms, output uguale
+[910/950] wcq 512x512 rows=1 N=1: 2281.4 img/s, p95=1.400 ms, output uguale
+[911/950] vyukov 512x512 rows=1 N=1: 5875.9 img/s, p95=0.585 ms, output uguale
+[912/950] wcq 512x512 rows=128 N=1: 7013.3 img/s, p95=4.265 ms, output uguale
+[913/950] vyukov 512x512 rows=128 N=1: 8431.2 img/s, p95=3.553 ms, output uguale
+[914/950] wcq 512x512 rows=16 N=2: 9237.9 img/s, p95=3.152 ms, output uguale
+[915/950] vyukov 512x512 rows=16 N=2: 9976.1 img/s, p95=3.078 ms, output uguale
+[916/950] wcq 512x512 rows=16 N=4: 10534.2 img/s, p95=2.685 ms, output uguale
+[917/950] vyukov 512x512 rows=16 N=4: 10927.6 img/s, p95=2.775 ms, output uguale
+[918/950] wcq 512x512 rows=16 N=4: 10372.5 img/s, p95=2.830 ms, output uguale
+[919/950] vyukov 512x512 rows=16 N=4: 10909.4 img/s, p95=2.717 ms, output uguale
+[920/950] vyukov 512x512 rows=1 N=2: 7423.6 img/s, p95=0.489 ms, output uguale
+[921/950] wcq 512x512 rows=1 N=2: 3621.1 img/s, p95=0.911 ms, output uguale
+[922/950] wcq 512x512 rows=16 N=1: 7605.4 img/s, p95=3.898 ms, output uguale
+[923/950] vyukov 512x512 rows=16 N=1: 8840.9 img/s, p95=3.420 ms, output uguale
+[924/950] vyukov 512x512 rows=128 N=4: 10505.7 img/s, p95=2.916 ms, output uguale
+[925/950] wcq 512x512 rows=128 N=4: 10627.0 img/s, p95=2.870 ms, output uguale
+[926/950] wcq 512x512 rows=16 N=4: 10807.4 img/s, p95=2.631 ms, output uguale
+[927/950] vyukov 512x512 rows=16 N=4: 10872.9 img/s, p95=2.768 ms, output uguale
+[928/950] vyukov 512x512 rows=16 N=4: 10543.1 img/s, p95=2.831 ms, output uguale
+[929/950] wcq 512x512 rows=16 N=4: 11100.3 img/s, p95=2.555 ms, output uguale
+[930/950] vyukov 512x512 rows=16 N=4: 10724.3 img/s, p95=2.806 ms, output uguale
+[931/950] wcq 512x512 rows=16 N=4: 11179.4 img/s, p95=2.567 ms, output uguale
+[932/950] vyukov 512x512 rows=1 N=2: 7880.8 img/s, p95=0.406 ms, output uguale
+[933/950] wcq 512x512 rows=1 N=2: 3883.4 img/s, p95=0.833 ms, output uguale
+[934/950] wcq 512x512 rows=128 N=1: 7426.2 img/s, p95=4.031 ms, output uguale
+[935/950] vyukov 512x512 rows=128 N=1: 8891.5 img/s, p95=3.398 ms, output uguale
+[936/950] wcq 512x512 rows=1 N=1: 2330.2 img/s, p95=1.405 ms, output uguale
+[937/950] vyukov 512x512 rows=1 N=1: 5189.3 img/s, p95=0.713 ms, output uguale
+[938/950] wcq 512x512 rows=16 N=1: 8078.8 img/s, p95=3.650 ms, output uguale
+[939/950] vyukov 512x512 rows=16 N=1: 8945.2 img/s, p95=3.396 ms, output uguale
+[940/950] wcq 512x512 rows=16 N=2: 9844.2 img/s, p95=3.006 ms, output uguale
+[941/950] vyukov 512x512 rows=16 N=2: 8759.4 img/s, p95=3.488 ms, output uguale
+[942/950] serial 512x512 rows=0 N=0: 8893.9 img/s, p95=0.152 ms, output uguale
+[943/950] vyukov 512x512 rows=128 N=4: 8942.5 img/s, p95=3.392 ms, output uguale
+[944/950] wcq 512x512 rows=128 N=4: 10790.8 img/s, p95=2.802 ms, output uguale
+[945/950] wcq 512x512 rows=1 N=2: 3533.0 img/s, p95=1.004 ms, output uguale
+[946/950] vyukov 512x512 rows=1 N=2: 7662.4 img/s, p95=0.428 ms, output uguale
+[947/950] wcq 512x512 rows=128 N=1: 8435.4 img/s, p95=3.591 ms, output uguale
+[948/950] vyukov 512x512 rows=128 N=1: 7497.7 img/s, p95=3.999 ms, output uguale
+[949/950] wcq 512x512 rows=128 N=1: 8947.8 img/s, p95=3.382 ms, output uguale
+[950/950] vyukov 512x512 rows=128 N=1: 7593.2 img/s, p95=3.988 ms, output uguale
+Risultati: /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali/ImageTiles
+Grafici salvati in /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali/ImageTiles
+COMPLETATO: /home/antonello/Scrivania/MoStream/MoStream-main (2)/MoStream-main/Benchmarks/BenchMark wCQ vs Vyukov/Campagna_50_ripetizioni/risultati/20261021-50-ripetizioni-locali

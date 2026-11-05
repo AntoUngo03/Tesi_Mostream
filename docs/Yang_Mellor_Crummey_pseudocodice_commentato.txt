@@ -1,0 +1,507 @@
+Appunti personali: pseudocodice commentato dei Listing 1-5
+
+Fonte: Chaoran Yang e John Mellor-Crummey, "A Wait-free Queue as Fast as
+Fetch-and-Add", PPoPP '16, 2016, DOI 10.1145/2851141.2851168.
+Documento fornito dall'utente; condizioni di riproduzione e licenza restano
+quelle del paper originale.
+
+TRASCRIZIONE DIDATTICA, NON codice C/C++/Mojo eseguibile.
+Conserva tutte le righe 1-249 del PDF, compresi i refusi segnalati nei commenti.
+La sintassi estratta contiene spazi in ->, uguaglianze = e assegnazioni :=.
+TOP e il simbolo matematico di cella invalidata, estratto come >;
+BOTTOM e il simbolo di cella vergine. EMPTY e la risposta API.
+BOTTOM_E/TOP_E e BOTTOM_D/TOP_D sono marcatori distinti per enq/deq.
+Il modello assume consistenza sequenziale e accessi atomici a 64 bit.
+Una richiesta ha due parole: soltanto state viene modificato con CAS singola.
+Una Cell ha tre parole: non e una tripla atomica.
+I segmenti realizzano un array crescente, non un anello di celle riutilizzate.
+Fence, dettagli d'inizializzazione e allocator non sono completamente espressi.
+Sorgente indicato dal paper: https://github.com/chaoran/fast-wait-free-queue
+
+
+
+LISTING 1: BASE OBSTRUCTION-FREE
+
+# Inserimento BASE obstruction-free, non ancora wait-free.
+1   enqueue ( x : var ) {
+# FAA prende il vecchio indice T e incrementa T.
+2     do t := FAA (& T , 1);
+# Prova a pubblicare x nella cella vergine; se perde, prende un'altra cella.
+3     while (! CAS (& Q [t ] , ⊥, x ));
+# Chiude il blocco corrente.
+4   }
+# Estrazione nell'array infinito astratto.
+5   dequeue (): var {
+# FAA prende il vecchio indice H e incrementa H.
+6     do h := FAA (& H , 1);
+# Invalida la cella vergine; riprova se T indica altri inserimenti; and ha valutazione corta.
+7     while ( CAS (& Q [ h ], ⊥, >) and T > h );
+# Converte TOP in EMPTY, altrimenti restituisce il valore.
+8     return ( Q [ h ] = > ? EMPTY : Q [h ]);
+# Chiude il blocco corrente.
+9   }
+
+LISTING 2: STRUTTURE E AUSILIARI
+
+# Richiesta di aiuto per un inserimento.
+10   struct EnqReq
+# Valore da inserire, una parola nel modello.
+11     void * val ;
+# Stato atomico: bit pending e identificatore di 63 bit.
+12     struct { int pending : 1; int id : 63; } state ;
+# Richiesta di aiuto per un'estrazione.
+13   struct DeqReq
+# Identificatore originale della richiesta.
+14     int id : 64;
+# Stato atomico: bit pending e indice candidato/risultato.
+15     struct { int pending : 1; int idx : 63; } state ;
+# Cella formata da tre parole distinte, non una tripla atomica.
+16   struct Cell
+# Valore, proprietario di enqueue e proprietario di dequeue.
+17     void * val ; EnqReq * enq ; DeqReq * deq ;
+# Segmento di array logico crescente, non ring buffer.
+18   struct Segment
+# Id, successore e array di N celle.
+19     int id : 64; Segment * next ; Cell cells [N ];
+# Stato globale della coda.
+20   struct Queue
+# Lista di segmenti e contatori globali H e T, inizialmente zero.
+21     Segment * Q; int T : 64; int H : 64;
+# Handle del thread: alcuni campi sono accessibili anche da helper e cleaner.
+22   struct Handle
+# Segmenti locali di partenza per scrittura e lettura.
+23     Segment * tail , * head ;
+# Collega gli handle in un anello per distribuire l'aiuto.
+24     Handle * next ;
+# Richiesta e peer di enqueue. Il Listing 3 usa anche enq.id, omesso in questa definizione.
+25     struct { EnqReq req ; Handle * peer ; } enq ;
+# Richiesta e peer di dequeue.
+26     struct { DeqReq req ; Handle * peer ; } deq ;
+# Costruisce un nuovo segmento.
+27   Segment * new_segment ( int id )
+# Alloca un segmento: richiede memoria disponibile e un allocator appropriato.
+28     Segment * s := new Segment ;
+# Memorizza l'id logico del segmento.
+29     s - > id := id ;
+# Il segmento nuovo non ha successori.
+30     s - > next := null ;
+# Inizializza N celle vergini senza richieste associate.
+31     for ( i := 0; i < N ; i ++) s -> cells [ i ] := (⊥, ⊥e , ⊥d );
+# Restituisce il segmento privato.
+32     return s ;
+# Trova una cella e aggiorna il puntatore al suo segmento.
+33   Cell * find_cell ( Segment ** sp , int cell_id )
+# Parte da un segmento valido e non oltre il bersaglio.
+34     s := * sp ; // invariant : sp points to a valid segment
+35     // traverse list to target segment with id cell_id /N
+# Visita i segmenti fino al quoziente intero cell_id/N.
+36     for ( i := s - > id ; i < cell_id / N ; i ++) {
+# Legge il successore.
+37        next := s - > next ;
+# Se manca il successore, bisogna estendere la lista.
+38        if ( next = null ) {
+39          // the list needs another segment .
+40          // allocate one and try to extend the list .
+# Prepara privatamente il segmento successivo.
+41          tmp := new_segment ( i + 1);
+# CAS pubblica il segmento solo se next e ancora nullo.
+42          if (! CAS (& s -> next , null , tmp )) {
+# Se perde, libera il proprio segmento mai pubblicato.
+43             free ( tmp ); // another thread extended the list
+# Chiude il blocco corrente.
+44          }
+45          // invariant : a successor segment exists
+# Rilegge il successore pubblicato dal vincitore.
+46          next := s - > next ;
+# Chiude il blocco corrente.
+47        }
+# Avanza al segmento successivo.
+48        s := next ;
+# Chiude il blocco corrente.
+49     }
+50     // invariant : s is the target segment ( cell_id / N )
+# Aggiorna il puntatore del chiamante al segmento bersaglio.
+51     * sp := s; // return target segment
+# Restituisce la cella all'offset cell_id modulo N.
+52     return &s -> cells [ cell_id mod N ]; // return target cell
+# Porta un contatore globale almeno a cid, senza arretrarlo.
+53   void advance_end_for_linearizability ( int *E , int cid )
+54     // ensure head or tail index (* E ) is at or beyond cid
+# Legge e riprova la CAS solo se il contatore resta inferiore al bersaglio.
+55     do e := * E ; while ( e < cid and ! CAS (E , e , cid ));
+
+LISTING 3: ENQUEUE E HELP_ENQ
+
+# Interfaccia di enqueue completa.
+ 56   void enqueue ( Queue *q , Handle *h , void *v)
+# Tentativi veloci limitati: p>=0 implica PATIENCE+1 iterazioni nella forma stampata.
+ 57     for ( p := PATIENCE ; p >= 0; p - -)
+# Termina se il tentativo veloce riesce.
+ 58       if ( enq_fast (q , h , v , & cell_id )) return ;
+# Altrimenti usa lo slow-path con l'ultimo indice fallito.
+ 59     enq_slow (q , h , v , cell_id ); // use id from last attempt
+# Assegna una richiesta a una sola cella.
+ 60   bool try_to_claim_req ( int *s , int id , int cell_id )
+# CAS da (pending=1,id originale) a (pending=0,indice destinazione).
+ 61     return CAS (s , (1 , id ) , (0 , cell_id ));
+# Completa il commit del valore assegnato a una cella.
+ 62   void enq_commit ( Queue *q , Cell *c , void *v , int cid )
+# Prima di scrivere, assicura che T sia oltre la destinazione.
+ 63     advance_end_for_linearizability (&q - >T , cid +1);
+# Scrive il valore della richiesta; helper coordinati possono ripetere la stessa scrittura.
+ 64     c - > val := v ; // record value in claimed cell
+# Un tentativo veloce di inserimento.
+ 65   bool enq_fast ( Queue *q , Handle *h , void *v , int * cid )
+ 66     // obtain cell index and locate candidate cell
+# FAA assegna un indice e find_cell trova la cella corrispondente.
+ 67     i := FAA (& q - >T , 1); c := find_cell (& h -> tail , i );
+# CAS sostituisce il valore vergine con v.
+ 68     if ( CAS (& c . val , ⊥, v )) return true ; // enq complete
+# Se fallisce, conserva l'indice per la richiesta assistita.
+ 69     * cid := i ; return false ; // fail , returning cell id
+# Percorso assistito di inserimento.
+ 70   void enq_slow ( Queue *q , Handle *h , void *v , int cell_id )
+ 71     // publish enqueue request
+# Pubblica prima val, poi state pending con identificatore cell_id.
+ 72     r := &h -> enq . req ; r - > val := v ; r -> state := (1 , cell_id );
+ 73     // use a local tail pointer to traverse because
+ 74     // line 87 may need to find an earlier cell .
+# Usa un puntatore temporaneo: un helper puo assegnare una destinazione precedente alle nuove tentate.
+ 75     tmp_tail := h -> tail ;
+# Inizia la ricerca di una cella con ulteriori indici FAA.
+ 76     do {
+ 77       // obtain new cell index and locate candidate cell
+# Ottiene un nuovo indice e trova la cella usando il puntatore temporaneo.
+ 78       i := FAA (& q - >T , 1); c := find_cell (& tmp_tail , i );
+ 79       // Dijkstra ’s protocol
+# Riserva enq per r, POI legge val: ordine essenziale al protocollo di Dijkstra.
+ 80       if ( CAS (&c -> enq , ⊥e , r ) and c . val = ⊥) {
+# Prova ad assegnare r a i. Refuso: id non e definito qui; l'id pubblicato e cell_id.
+ 81          try_to_claim_req (&r - > state , id , i ); // for cell i
+ 82          // invariant : request claimed ( even if CAS failed )
+# Esce dopo l'assegnazione della richiesta, propria o da un helper.
+ 83          break ;
+# Chiude il blocco corrente.
+ 84       }
+# Continua solo finche la richiesta non viene assegnata.
+ 85     } while (r -> state . pending );
+ 86     // invariant : req claimed for a cell ; find that cell
+# Trova la destinazione realmente assegnata usando il puntatore h.tail.
+ 87     id := r - > state . id ; c := find_cell (& h - > tail , id );
+# Completa il commit prima di restituire.
+ 88     enq_commit (q , c , v , id );
+ 89     // invariant : req committed before enq_slow returns
+# Ottiene il risultato di una cella e aiuta gli enqueue pending.
+ 90   void    * help_enq ( Queue *q , Handle *h , Cell *c , int i )
+# Prova a invalidare val vergine; se trova un valore vero, lo restituisce.
+ 91     if    (! CAS (& c - > val , ⊥, >) and c - > val != >) return c - > val ;
+ 92     //    c - > val is >, so help slow - path enqueues
+# Se enq e vergine, valuta il peer da aiutare.
+ 93     if    (c -> enq = ⊥e ) { // no enqueue request in c yet
+# Breve selezione del peer, al massimo due iterazioni secondo il paper.
+ 94          do { // two iterations at most
+# Legge peer, richiesta e stato.
+ 95             p := h - > enq . peer ; r := &p - > enq . req ; s := r - > state ;
+ 96             // break if I haven ’t helped this peer complete
+# Resta sul peer se l'aiuto alla sua richiesta non e ancora concluso.
+ 97             if (h -> enq . id = 0 or h - > enq . id = s . id ) break ;
+ 98             // peer request completed ; move to next peer
+# Dimentica l'id vecchio e passa al peer successivo dopo una nuova richiesta.
+ 99             h - > enq . id := 0; h - > enq . peer := p - > next ;
+# Chiude il breve ciclo di selezione.
+100          } while (1);
+101          // if peer enqueue is pending and can use this cell ,
+102          // try to reserve cell by noting request in cell
+# Riserva la cella per una richiesta pending adatta; la negazione CAS seleziona il fallimento.
+103          if ( s . pending and s . id ≤ i and ! CAS (&c -> enq , ⊥e , r ))
+104             // failed to reserve cell for req , remember req id
+# Se perde la riserva, ricorda l'id e conserva l'obbligo di aiutare quel peer.
+105             h - > enq . id := s . id ;
+# Caso in cui il peer non serve, non e adatto o la riserva e riuscita.
+106          else
+107             // peer doesn ’t need help , I can ’t help , or I helped
+# Passa al peer successivo per la prossima occasione.
+108             h - > enq . peer := p - > next ; // help next peer next time
+109          // if can ’t find a pending request , write >e to
+110          // prevent other enq helpers from using cell c
+# Se enq resta vergine, lo sigilla TOP_E contro richieste future.
+111          if (c -> enq = ⊥e ) CAS (& c - > enq , ⊥e , >e );
+# Chiude il blocco corrente.
+112     }
+113     // invariant : cell ’s enq is either a request or >e
+# Se enq e sigillato, nessuna richiesta riempira questa cella.
+114     if (c -> enq = >e ) // no enqueue will fill this cell
+115       // EMPTY if not enough enqueues linearized before i
+# EMPTY soltanto con T<=i; TOP significa riprovare, non coda vuota.
+116       return (q -> T ≤ i ? EMPTY : >);
+117     // invariant : cell ’s enq is a request
+# Legge prima state, poi val: ordine inverso alla pubblicazione.
+118     r := c - > enq ; s := r - > state ; v := r - > val ;
+# Una richiesta con id>i e troppo recente per usare questa cella.
+119     if ( s . id > i )
+120       // request is unsuitable for this cell
+121       // EMPTY if not enough enqueues linearized before i
+# In quel caso puo dire EMPTY solo con val=TOP e T<=i.
+122       if (c -> val = > and q - > T ≤ i ) return EMPTY ;
+# Prova ad assegnare la richiesta alla cella i, oppure riconosce...
+123     else if ( try_to_claim_req (& r - > state , s . id , i ) or
+124                 // someone claimed this request ; not committed
+# ...che e gia assegnata a i e il commit del valore manca ancora.
+125                 ( s = (0 , i ) and c - > val = >))
+# Completa il commit della richiesta nella cella assegnata.
+126       enq_commit (q , c , v , i );
+# Restituisce il valore risultante o TOP.
+127     return c - > val ; // c - > val is > or a value
+
+LISTING 4: DEQUEUE E HELP_DEQ
+
+# Interfaccia di dequeue completa.
+128   void * dequeue ( Queue *q , Handle * h )
+# Numero limitato di tentativi veloci, includendo p=0.
+129     for ( p := PATIENCE ; p >= 0; p - -) {
+# Riceve un valore, EMPTY oppure il fallimento interno TOP.
+130       v := deq_fast (q , h , & cell_id );
+# Valore o EMPTY concludono la ricerca veloce.
+131       if ( v != >) break ;
+# Chiude il blocco corrente.
+132     }
+# TOP dopo i tentativi porta allo slow-path.
+133     if ( v = >) v = deq_slow (q , h , cell_id );
+134     // invariant : v is a value or EMPTY
+# Dopo un valore ottenuto, aiuta un peer di dequeue.
+135     if ( v != EMPTY ) { // got a value , so help peer
+# Completa l'eventuale richiesta pending del peer.
+136       help_deq (q , h , h - > deq . peer );
+# Avanza al peer successivo dell'anello.
+137       h - > deq . peer := h - > deq . peer - > next ; // move to next peer
+# Chiude il blocco corrente.
+138     }
+# Restituisce valore o EMPTY.
+139     return v ;
+# Un tentativo veloce di estrazione.
+140   void * deq_fast ( Queue *q , Handle *h , int * id )
+141     // obtain cell index and locate candidate cell
+# FAA su H assegna la cella candidata.
+142     i := FAA (& q - >H , 1); c := find_cell (& h -> head , i );
+# help_enq ottiene il risultato, aiutando eventualmente un produttore.
+143     v := help_enq (q , h , c , i );
+# EMPTY e un risultato valido dell'API.
+144     if ( v = EMPTY ) return EMPTY ;
+145     // the cell has a value and I claimed it
+# CAS su deq assegna il valore a questo fast-path. Nel PDF manca una parentesi di chiusura.
+146     if ( v != > and CAS (& c - > deq , ⊥d , >d ) return v ;
+147     // otherwise fail , returning cell id
+# In caso di insuccesso salva l'indice e restituisce TOP.
+148     * id := i; return >;
+# Percorso assistito di estrazione.
+149   void * deq_slow ( Queue *q , Handle *h , int cid )
+150     // publish dequeue request
+# Pubblica id originale e stato pending col candidato iniziale.
+151     r := &h -> deq . req ; r - > id := cid ; r - > state := (1 , cid );
+# Il richiedente aiuta anche la propria richiesta.
+152     help_deq (q , h , h );
+153     // find the destination cell & read its value
+# Trova la cella risultante indicata dalla richiesta conclusa.
+154     i := r - > state . idx ; c := find_cell (& h - > head , i );
+# Legge il valore della cella assegnata.
+155     v := c - > val ;
+# Prima del ritorno assicura H oltre la cella scelta.
+156     advance_end_for_linearizability (& q - >H , i +1);
+# Traduce TOP in EMPTY per il risultato vuoto assegnato.
+157     return ( v = > ? EMPTY : v );
+# Aiuta una richiesta di dequeue di un peer.
+158   void help_deq ( Queue *q , Handle *h , Handle * helpee )
+159     // inspect a dequeue request
+# Legge richiesta, stato e id. r deve essere un indirizzo: il PDF omette &.
+160     r := helpee - > deq . req ; s := r - > state ; id := r - > id ;
+161     // if this request doesn ’t need help , return
+# Ritorna se la richiesta e conclusa o lo stato appartiene a una fase precedente.
+162     if (! s . pending or s . idx < id ) return ;
+163     // ha : a local segment pointer for announced cells
+# Puntatore locale per celle annunciate, distinto da quello per nuovi candidati.
+164     ha := helpee - > head ;
+# Rilegge state DOPO il puntatore head: necessario anche alla reclamation.
+165     s := r - > state ; // must read after reading helpee - > head
+# Prepara indice, candidato precedente e assenza di candidato locale.
+166     prior := id ; i := id ; cand := 0;
+# Ripete fino al completamento della richiesta.
+167     while ( true ) {
+168       // find a candidate cell , if I don ’t have one
+169       // loop breaks when either find a candidate
+170       // or a candidate is announced
+171       // hc : a local segment pointer for candidate cells
+# Cerca un candidato finche nessun helper ne annuncia uno diverso.
+172       for ( hc := ha ; ! cand and s . idx = prior ;) {
+# Visita la cella seguente col puntatore locale hc.
+173         c := find_cell (& hc , ++ i );
+# Invoca help_enq. Refuso di tipo: hc e Segment*, ma la firma richiede Handle*; il parametro coerente e h.
+174         v := help_enq (q , hc , c , i );
+175         // it is a candidate if it help_enq return EMPTY
+176         // or a value that is not claimed by dequeues
+# Candidato: permette EMPTY oppure contiene un valore non ancora assegnato.
+177         if ( v = EMPTY or ( v != > and c - > deq = ⊥d )) cand := i ;
+178         // inspect request state again
+# Se non trova un candidato, controlla gli annunci degli altri helper.
+179         else s := r - > state ;
+# Chiude il blocco corrente.
+180       }
+# Se ha un candidato locale, prova ad annunciarlo.
+181       if ( cand ) {
+182         // found a candidate cell , try to announce it
+# CAS sposta in avanti il candidato condiviso lasciando pending=1.
+183         CAS (& r - > state , (1 , prior ) , (1 , cand ));
+# Rilegge il candidato annunciato, anche se perde la CAS.
+184         s := r - > state ;
+# Chiude il blocco corrente.
+185       }
+186       // invariant : some candidate announced in s . idx
+187       // quit if request is complete
+# Ritorna se la richiesta e conclusa oppure il peer ha cambiato id.
+188       if (! s . pending or r - > id != id ) return ;
+189       // find the announced candidate
+# Trova la cella annunciata tramite ha; puo precedere l'ultima visitata con hc.
+190       c := find_cell (& ha , s . idx );
+191       // if candidate permits returning EMPTY (c - > val = >)
+192       // or this helper claimed the value for r with CAS
+193       // or another helper claimed the value for r
+# Conclude con risultato vuoto, CAS riuscita su deq per r, oppure proprieta di r gia acquisita.
+194       if (c -> val = > or CAS (& c - > deq ,⊥d ,r ) or c - > deq = r ) {
+195         // request is complete , try to clear pending bit
+# Segna la richiesta come conclusa mantenendo l'indice del risultato.
+196         CAS (& r - > state , s , (0 , s . idx ));
+197         // invariant : r is complete ; r - > state . pending =0
+# Termina l'aiuto con un risultato assegnato.
+198         return ;
+# Chiude il blocco corrente.
+199       }
+200       // prepare for next iteration
+# Memorizza l'ultimo candidato annunciato.
+201       prior := s . idx ;
+202       // if announced candidate is newer than visited cell
+203       // abandon " cand " ( if any ); bump i
+# Se l'annuncio e avanti, scarta il candidato locale e riallinea la scansione.
+204       if ( s . idx ≥ i ) { cand := 0; i := s . idx ; }
+# Chiude il blocco corrente.
+205     }
+
+LISTING 5: RECUPERO DELLA MEMORIA
+
+# Aggiunge I, id del segmento piu vecchio; -1 significa cleaner attivo.
+206   struct Queue { ... , int I : 64; };
+# Aggiunge hzdp per annunciare il segmento protetto dal thread.
+207   struct Handle { ... , Segment * hzdp ; };
+# Integra protezione memoria nell'enqueue.
+208   void enqueue ( Queue *q , Handle *h , void *v)
+# Pubblica il segmento di partenza prima della scansione.
+209     h - > hzdp := h - > tail ;
+# Qui esegue il corpo enqueue dei listing precedenti.
+210     ...
+# Cancella la protezione dopo l'operazione.
+211     h - > hzdp := null ;
+# Integra protezione memoria nel dequeue.
+212   void * dequeue ( Queue *q , Handle * h)
+# Pubblica il segmento di lettura prima della scansione.
+213     h - > hzdp := h - > head ;
+# Qui esegue il corpo dequeue dei listing precedenti.
+214     ...
+# Cancella la protezione al termine.
+215     h - > hzdp := null ;
+# Tenta il cleanup senza aspettare un altro cleaner.
+216     cleanup (q , h );
+# Restituisce il risultato dequeue.
+217     return v ;
+# Estende help_deq con la protezione del segmento del peer.
+218   void help_deq ( Queue *q , Handle *h , Handle * peer )
+# Prima parte della routine help_deq.
+219     ...
+# Pubblica ha tra le righe 164 e 165; il porting deve rispettare anche le fence richieste.
+220     h - > hzdp := ha ; // between line 164 and 165
+# Resto della routine help_deq.
+221     ...
+# Raccolta differita dei vecchi segmenti.
+222   void cleanup ( Queue *q , Handle * h)
+# Legge il primo id e sceglie il limite iniziale di raccolta.
+223     i := q - >I ; e := h -> head ;
+# Se un cleaner e attivo, ritorna subito.
+224     if ( i = -1) return ;
+# Raccoglie soltanto oltre una soglia per ammortizzare il costo.
+225     if (e -> id - i < MAX_GARBAGE ) return ;
+# CAS elegge il cleaner; il perdente ritorna senza aspettare.
+226     if (! CAS (& q - >I , i , -1)) return ;
+# Salva il primo segmento e prepara la lista degli handle visitati.
+227     s := q - >Q ; hds := []; j := 0;
+# Scansiona gli altri handle dell'anello finche ci sono segmenti liberabili.
+228     for ( p := h -> next ; p != h and e - > id > i ; p := p - > next ) {
+# Abbassa il limite se il peer protegge un segmento piu vecchio.
+229         verify (& e , p - > hzdp );
+# Prova ad avanzare head del peer inattivo e ricontrolla la protezione.
+230         update (& p -> head , &e , p );
+# Fa lo stesso per tail.
+231         update (& p -> tail , &e , p );
+# Memorizza l'ordine di visita per il secondo passaggio.
+232         hds [ j ++] := p ;
+# Chiude il blocco corrente.
+233     }
+234     // reverse traversal
+# Ricontrolla i hazard pointer in ordine inverso per catturare salti all'indietro dovuti all'aiuto.
+235     while (e -> id > i and j > 0) verify (& e , hds [ -- j ] - > hzdp );
+# Nessun segmento liberabile. Nel PDF manca qui il ripristino di I dopo la CAS a -1: non copiare letteralmente.
+236     if (e -> id <= i ) { q - >Q := s ; return ; }
+# Pubblica il nuovo primo segmento e ripristina I col suo id.
+237     q - > Q := e ; q - > I := e -> id ;
+# Libera l'intervallo [s,e), escluso il segmento e.
+238     free_list (s , e );
+# Aggiorna un puntatore del peer che precede il limite di raccolta.
+239   void update ( Segment ** from , Segment ** to , Handle * h )
+# Legge il puntatore corrente.
+240     n := * from
+# Controlla se punta a un segmento precedente al limite.
+241     if (n -> id < (* to ) - > id ) {
+# Prova a farlo avanzare colla CAS.
+242       if (! CAS ( from , n , * to )) {
+# Se perde, rilegge il puntatore del peer.
+243         n := * from ;
+# Se il peer resta indietro, abbassa il limite al suo segmento.
+244         if (n -> id < (* to ) - > id ) * to := n;
+# Chiude il blocco corrente.
+245       }
+# Ricontrolla il hazard pointer DOPO l'aggiornamento.
+246       verify ( to , h - > hzdp );
+# Chiude il blocco corrente.
+247     }
+# Adegua il limite di raccolta a una protezione osservata.
+248   void verify ( Segment ** seg , Segment * hzdp )
+# Abbassa il limite se necessario. Refuso: seg e Segment**; l'id coerente e (*seg)->id.
+249     if ( hzdp and hzdp - > id < seg - > id ) * seg := hzdp ;
+
+NOTE DI STUDIO
+
+Enqueue state (0,i) indica una destinazione assegnata: il commit del valore
+puo ancora mancare. Dequeue state (0,i) indica il risultato assegnato.
+TOP come ritorno interno significa riprova; non equivale a EMPTY.
+Cella i: segmento floor(i/N), offset i modulo N.
+PATIENCE nel ciclo p>=0 implica PATIENCE+1 tentativi nella forma stampata.
+Il protocollo di aiuto, non FAA da sola, garantisce wait-freedom.
+
+LINEARIZZABILITA
+La Figura 1 del paper (righe 250-265) e una procedura di prova, non codice
+eseguito dalla coda. Considera soltanto le celle che infine ricevono valori.
+Linearizza gli enqueue tramite l'avanzamento di T oltre quelle celle e i
+dequeue riusciti tramite l'avanzamento di H e l'ordine rispetto all'enqueue.
+Un EMPTY viene linearizzato alla lettura pertinente di T con T<=i.
+Non usare semplicemente la CAS di pubblicazione per ogni linearizzazione.
+
+LIMITI
+La prova fornisce (n-1)^2 fallimenti/celle per enqueue slow-path e (n-1)^4
+celle per dequeue slow-path, non tempi massimi in secondi.
+Su Power7 FAA emulata con retry LL/SC perde la garanzia wait-free.
+Un thread sospeso indefinitamente puo impedire reclamation e causare
+crescita senza limite della memoria pur senza bloccare le altre operazioni.
+L'allocator e la disponibilita di memoria restano ipotesi pratiche.
+
+LIVELOCK DEL LISTING 1
+T=H=0. Un produttore ottiene i=0 con FAA(T). Un consumatore ottiene i=0
+con FAA(H), marca Q[0] TOP; la CAS del produttore fallisce. Il consumatore
+legge T=1>0 e riprova. Lo schema puo ripetersi su i=1,2,3,... senza che
+nessuno completi. Lo slow-path impedisce starvation tramite helping equo.
+

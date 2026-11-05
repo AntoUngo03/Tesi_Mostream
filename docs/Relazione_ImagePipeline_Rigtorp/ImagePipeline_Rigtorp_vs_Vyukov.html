@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8">
+<title>ImagePipeline: Rigtorp vs Vyukov nei communicator MoStream</title>
+<style>
+@page { size: A4; margin: 20mm 18mm 20mm 18mm; }
+body { font-family: "DejaVu Serif", Georgia, serif; font-size: 10.5pt; line-height: 1.45; color: #1a1a1a; }
+h1 { font-family: "DejaVu Sans", sans-serif; font-size: 19pt; margin: 0 0 4px; }
+h2 { font-family: "DejaVu Sans", sans-serif; font-size: 13.5pt; margin: 22px 0 6px; border-bottom: 1px solid #ccc; padding-bottom: 3px; page-break-after: avoid; }
+h3 { font-family: "DejaVu Sans", sans-serif; font-size: 11pt; margin: 14px 0 4px; page-break-after: avoid; }
+.sub { color: #555; font-size: 10pt; margin-bottom: 14px; }
+pre { background: #f4f4f2; border: 1px solid #ddd; border-radius: 3px; padding: 7px 9px; font-size: 8.4pt; line-height: 1.35; white-space: pre-wrap; word-break: break-all; page-break-inside: avoid; }
+code { font-family: "DejaVu Sans Mono", monospace; font-size: 8.8pt; background: #f4f4f2; padding: 0 2px; }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; font-size: 9pt; margin: 6px 0 10px; page-break-inside: avoid; }
+th, td { border: 1px solid #ccc; padding: 3px 6px; text-align: right; }
+th { background: #eee; font-family: "DejaVu Sans", sans-serif; }
+td:first-child, th:first-child { text-align: left; }
+tr.delta td { background: #fbf6e6; }
+.box { border-left: 4px solid #2a6fb0; background: #f0f5fa; padding: 8px 12px; margin: 10px 0; }
+.warn { border-left: 4px solid #c4572a; background: #fbf1ec; padding: 8px 12px; margin: 10px 0; }
+figure { margin: 10px 0; page-break-inside: avoid; }
+figcaption { font-size: 9pt; color: #555; }
+.small { font-size: 9pt; color: #444; }
+</style></head><body>
+
+<h1>ImagePipeline con coda Rigtorp nei communicator MoStream</h1>
+<div class="sub">Confronto Rigtorp vs Vyukov sul workload applicativo ImagePipeline — relazione tecnica, 27 ottobre 2026</div>
+
+<div class="box">
+<b>Sintesi.</b> Il benchmark <code>Benchmarks/ImagePipeline/test_image_1.mojo</code> è stato compilato due volte,
+cambiando solo la coda usata dai communicator fra gli stadi (Vyukov, predefinita, oppure Rigtorp con
+<code>-D MOSTREAM_RIGTORP=1</code>), ed eseguito sulla macchina virtuale con Mojo 1.1.0.
+Con 5 ripetizioni per coda e due configurazioni di parallelismo, le mediane di throughput differiscono di
+<b>+0,25%</b> (10 thread) e <b>+0,35%</b> (34 thread) a favore di Rigtorp: differenze inferiori alla
+variabilità fra ripetizioni. <b>Su questo workload le due code sono equivalenti</b>; il costo dominante
+è il calcolo sulle immagini, non la comunicazione fra stadi.
+</div>
+
+<h2>1. Obiettivo</h2>
+<p>I benchmark sintetici (cartella <code>Benchmarks/BenchMark Vyukov vs RigTorp</code>) avevano indicato
+Rigtorp come una coda MPMC molto efficiente. L'obiettivo di questa attività era verificare se il vantaggio
+si mantiene in un'applicazione reale costruita con MoStream, usando Rigtorp come coda dei
+<code>Communicator</code> al posto di Vyukov, a parità di tutto il resto.</p>
+
+<h2>2. Come si seleziona la coda dei communicator</h2>
+<p>La selezione è già integrata nella libreria (vedi <code>docs/Rigtorp_integrazione_runtime.md</code>) e avviene
+<b>in compilazione</b>, nel file <code>MoStream/communication_queue.mojo</code>:</p>
+<pre><code>comptime USE_RIGTORP = is_defined["MOSTREAM_RIGTORP"]()
+comptime COMMUNICATION_QUEUE_NAME = "rigtorp" if USE_RIGTORP else "vyukov"</code></pre>
+<p><code>CommunicationQueue[T]</code> alloca soltanto la coda scelta e inoltra <code>push</code>, <code>try_push</code>
+e <code>try_pop</code> con un <code>comptime if</code>: non ci sono dispatch a runtime né code inutilizzate.
+<code>Communicator</code> (in <code>MoStream/communicator.mojo</code>) usa questa coda, quindi la scelta riguarda tutte
+le code fra gli stadi di <code>Pipeline.run()</code> e <code>Pipeline.run_cooperative()</code>. Le ready/wait queue
+dello scheduler cooperativo restano Vyukov.</p>
+<ul>
+<li>Senza definizione: Vyukov (predefinita).</li>
+<li>Con <code>-D MOSTREAM_RIGTORP=1</code>: Rigtorp. Conta solo la presenza della definizione, anche <code>=0</code> seleziona Rigtorp.</li>
+<li>All'avvio il runtime stampa <code>{MoStream} Inter-stage queue: rigtorp</code> (o <code>vyukov</code>): lo abbiamo usato per verificare ogni esecuzione.</li>
+</ul>
+<p><b>Nessun file della libreria è stato modificato</b> per questa attività: il codice sorgente non
+cambia, cambia solo il flag di compilazione.</p>
+
+<h2>3. Il workload ImagePipeline</h2>
+<p><code>test_image_1.mojo</code> costruisce, con il runtime standard, la pipeline</p>
+<pre><code>TimedImageSource -> Grayscale -> GaussianBlur -> Sharpen -> ImageSink</code></pre>
+<ul>
+<li><b>TimedImageSource</b>: genera per 60 secondi copie di un'immagine a gradiente 512×512 (<code>W = H = 512</code>, <code>DURATION = 60</code>);</li>
+<li><b>Grayscale</b>, <b>GaussianBlur</b> (3×3), <b>Sharpen</b> (3×3): filtri replicabili in parallelo;</li>
+<li><b>ImageSink</b>: conta le immagini ricevute in un contatore atomico.</li>
+</ul>
+<p>Il programma riceve da riga di comando i gradi di parallelismo dei cinque stadi, attiva il pinning
+(<code>pipeline.setPinning(True)</code>) e misura con <code>perf_counter_ns</code> il tempo di <code>pipeline.run()</code>.
+Il throughput stampato è <i>immagini arrivate al sink / tempo totale di run()</i>. Le code fra gli stadi hanno
+la capacità predefinita della Pipeline, <b>1024</b> elementi (potenza di due, valida per entrambe le code).</p>
+
+<h2>4. Preparazione dell'ambiente</h2>
+
+<h3>4.1 Toolchain Mojo 1.1</h3>
+<p>Dal 26 ottobre la libreria richiede Mojo 1.1 (import <code>std.runtime._asyncrt</code>, atomici
+<code>Atomic[Int64]</code>, ecc.). Sul portatile il <code>mojo</code> di sistema era la 0.26.2 e non compilava la libreria; i
+compilatori in cache di pixi (1.0.0b*) erano privi della stdlib. Per una prima prova locale è stato quindi creato
+un ambiente pixi temporaneo con la stessa versione usata nei test di integrazione:</p>
+<pre><code>mkdir mojo11 &amp;&amp; cd mojo11
+pixi init -c https://conda.modular.com/max -c conda-forge .
+pixi add "mojo==1.1.0"
+pixi run mojo --version        # Mojo 1.1.0 (8189361e)</code></pre>
+<p>Il compilatore va invocato con <code>pixi run</code>: chiamando direttamente il binario dell'ambiente non viene
+trovata la stdlib (<code>error: unable to locate module 'std'</code>).</p>
+
+<h3>4.2 Adeguamento del benchmark a Mojo 1.1</h3>
+<p>Con la libreria aggiornata, la compilazione falliva nel benchmark stesso:</p>
+<pre><code>test_image_1.mojo:52:46: error: 'Atomic' parameter 'T' has 'Deinitable &amp; Movable' type,
+but value has type 'DType'
+    var count_ptr = unsafe_alloc[Atomic[DType.int64]](1)</code></pre>
+<p>In Mojo 1.1 <code>Atomic</code> è parametrizzato sul tipo scalare e non su un <code>DType</code>. È la stessa
+migrazione già applicata alla libreria; è stata estesa a tutti i file di <code>Benchmarks/ImagePipeline</code>
+(<code>image_stages.mojo</code>, <code>test_image_1.mojo</code>, <code>test_image_1_coop.mojo</code>,
+<code>test_image_2.mojo</code>, <code>test_image_3.mojo</code>, <code>test_image_3_coop.mojo</code>):</p>
+<pre><code>cd Benchmarks/ImagePipeline
+sed -i 's/Atomic\[DType\.int64\]/Atomic[Int64]/g' *.mojo</code></pre>
+<p>La sostituzione è puramente sintattica (stesso tipo a 64 bit con segno): non cambia né la logica dei filtri né la
+misura.</p>
+
+<h3>4.3 Libreria di pinning</h3>
+<p>Al primo avvio ogni worker falliva con</p>
+<pre><code>Raised: dlopen failed: ./MoStream/lib/libpinning.so: cannot open shared object file</code></pre>
+<p>perché l'helper C per il pinning non era stato compilato. Come indicato nel README:</p>
+<pre><code>make -C MoStream/lib            # produce libpinning.so e libpinning.o
+export MOSTREAM_HOME="$PWD"     # radice del repository</code></pre>
+
+<h2>5. Prova locale (smoke test)</h2>
+<pre><code>cd mojo11
+pixi run mojo build -I "$REPO" -I "$REPO/Benchmarks/ImagePipeline" -D MOSTREAM_RIGTORP=1 \
+    "$REPO/Benchmarks/ImagePipeline/test_image_1.mojo" -o test_image_1_rigtorp
+cd "$REPO" &amp;&amp; export MOSTREAM_HOME="$PWD"
+./test_image_1_rigtorp 1 2 4 2 1</code></pre>
+<pre><code>  Configuration: Source=1 GrayScale=2 GaussianBlur=4 Sharpen=2 Sink=1
+{MoStream} Standard MoStream runtime is used with 10 threads
+{MoStream} CPU pinning is enabled
+{MoStream} Inter-stage queue: rigtorp
+{MoStream} ...terminated successfully!
+Elapsed time: 61876.81991 ms
+Throughput: 1349.5037418124482 img/s</code></pre>
+<p>La prova conferma che la pipeline con Rigtorp compila, gira e termina correttamente (EOS propagato fino al sink).
+Il portatile (12 thread hardware) non è una macchina da benchmark, quindi questo valore <b>non</b> va confrontato
+con quelli della sezione 7.</p>
+
+<h2>6. Campagna sulla macchina virtuale</h2>
+
+<h3>6.1 Macchina</h3>
+<table>
+<tr><th>Voce</th><th>Valore</th></tr>
+<tr><td>Host</td><td>ungolo@131.114.2.95 (hostname <code>xilinx</code>)</td></tr>
+<tr><td>CPU</td><td>Intel Xeon Gold 5512U, 1 socket, 28 core / 56 thread, 1 nodo NUMA, max 2,1 GHz</td></tr>
+<tr><td>Memoria</td><td>circa 251 GiB</td></tr>
+<tr><td>Kernel</td><td>Linux 5.15.0-168-generic</td></tr>
+<tr><td>Compilatore</td><td>Mojo 1.1.0 (8189361e), <code>/usr/local/bin/mojo</code></td></tr>
+<tr><td>Carico all'avvio</td><td>load average 0,00 / 0,00 / 0,00</td></tr>
+</table>
+
+<h3>6.2 Copia dei sorgenti</h3>
+<p>La cartella <code>~/MoStream</code> presente sulla VM è una versione precedente (non contiene
+<code>communication_queue.mojo</code>). Per non alterarla, libreria e benchmark sono stati copiati in una cartella
+nuova, <code>~/mostream-rigtorp-bench</code>, e l'helper di pinning è stato ricompilato lì:</p>
+<pre><code>ssh ungolo@131.114.2.95 'mkdir -p ~/mostream-rigtorp-bench/Benchmarks'
+tar czf - --exclude='*.so' --exclude='*.o' MoStream Benchmarks/ImagePipeline \
+  | ssh ungolo@131.114.2.95 'cd ~/mostream-rigtorp-bench &amp;&amp; tar xzf - &amp;&amp; make -C MoStream/lib'</code></pre>
+
+<h3>6.3 Compilazione dei due binari</h3>
+<p>I due binari differiscono <b>solo</b> per la definizione <code>MOSTREAM_RIGTORP</code>:</p>
+<pre><code>cd ~/mostream-rigtorp-bench &amp;&amp; mkdir -p bin
+mojo build -O3 -I . -I Benchmarks/ImagePipeline \
+    Benchmarks/ImagePipeline/test_image_1.mojo -o bin/img1_vyukov
+mojo build -O3 -I . -I Benchmarks/ImagePipeline -D MOSTREAM_RIGTORP=1 \
+    Benchmarks/ImagePipeline/test_image_1.mojo -o bin/img1_rigtorp</code></pre>
+
+<h3>6.4 Tracciabilità</h3>
+<p>Gli hash SHA-256 dei sorgenti delle code sulla VM coincidono con quelli locali e con quelli registrati nei test di
+integrazione del 26 ottobre (<code>Tests/risultati_runtime_queue/20261026-mojo1.1.json</code>, 144 configurazioni
+superate): il codice misurato è esattamente quello validato.</p>
+<table>
+<tr><th>File</th><th>SHA-256</th></tr>
+<tr><td>MoStream/communication_queue.mojo</td><td><code>abbb5541…b75f</code></td></tr>
+<tr><td>MoStream/MPMC_queue_rigtorp.mojo</td><td><code>875a17a0…0e7c</code></td></tr>
+<tr><td>MoStream/MPMC_queue.mojo (Vyukov)</td><td><code>a79a5a39…5d57</code></td></tr>
+<tr><td>bin/img1_vyukov</td><td><code>2b0dc2f8…b10b</code></td></tr>
+<tr><td>bin/img1_rigtorp</td><td><code>f281496c…1fe7</code></td></tr>
+</table>
+
+<h3>6.5 Protocollo di misura</h3>
+<ul>
+<li>Due configurazioni (Source-Grayscale-Blur-Sharpen-Sink): <b>1-2-4-2-1</b> (10 thread) e <b>1-8-16-8-1</b> (34 thread, entro i 56 thread hardware e senza sovrascrittura);</li>
+<li>5 ripetizioni per coda e configurazione, 20 esecuzioni da circa 60 s (circa 21 minuti in totale);</li>
+<li>ordine <b>alternato</b>: nelle ripetizioni dispari parte prima Vyukov, nelle pari Rigtorp, per non favorire sistematicamente una delle due con effetti di riscaldamento o termici;</li>
+<li>ogni esecuzione controlla che il runtime abbia stampato la coda attesa (<code>Inter-stage queue: …</code>), con un timeout di 300 s.</li>
+</ul>
+<p>Script <code>~/mostream-rigtorp-bench/run.sh</code>, lanciato con <code>nohup ./run.sh &gt; run.log 2&gt;&amp;1 &amp;</code>:</p>
+<pre><code>#!/bin/bash
+export MOSTREAM_HOME="$HOME/mostream-rigtorp-bench"
+cd "$MOSTREAM_HOME"
+OUT=results.csv
+echo "config,rep,backend,elapsed_ms,throughput" &gt; $OUT
+for cfg in "1 2 4 2 1" "1 8 16 8 1"; do
+  for rep in 1 2 3 4 5; do
+    if (( rep % 2 )); then order="vyukov rigtorp"; else order="rigtorp vyukov"; fi
+    for b in $order; do
+      log=$(timeout 300 ./bin/img1_$b $cfg 2&gt;&amp;1)
+      echo "$log" | grep -q "Inter-stage queue: $b" || echo "WARN backend mismatch $b" &gt;&amp;2
+      ms=$(echo "$log" | sed -n "s/Elapsed time: \(.*\) ms/\1/p")
+      tp=$(echo "$log" | sed -n "s/Throughput: \(.*\) img\/s/\1/p")
+      echo "${cfg// /-},$rep,$b,$ms,$tp" | tee -a $OUT
+    done
+  done
+done
+echo DONE</code></pre>
+<p>Tutte le 20 esecuzioni sono terminate correttamente, senza timeout né segnalazioni <code>WARN</code>, e il log
+termina con <code>DONE</code>.</p>
+
+<h2>7. Risultati</h2>
+<h3>7.1 Statistiche per configurazione (throughput, img/s)</h3>
+<table>
+<tr><th>Config.</th><th>Coda</th><th>n</th><th>Mediana</th><th>Media</th><th>Min</th><th>Max</th><th>Dev. std (CV)</th></tr>
+<tr><td>1-2-4-2-1</td><td>Vyukov</td><td>5</td><td><b>10.161</b></td><td>10.032</td><td>9.481</td><td>10.202</td><td>309 (3,08%)</td></tr>
+<tr><td>1-2-4-2-1</td><td>Rigtorp</td><td>5</td><td><b>10.186</b></td><td>10.201</td><td>10.152</td><td>10.256</td><td>41 (0,41%)</td></tr>
+<tr class="delta"><td colspan="2">Rigtorp rispetto a Vyukov (mediane)</td><td colspan="6"><b>+0,25%</b></td></tr>
+<tr><td>1-8-16-8-1</td><td>Vyukov</td><td>5</td><td><b>19.696</b></td><td>19.736</td><td>19.619</td><td>19.957</td><td>130 (0,66%)</td></tr>
+<tr><td>1-8-16-8-1</td><td>Rigtorp</td><td>5</td><td><b>19.765</b></td><td>19.708</td><td>19.557</td><td>19.793</td><td>99 (0,50%)</td></tr>
+<tr class="delta"><td colspan="2">Rigtorp rispetto a Vyukov (mediane)</td><td colspan="6"><b>+0,35%</b></td></tr>
+</table>
+
+<figure>
+<svg viewBox="0 0 680 240" width="100%" xmlns="http://www.w3.org/2000/svg">
+<style>.ttl{font:600 12px sans-serif;fill:#222}.tick{font:9px sans-serif;fill:#666}.xl{font:600 11px sans-serif;fill:#333}.lab{font:600 10px sans-serif}.ax{stroke:#999}.grid{stroke:#e5e5e5}</style>
+<text x="170.0" y="16" text-anchor="middle" class="ttl">Configurazione 1-2-4-2-1</text>
+<line x1="60" y1="30" x2="60" y2="190" class="ax"/>
+<line x1="56" y1="190.0" x2="330" y2="190.0" class="grid"/>
+<text x="52" y="193.0" text-anchor="end" class="tick">9.365</text>
+<line x1="56" y1="150.0" x2="330" y2="150.0" class="grid"/>
+<text x="52" y="153.0" text-anchor="end" class="tick">9.617</text>
+<line x1="56" y1="110.0" x2="330" y2="110.0" class="grid"/>
+<text x="52" y="113.0" text-anchor="end" class="tick">9.868</text>
+<line x1="56" y1="70.0" x2="330" y2="70.0" class="grid"/>
+<text x="52" y="73.0" text-anchor="end" class="tick">10.120</text>
+<line x1="56" y1="30.0" x2="330" y2="30.0" class="grid"/>
+<text x="52" y="33.0" text-anchor="end" class="tick">10.372</text>
+<circle cx="127.0" cy="171.5" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<circle cx="134.0" cy="66.1" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<circle cx="141.0" cy="61.8" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<circle cx="148.0" cy="57.0" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<circle cx="155.0" cy="63.5" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<line x1="115.0" y1="63.5" x2="167.0" y2="63.5" stroke="#2a6fb0" stroke-width="2.5"/>
+<text x="171.0" y="66.5" class="lab" fill="#2a6fb0">10.161</text>
+<text x="141.0" y="208" text-anchor="middle" class="xl">Vyukov</text>
+<circle cx="235.0" cy="64.9" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<circle cx="242.0" cy="52.6" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<circle cx="249.0" cy="48.5" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<circle cx="256.0" cy="59.5" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<circle cx="263.0" cy="60.5" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<line x1="223.0" y1="59.5" x2="275.0" y2="59.5" stroke="#c4572a" stroke-width="2.5"/>
+<text x="279.0" y="62.5" class="lab" fill="#c4572a">10.186</text>
+<text x="249.0" y="208" text-anchor="middle" class="xl">Rigtorp</text>
+<text x="510.0" y="16" text-anchor="middle" class="ttl">Configurazione 1-8-16-8-1</text>
+<line x1="400" y1="30" x2="400" y2="190" class="ax"/>
+<line x1="396" y1="190.0" x2="670" y2="190.0" class="grid"/>
+<text x="392" y="193.0" text-anchor="end" class="tick">19.497</text>
+<line x1="396" y1="150.0" x2="670" y2="150.0" class="grid"/>
+<text x="392" y="153.0" text-anchor="end" class="tick">19.627</text>
+<line x1="396" y1="110.0" x2="670" y2="110.0" class="grid"/>
+<text x="392" y="113.0" text-anchor="end" class="tick">19.757</text>
+<line x1="396" y1="70.0" x2="670" y2="70.0" class="grid"/>
+<text x="392" y="73.0" text-anchor="end" class="tick">19.887</text>
+<line x1="396" y1="30.0" x2="670" y2="30.0" class="grid"/>
+<text x="392" y="33.0" text-anchor="end" class="tick">20.016</text>
+<circle cx="467.0" cy="119.0" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<circle cx="474.0" cy="152.4" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<circle cx="481.0" cy="48.5" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<circle cx="488.0" cy="128.6" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<circle cx="495.0" cy="133.9" r="4" fill="#2a6fb0" fill-opacity="0.75"/>
+<line x1="455.0" y1="128.6" x2="507.0" y2="128.6" stroke="#2a6fb0" stroke-width="2.5"/>
+<text x="511.0" y="131.6" class="lab" fill="#2a6fb0">19.696</text>
+<text x="481.0" y="208" text-anchor="middle" class="xl">Vyukov</text>
+<circle cx="575.0" cy="140.1" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<circle cx="582.0" cy="171.5" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<circle cx="589.0" cy="107.6" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<circle cx="596.0" cy="107.4" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<circle cx="603.0" cy="98.8" r="4" fill="#c4572a" fill-opacity="0.75"/>
+<line x1="563.0" y1="107.6" x2="615.0" y2="107.6" stroke="#c4572a" stroke-width="2.5"/>
+<text x="619.0" y="110.6" class="lab" fill="#c4572a">19.765</text>
+<text x="589.0" y="208" text-anchor="middle" class="xl">Rigtorp</text>
+<text x="8" y="130" transform="rotate(-90 8 130)" text-anchor="middle" class="tick">img/s</text>
+</svg>
+<figcaption>Figura 1 — Throughput delle singole ripetizioni (punti, spostati orizzontalmente in ordine di ripetizione)
+e mediana (segmento con valore). Le scale verticali dei due pannelli sono indipendenti e non partono da zero:
+l'intervallo mostrato è di poche centinaia di img/s, cioè pochi punti percentuali.</figcaption>
+</figure>
+
+<h3>7.2 Confronto per coppie di esecuzioni consecutive</h3>
+<table>
+<tr><th>Config.</th><th>Rip.</th><th>Prima in ordine</th><th>Vyukov (img/s)</th><th>Rigtorp (img/s)</th><th>Rigtorp vs Vyukov</th></tr>
+<tr><td>1-2-4-2-1</td><td>1</td><td>Vyukov</td><td>9.481</td><td>10.152</td><td>+7,08%</td></tr>
+<tr><td>1-2-4-2-1</td><td>2</td><td>Rigtorp</td><td>10.145</td><td>10.230</td><td>+0,84%</td></tr>
+<tr><td>1-2-4-2-1</td><td>3</td><td>Vyukov</td><td>10.172</td><td>10.256</td><td>+0,82%</td></tr>
+<tr><td>1-2-4-2-1</td><td>4</td><td>Rigtorp</td><td>10.202</td><td>10.186</td><td>-0,15%</td></tr>
+<tr><td>1-2-4-2-1</td><td>5</td><td>Vyukov</td><td>10.161</td><td>10.180</td><td>+0,19%</td></tr>
+<tr><td>1-8-16-8-1</td><td>1</td><td>Vyukov</td><td>19.728</td><td>19.659</td><td>-0,35%</td></tr>
+<tr><td>1-8-16-8-1</td><td>2</td><td>Rigtorp</td><td>19.619</td><td>19.557</td><td>-0,32%</td></tr>
+<tr><td>1-8-16-8-1</td><td>3</td><td>Vyukov</td><td>19.957</td><td>19.765</td><td>-0,96%</td></tr>
+<tr><td>1-8-16-8-1</td><td>4</td><td>Rigtorp</td><td>19.696</td><td>19.765</td><td>+0,35%</td></tr>
+<tr><td>1-8-16-8-1</td><td>5</td><td>Vyukov</td><td>19.679</td><td>19.793</td><td>+0,58%</td></tr>
+</table>
+<p>Rigtorp è avanti in 6 coppie su 10 (4 su 5 con 10 thread, 2 su 5 con 34 thread) e Vyukov nelle altre 4; nessuna differenza di coppia supera l’1% tranne la
+prima in assoluto (vedi 8.2).</p>
+
+<h2>8. Analisi</h2>
+<h3>8.1 Le due code sono equivalenti su questo workload</h3>
+<p>Le differenze fra le mediane (+0,25% e +0,35%) sono dello stesso ordine della dispersione fra ripetizioni
+della stessa coda (deviazioni standard fra 0,4% e 3,1% della media). Con 5 ripetizioni non è possibile
+distinguerle dal rumore. Il risultato è coerente con la natura del workload: ogni messaggio è un'immagine 512×512 su
+cui vengono applicati filtri 3×3, cioè centinaia di migliaia di operazioni per messaggio, mentre un'operazione
+sulla coda costa poche decine di nanosecondi. Anche con 34 thread il tempo speso nelle code è una frazione
+trascurabile, quindi il vantaggio di Rigtorp osservato nei benchmark sintetici, dove le code sono il collo di
+bottiglia, qui non emerge. In compenso Rigtorp <b>non introduce regressioni</b>: si può usare come coda dei
+communicator senza perdere prestazioni.</p>
+
+<h3>8.2 La prima esecuzione</h3>
+<p>Nella configurazione 1-2-4-2-1 la prima ripetizione Vyukov (9 481 img/s) è circa il 7% più lenta delle altre ed è
+la causa quasi esclusiva della deviazione standard più alta di Vyukov (309 contro 41). Si tratta della primissima
+esecuzione della campagna, sulla macchina appena uscita dall'inattività: è plausibile un effetto di riscaldamento
+(frequenza della CPU, cache, page cache dei binari) e non una proprietà della coda. Escludendo quella esecuzione, le
+mediane di Vyukov e Rigtorp in 1-2-4-2-1 sono 10 167 e 10 186 img/s (+0,2%).</p>
+
+<h3>8.3 Scalabilità e tempo di run</h3>
+<p>Passando da 10 a 34 thread il throughput sale da circa 10 200 a circa 19 700 img/s (circa 1,9×) per entrambe le code:
+la scalabilità è limitata dal workload e dagli stadi sorgente e sink, che restano a un solo thread, e non dalla scelta
+della coda. Il tempo totale di <code>run()</code> è circa 60,36 s in 1-2-4-2-1 e 60,00 s in 1-8-16-8-1. La sorgente si
+ferma a 60 s; l'eccedenza è il tempo per smaltire le immagini ancora in volo. Un'ipotesi da verificare è che con 10
+thread gli stadi a valle siano più lenti della sorgente e le code (capacità 1024) siano piene alla chiusura.</p>
+
+<h2>9. Limiti</h2>
+<ul>
+<li><b>Campione piccolo:</b> 5 ripetizioni per caso, nessuna esecuzione di riscaldamento scartata.</li>
+<li><b>Correttezza dei dati non verificata da questo test:</b> il sink conta le immagini, ma non verifica che ciascuna sia arrivata una sola volta né il contenuto. La correttezza delle code nei communicator è coperta dai test di integrazione (<code>Tests/run_runtime_queue_tests.py</code>, 144 configurazioni), non da questa campagna.</li>
+<li><b>Ambito:</b> solo <code>test_image_1</code> (runtime standard), capacità delle code 1024, due configurazioni. Non sono stati misurati il runtime cooperativo (<code>test_image_1_coop</code>, <code>test_image_3_coop</code>) né le altre varianti.</li>
+<li><b>Metrica:</b> il throughput include l'intero <code>run()</code> (avvio dei thread e smaltimento finale), non solo la fase a regime.</li>
+</ul>
+
+<h2>10. Possibili sviluppi</h2>
+<ul>
+<li>Ripetere con più ripetizioni (ad esempio 20–50) e un'esecuzione di riscaldamento scartata, riportando gli intervalli di confidenza delle mediane.</li>
+<li>Ridurre il costo per messaggio (immagini più piccole) o la capacità delle code, per rendere la comunicazione una parte più rilevante del tempo e vedere se il divario dei benchmark sintetici riemerge.</li>
+<li>Estendere il confronto al runtime cooperativo e alle altre pipeline di <code>Benchmarks/ImagePipeline</code>.</li>
+</ul>
+
+<h2>Appendice A — Dati grezzi</h2>
+<p class="small">File <code>~/mostream-rigtorp-bench/results.csv</code> sulla VM (copia locale salvata insieme a questa relazione).</p>
+<table>
+<tr><th>Config.</th><th>Rip.</th><th>Coda</th><th>Tempo (ms)</th><th>Throughput (img/s)</th></tr>
+<tr><td>1-2-4-2-1</td><td>1</td><td>Vyukov</td><td>60.356,1</td><td>9.481,1</td></tr>
+<tr><td>1-2-4-2-1</td><td>1</td><td>Rigtorp</td><td>60.357,3</td><td>10.152,3</td></tr>
+<tr><td>1-2-4-2-1</td><td>2</td><td>Rigtorp</td><td>60.354,4</td><td>10.230,2</td></tr>
+<tr><td>1-2-4-2-1</td><td>2</td><td>Vyukov</td><td>60.358,2</td><td>10.145,1</td></tr>
+<tr><td>1-2-4-2-1</td><td>3</td><td>Vyukov</td><td>60.357,1</td><td>10.172,0</td></tr>
+<tr><td>1-2-4-2-1</td><td>3</td><td>Rigtorp</td><td>60.355,2</td><td>10.255,9</td></tr>
+<tr><td>1-2-4-2-1</td><td>4</td><td>Rigtorp</td><td>60.356,7</td><td>10.186,4</td></tr>
+<tr><td>1-2-4-2-1</td><td>4</td><td>Vyukov</td><td>60.357,5</td><td>10.202,0</td></tr>
+<tr><td>1-2-4-2-1</td><td>5</td><td>Vyukov</td><td>60.355,9</td><td>10.161,2</td></tr>
+<tr><td>1-2-4-2-1</td><td>5</td><td>Rigtorp</td><td>60.357,9</td><td>10.180,4</td></tr>
+<tr><td>1-8-16-8-1</td><td>1</td><td>Vyukov</td><td>60.003,2</td><td>19.727,7</td></tr>
+<tr><td>1-8-16-8-1</td><td>1</td><td>Rigtorp</td><td>60.001,9</td><td>19.659,1</td></tr>
+<tr><td>1-8-16-8-1</td><td>2</td><td>Rigtorp</td><td>60.001,5</td><td>19.557,2</td></tr>
+<tr><td>1-8-16-8-1</td><td>2</td><td>Vyukov</td><td>60.001,9</td><td>19.619,2</td></tr>
+<tr><td>1-8-16-8-1</td><td>3</td><td>Vyukov</td><td>60.001,9</td><td>19.956,6</td></tr>
+<tr><td>1-8-16-8-1</td><td>3</td><td>Rigtorp</td><td>60.002,6</td><td>19.764,8</td></tr>
+<tr><td>1-8-16-8-1</td><td>4</td><td>Rigtorp</td><td>60.001,8</td><td>19.765,5</td></tr>
+<tr><td>1-8-16-8-1</td><td>4</td><td>Vyukov</td><td>60.003,1</td><td>19.696,4</td></tr>
+<tr><td>1-8-16-8-1</td><td>5</td><td>Vyukov</td><td>60.002,7</td><td>19.679,4</td></tr>
+<tr><td>1-8-16-8-1</td><td>5</td><td>Rigtorp</td><td>60.001,7</td><td>19.793,3</td></tr>
+</table>
+
+<h2>Appendice B — File coinvolti</h2>
+<table>
+<tr><th>Percorso</th><th>Ruolo</th></tr>
+<tr><td>MoStream/communication_queue.mojo</td><td>selezione della coda in compilazione (non modificato)</td></tr>
+<tr><td>MoStream/communicator.mojo</td><td>communicator fra stadi, usa CommunicationQueue (non modificato)</td></tr>
+<tr><td>MoStream/MPMC_queue_rigtorp.mojo, MPMC_queue.mojo</td><td>code Rigtorp e Vyukov (non modificate)</td></tr>
+<tr><td>Benchmarks/ImagePipeline/*.mojo</td><td>adeguati a Mojo 1.1: <code>Atomic[DType.int64]</code> → <code>Atomic[Int64]</code></td></tr>
+<tr><td>MoStream/lib/libpinning.so</td><td>compilato con <code>make -C MoStream/lib</code></td></tr>
+<tr><td>VM: ~/mostream-rigtorp-bench/</td><td>copia di lavoro, binari <code>bin/</code>, <code>run.sh</code>, <code>run.log</code>, <code>results.csv</code></td></tr>
+<tr><td>docs/Rigtorp_integrazione_runtime.md</td><td>documentazione dell'integrazione e protocollo di confronto</td></tr>
+</table>
+</body></html>

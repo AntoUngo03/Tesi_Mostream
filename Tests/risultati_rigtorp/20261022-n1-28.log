@@ -1,0 +1,1346 @@
+Rigtorp: test sequenziali superati
+repeat=1 N=1 capacity=1 mode=blocking
+PASS N 1 input 10000 capacità 1 try_* False
+repeat=1 N=1 capacity=1 mode=try
+PASS N 1 input 10000 capacità 1 try_* True
+repeat=1 N=1 capacity=3 mode=blocking
+PASS N 1 input 10000 capacità 3 try_* False
+repeat=1 N=1 capacity=3 mode=try
+PASS N 1 input 10000 capacità 3 try_* True
+repeat=1 N=1 capacity=8 mode=blocking
+PASS N 1 input 10000 capacità 8 try_* False
+repeat=1 N=1 capacity=8 mode=try
+PASS N 1 input 10000 capacità 8 try_* True
+repeat=1 N=1 capacity=64 mode=blocking
+PASS N 1 input 10000 capacità 64 try_* False
+repeat=1 N=1 capacity=64 mode=try
+PASS N 1 input 10000 capacità 64 try_* True
+repeat=1 N=2 capacity=1 mode=blocking
+PASS N 2 input 10000 capacità 1 try_* False
+repeat=1 N=2 capacity=1 mode=try
+PASS N 2 input 10000 capacità 1 try_* True
+repeat=1 N=2 capacity=3 mode=blocking
+PASS N 2 input 10000 capacità 3 try_* False
+repeat=1 N=2 capacity=3 mode=try
+PASS N 2 input 10000 capacità 3 try_* True
+repeat=1 N=2 capacity=8 mode=blocking
+PASS N 2 input 10000 capacità 8 try_* False
+repeat=1 N=2 capacity=8 mode=try
+PASS N 2 input 10000 capacità 8 try_* True
+repeat=1 N=2 capacity=64 mode=blocking
+PASS N 2 input 10000 capacità 64 try_* False
+repeat=1 N=2 capacity=64 mode=try
+PASS N 2 input 10000 capacità 64 try_* True
+repeat=1 N=3 capacity=1 mode=blocking
+PASS N 3 input 10000 capacità 1 try_* False
+repeat=1 N=3 capacity=1 mode=try
+PASS N 3 input 10000 capacità 1 try_* True
+repeat=1 N=3 capacity=3 mode=blocking
+PASS N 3 input 10000 capacità 3 try_* False
+repeat=1 N=3 capacity=3 mode=try
+PASS N 3 input 10000 capacità 3 try_* True
+repeat=1 N=3 capacity=8 mode=blocking
+PASS N 3 input 10000 capacità 8 try_* False
+repeat=1 N=3 capacity=8 mode=try
+PASS N 3 input 10000 capacità 8 try_* True
+repeat=1 N=3 capacity=64 mode=blocking
+PASS N 3 input 10000 capacità 64 try_* False
+repeat=1 N=3 capacity=64 mode=try
+PASS N 3 input 10000 capacità 64 try_* True
+repeat=1 N=4 capacity=1 mode=blocking
+PASS N 4 input 10000 capacità 1 try_* False
+repeat=1 N=4 capacity=1 mode=try
+PASS N 4 input 10000 capacità 1 try_* True
+repeat=1 N=4 capacity=3 mode=blocking
+PASS N 4 input 10000 capacità 3 try_* False
+repeat=1 N=4 capacity=3 mode=try
+PASS N 4 input 10000 capacità 3 try_* True
+repeat=1 N=4 capacity=8 mode=blocking
+PASS N 4 input 10000 capacità 8 try_* False
+repeat=1 N=4 capacity=8 mode=try
+PASS N 4 input 10000 capacità 8 try_* True
+repeat=1 N=4 capacity=64 mode=blocking
+PASS N 4 input 10000 capacità 64 try_* False
+repeat=1 N=4 capacity=64 mode=try
+PASS N 4 input 10000 capacità 64 try_* True
+repeat=1 N=5 capacity=1 mode=blocking
+PASS N 5 input 10000 capacità 1 try_* False
+repeat=1 N=5 capacity=1 mode=try
+PASS N 5 input 10000 capacità 1 try_* True
+repeat=1 N=5 capacity=3 mode=blocking
+PASS N 5 input 10000 capacità 3 try_* False
+repeat=1 N=5 capacity=3 mode=try
+PASS N 5 input 10000 capacità 3 try_* True
+repeat=1 N=5 capacity=8 mode=blocking
+PASS N 5 input 10000 capacità 8 try_* False
+repeat=1 N=5 capacity=8 mode=try
+PASS N 5 input 10000 capacità 8 try_* True
+repeat=1 N=5 capacity=64 mode=blocking
+PASS N 5 input 10000 capacità 64 try_* False
+repeat=1 N=5 capacity=64 mode=try
+PASS N 5 input 10000 capacità 64 try_* True
+repeat=1 N=6 capacity=1 mode=blocking
+PASS N 6 input 10000 capacità 1 try_* False
+repeat=1 N=6 capacity=1 mode=try
+PASS N 6 input 10000 capacità 1 try_* True
+repeat=1 N=6 capacity=3 mode=blocking
+PASS N 6 input 10000 capacità 3 try_* False
+repeat=1 N=6 capacity=3 mode=try
+PASS N 6 input 10000 capacità 3 try_* True
+repeat=1 N=6 capacity=8 mode=blocking
+PASS N 6 input 10000 capacità 8 try_* False
+repeat=1 N=6 capacity=8 mode=try
+PASS N 6 input 10000 capacità 8 try_* True
+repeat=1 N=6 capacity=64 mode=blocking
+PASS N 6 input 10000 capacità 64 try_* False
+repeat=1 N=6 capacity=64 mode=try
+PASS N 6 input 10000 capacità 64 try_* True
+repeat=1 N=7 capacity=1 mode=blocking
+PASS N 7 input 10000 capacità 1 try_* False
+repeat=1 N=7 capacity=1 mode=try
+PASS N 7 input 10000 capacità 1 try_* True
+repeat=1 N=7 capacity=3 mode=blocking
+PASS N 7 input 10000 capacità 3 try_* False
+repeat=1 N=7 capacity=3 mode=try
+PASS N 7 input 10000 capacità 3 try_* True
+repeat=1 N=7 capacity=8 mode=blocking
+PASS N 7 input 10000 capacità 8 try_* False
+repeat=1 N=7 capacity=8 mode=try
+PASS N 7 input 10000 capacità 8 try_* True
+repeat=1 N=7 capacity=64 mode=blocking
+PASS N 7 input 10000 capacità 64 try_* False
+repeat=1 N=7 capacity=64 mode=try
+PASS N 7 input 10000 capacità 64 try_* True
+repeat=1 N=8 capacity=1 mode=blocking
+PASS N 8 input 10000 capacità 1 try_* False
+repeat=1 N=8 capacity=1 mode=try
+PASS N 8 input 10000 capacità 1 try_* True
+repeat=1 N=8 capacity=3 mode=blocking
+PASS N 8 input 10000 capacità 3 try_* False
+repeat=1 N=8 capacity=3 mode=try
+PASS N 8 input 10000 capacità 3 try_* True
+repeat=1 N=8 capacity=8 mode=blocking
+PASS N 8 input 10000 capacità 8 try_* False
+repeat=1 N=8 capacity=8 mode=try
+PASS N 8 input 10000 capacità 8 try_* True
+repeat=1 N=8 capacity=64 mode=blocking
+PASS N 8 input 10000 capacità 64 try_* False
+repeat=1 N=8 capacity=64 mode=try
+PASS N 8 input 10000 capacità 64 try_* True
+repeat=1 N=9 capacity=1 mode=blocking
+PASS N 9 input 10000 capacità 1 try_* False
+repeat=1 N=9 capacity=1 mode=try
+PASS N 9 input 10000 capacità 1 try_* True
+repeat=1 N=9 capacity=3 mode=blocking
+PASS N 9 input 10000 capacità 3 try_* False
+repeat=1 N=9 capacity=3 mode=try
+PASS N 9 input 10000 capacità 3 try_* True
+repeat=1 N=9 capacity=8 mode=blocking
+PASS N 9 input 10000 capacità 8 try_* False
+repeat=1 N=9 capacity=8 mode=try
+PASS N 9 input 10000 capacità 8 try_* True
+repeat=1 N=9 capacity=64 mode=blocking
+PASS N 9 input 10000 capacità 64 try_* False
+repeat=1 N=9 capacity=64 mode=try
+PASS N 9 input 10000 capacità 64 try_* True
+repeat=1 N=10 capacity=1 mode=blocking
+PASS N 10 input 10000 capacità 1 try_* False
+repeat=1 N=10 capacity=1 mode=try
+PASS N 10 input 10000 capacità 1 try_* True
+repeat=1 N=10 capacity=3 mode=blocking
+PASS N 10 input 10000 capacità 3 try_* False
+repeat=1 N=10 capacity=3 mode=try
+PASS N 10 input 10000 capacità 3 try_* True
+repeat=1 N=10 capacity=8 mode=blocking
+PASS N 10 input 10000 capacità 8 try_* False
+repeat=1 N=10 capacity=8 mode=try
+PASS N 10 input 10000 capacità 8 try_* True
+repeat=1 N=10 capacity=64 mode=blocking
+PASS N 10 input 10000 capacità 64 try_* False
+repeat=1 N=10 capacity=64 mode=try
+PASS N 10 input 10000 capacità 64 try_* True
+repeat=1 N=11 capacity=1 mode=blocking
+PASS N 11 input 10000 capacità 1 try_* False
+repeat=1 N=11 capacity=1 mode=try
+PASS N 11 input 10000 capacità 1 try_* True
+repeat=1 N=11 capacity=3 mode=blocking
+PASS N 11 input 10000 capacità 3 try_* False
+repeat=1 N=11 capacity=3 mode=try
+PASS N 11 input 10000 capacità 3 try_* True
+repeat=1 N=11 capacity=8 mode=blocking
+PASS N 11 input 10000 capacità 8 try_* False
+repeat=1 N=11 capacity=8 mode=try
+PASS N 11 input 10000 capacità 8 try_* True
+repeat=1 N=11 capacity=64 mode=blocking
+PASS N 11 input 10000 capacità 64 try_* False
+repeat=1 N=11 capacity=64 mode=try
+PASS N 11 input 10000 capacità 64 try_* True
+repeat=1 N=12 capacity=1 mode=blocking
+PASS N 12 input 10000 capacità 1 try_* False
+repeat=1 N=12 capacity=1 mode=try
+PASS N 12 input 10000 capacità 1 try_* True
+repeat=1 N=12 capacity=3 mode=blocking
+PASS N 12 input 10000 capacità 3 try_* False
+repeat=1 N=12 capacity=3 mode=try
+PASS N 12 input 10000 capacità 3 try_* True
+repeat=1 N=12 capacity=8 mode=blocking
+PASS N 12 input 10000 capacità 8 try_* False
+repeat=1 N=12 capacity=8 mode=try
+PASS N 12 input 10000 capacità 8 try_* True
+repeat=1 N=12 capacity=64 mode=blocking
+PASS N 12 input 10000 capacità 64 try_* False
+repeat=1 N=12 capacity=64 mode=try
+PASS N 12 input 10000 capacità 64 try_* True
+repeat=1 N=13 capacity=1 mode=blocking
+PASS N 13 input 10000 capacità 1 try_* False
+repeat=1 N=13 capacity=1 mode=try
+PASS N 13 input 10000 capacità 1 try_* True
+repeat=1 N=13 capacity=3 mode=blocking
+PASS N 13 input 10000 capacità 3 try_* False
+repeat=1 N=13 capacity=3 mode=try
+PASS N 13 input 10000 capacità 3 try_* True
+repeat=1 N=13 capacity=8 mode=blocking
+PASS N 13 input 10000 capacità 8 try_* False
+repeat=1 N=13 capacity=8 mode=try
+PASS N 13 input 10000 capacità 8 try_* True
+repeat=1 N=13 capacity=64 mode=blocking
+PASS N 13 input 10000 capacità 64 try_* False
+repeat=1 N=13 capacity=64 mode=try
+PASS N 13 input 10000 capacità 64 try_* True
+repeat=1 N=14 capacity=1 mode=blocking
+PASS N 14 input 10000 capacità 1 try_* False
+repeat=1 N=14 capacity=1 mode=try
+PASS N 14 input 10000 capacità 1 try_* True
+repeat=1 N=14 capacity=3 mode=blocking
+PASS N 14 input 10000 capacità 3 try_* False
+repeat=1 N=14 capacity=3 mode=try
+PASS N 14 input 10000 capacità 3 try_* True
+repeat=1 N=14 capacity=8 mode=blocking
+PASS N 14 input 10000 capacità 8 try_* False
+repeat=1 N=14 capacity=8 mode=try
+PASS N 14 input 10000 capacità 8 try_* True
+repeat=1 N=14 capacity=64 mode=blocking
+PASS N 14 input 10000 capacità 64 try_* False
+repeat=1 N=14 capacity=64 mode=try
+PASS N 14 input 10000 capacità 64 try_* True
+repeat=1 N=15 capacity=1 mode=blocking
+PASS N 15 input 10000 capacità 1 try_* False
+repeat=1 N=15 capacity=1 mode=try
+PASS N 15 input 10000 capacità 1 try_* True
+repeat=1 N=15 capacity=3 mode=blocking
+PASS N 15 input 10000 capacità 3 try_* False
+repeat=1 N=15 capacity=3 mode=try
+PASS N 15 input 10000 capacità 3 try_* True
+repeat=1 N=15 capacity=8 mode=blocking
+PASS N 15 input 10000 capacità 8 try_* False
+repeat=1 N=15 capacity=8 mode=try
+PASS N 15 input 10000 capacità 8 try_* True
+repeat=1 N=15 capacity=64 mode=blocking
+PASS N 15 input 10000 capacità 64 try_* False
+repeat=1 N=15 capacity=64 mode=try
+PASS N 15 input 10000 capacità 64 try_* True
+repeat=1 N=16 capacity=1 mode=blocking
+PASS N 16 input 10000 capacità 1 try_* False
+repeat=1 N=16 capacity=1 mode=try
+PASS N 16 input 10000 capacità 1 try_* True
+repeat=1 N=16 capacity=3 mode=blocking
+PASS N 16 input 10000 capacità 3 try_* False
+repeat=1 N=16 capacity=3 mode=try
+PASS N 16 input 10000 capacità 3 try_* True
+repeat=1 N=16 capacity=8 mode=blocking
+PASS N 16 input 10000 capacità 8 try_* False
+repeat=1 N=16 capacity=8 mode=try
+PASS N 16 input 10000 capacità 8 try_* True
+repeat=1 N=16 capacity=64 mode=blocking
+PASS N 16 input 10000 capacità 64 try_* False
+repeat=1 N=16 capacity=64 mode=try
+PASS N 16 input 10000 capacità 64 try_* True
+repeat=1 N=17 capacity=1 mode=blocking
+PASS N 17 input 10000 capacità 1 try_* False
+repeat=1 N=17 capacity=1 mode=try
+PASS N 17 input 10000 capacità 1 try_* True
+repeat=1 N=17 capacity=3 mode=blocking
+PASS N 17 input 10000 capacità 3 try_* False
+repeat=1 N=17 capacity=3 mode=try
+PASS N 17 input 10000 capacità 3 try_* True
+repeat=1 N=17 capacity=8 mode=blocking
+PASS N 17 input 10000 capacità 8 try_* False
+repeat=1 N=17 capacity=8 mode=try
+PASS N 17 input 10000 capacità 8 try_* True
+repeat=1 N=17 capacity=64 mode=blocking
+PASS N 17 input 10000 capacità 64 try_* False
+repeat=1 N=17 capacity=64 mode=try
+PASS N 17 input 10000 capacità 64 try_* True
+repeat=1 N=18 capacity=1 mode=blocking
+PASS N 18 input 10000 capacità 1 try_* False
+repeat=1 N=18 capacity=1 mode=try
+PASS N 18 input 10000 capacità 1 try_* True
+repeat=1 N=18 capacity=3 mode=blocking
+PASS N 18 input 10000 capacità 3 try_* False
+repeat=1 N=18 capacity=3 mode=try
+PASS N 18 input 10000 capacità 3 try_* True
+repeat=1 N=18 capacity=8 mode=blocking
+PASS N 18 input 10000 capacità 8 try_* False
+repeat=1 N=18 capacity=8 mode=try
+PASS N 18 input 10000 capacità 8 try_* True
+repeat=1 N=18 capacity=64 mode=blocking
+PASS N 18 input 10000 capacità 64 try_* False
+repeat=1 N=18 capacity=64 mode=try
+PASS N 18 input 10000 capacità 64 try_* True
+repeat=1 N=19 capacity=1 mode=blocking
+PASS N 19 input 10000 capacità 1 try_* False
+repeat=1 N=19 capacity=1 mode=try
+PASS N 19 input 10000 capacità 1 try_* True
+repeat=1 N=19 capacity=3 mode=blocking
+PASS N 19 input 10000 capacità 3 try_* False
+repeat=1 N=19 capacity=3 mode=try
+PASS N 19 input 10000 capacità 3 try_* True
+repeat=1 N=19 capacity=8 mode=blocking
+PASS N 19 input 10000 capacità 8 try_* False
+repeat=1 N=19 capacity=8 mode=try
+PASS N 19 input 10000 capacità 8 try_* True
+repeat=1 N=19 capacity=64 mode=blocking
+PASS N 19 input 10000 capacità 64 try_* False
+repeat=1 N=19 capacity=64 mode=try
+PASS N 19 input 10000 capacità 64 try_* True
+repeat=1 N=20 capacity=1 mode=blocking
+PASS N 20 input 10000 capacità 1 try_* False
+repeat=1 N=20 capacity=1 mode=try
+PASS N 20 input 10000 capacità 1 try_* True
+repeat=1 N=20 capacity=3 mode=blocking
+PASS N 20 input 10000 capacità 3 try_* False
+repeat=1 N=20 capacity=3 mode=try
+PASS N 20 input 10000 capacità 3 try_* True
+repeat=1 N=20 capacity=8 mode=blocking
+PASS N 20 input 10000 capacità 8 try_* False
+repeat=1 N=20 capacity=8 mode=try
+PASS N 20 input 10000 capacità 8 try_* True
+repeat=1 N=20 capacity=64 mode=blocking
+PASS N 20 input 10000 capacità 64 try_* False
+repeat=1 N=20 capacity=64 mode=try
+PASS N 20 input 10000 capacità 64 try_* True
+repeat=1 N=21 capacity=1 mode=blocking
+PASS N 21 input 10000 capacità 1 try_* False
+repeat=1 N=21 capacity=1 mode=try
+PASS N 21 input 10000 capacità 1 try_* True
+repeat=1 N=21 capacity=3 mode=blocking
+PASS N 21 input 10000 capacità 3 try_* False
+repeat=1 N=21 capacity=3 mode=try
+PASS N 21 input 10000 capacità 3 try_* True
+repeat=1 N=21 capacity=8 mode=blocking
+PASS N 21 input 10000 capacità 8 try_* False
+repeat=1 N=21 capacity=8 mode=try
+PASS N 21 input 10000 capacità 8 try_* True
+repeat=1 N=21 capacity=64 mode=blocking
+PASS N 21 input 10000 capacità 64 try_* False
+repeat=1 N=21 capacity=64 mode=try
+PASS N 21 input 10000 capacità 64 try_* True
+repeat=1 N=22 capacity=1 mode=blocking
+PASS N 22 input 10000 capacità 1 try_* False
+repeat=1 N=22 capacity=1 mode=try
+PASS N 22 input 10000 capacità 1 try_* True
+repeat=1 N=22 capacity=3 mode=blocking
+PASS N 22 input 10000 capacità 3 try_* False
+repeat=1 N=22 capacity=3 mode=try
+PASS N 22 input 10000 capacità 3 try_* True
+repeat=1 N=22 capacity=8 mode=blocking
+PASS N 22 input 10000 capacità 8 try_* False
+repeat=1 N=22 capacity=8 mode=try
+PASS N 22 input 10000 capacità 8 try_* True
+repeat=1 N=22 capacity=64 mode=blocking
+PASS N 22 input 10000 capacità 64 try_* False
+repeat=1 N=22 capacity=64 mode=try
+PASS N 22 input 10000 capacità 64 try_* True
+repeat=1 N=23 capacity=1 mode=blocking
+PASS N 23 input 10000 capacità 1 try_* False
+repeat=1 N=23 capacity=1 mode=try
+PASS N 23 input 10000 capacità 1 try_* True
+repeat=1 N=23 capacity=3 mode=blocking
+PASS N 23 input 10000 capacità 3 try_* False
+repeat=1 N=23 capacity=3 mode=try
+PASS N 23 input 10000 capacità 3 try_* True
+repeat=1 N=23 capacity=8 mode=blocking
+PASS N 23 input 10000 capacità 8 try_* False
+repeat=1 N=23 capacity=8 mode=try
+PASS N 23 input 10000 capacità 8 try_* True
+repeat=1 N=23 capacity=64 mode=blocking
+PASS N 23 input 10000 capacità 64 try_* False
+repeat=1 N=23 capacity=64 mode=try
+PASS N 23 input 10000 capacità 64 try_* True
+repeat=1 N=24 capacity=1 mode=blocking
+PASS N 24 input 10000 capacità 1 try_* False
+repeat=1 N=24 capacity=1 mode=try
+PASS N 24 input 10000 capacità 1 try_* True
+repeat=1 N=24 capacity=3 mode=blocking
+PASS N 24 input 10000 capacità 3 try_* False
+repeat=1 N=24 capacity=3 mode=try
+PASS N 24 input 10000 capacità 3 try_* True
+repeat=1 N=24 capacity=8 mode=blocking
+PASS N 24 input 10000 capacità 8 try_* False
+repeat=1 N=24 capacity=8 mode=try
+PASS N 24 input 10000 capacità 8 try_* True
+repeat=1 N=24 capacity=64 mode=blocking
+PASS N 24 input 10000 capacità 64 try_* False
+repeat=1 N=24 capacity=64 mode=try
+PASS N 24 input 10000 capacità 64 try_* True
+repeat=1 N=25 capacity=1 mode=blocking
+PASS N 25 input 10000 capacità 1 try_* False
+repeat=1 N=25 capacity=1 mode=try
+PASS N 25 input 10000 capacità 1 try_* True
+repeat=1 N=25 capacity=3 mode=blocking
+PASS N 25 input 10000 capacità 3 try_* False
+repeat=1 N=25 capacity=3 mode=try
+PASS N 25 input 10000 capacità 3 try_* True
+repeat=1 N=25 capacity=8 mode=blocking
+PASS N 25 input 10000 capacità 8 try_* False
+repeat=1 N=25 capacity=8 mode=try
+PASS N 25 input 10000 capacità 8 try_* True
+repeat=1 N=25 capacity=64 mode=blocking
+PASS N 25 input 10000 capacità 64 try_* False
+repeat=1 N=25 capacity=64 mode=try
+PASS N 25 input 10000 capacità 64 try_* True
+repeat=1 N=26 capacity=1 mode=blocking
+PASS N 26 input 10000 capacità 1 try_* False
+repeat=1 N=26 capacity=1 mode=try
+PASS N 26 input 10000 capacità 1 try_* True
+repeat=1 N=26 capacity=3 mode=blocking
+PASS N 26 input 10000 capacità 3 try_* False
+repeat=1 N=26 capacity=3 mode=try
+PASS N 26 input 10000 capacità 3 try_* True
+repeat=1 N=26 capacity=8 mode=blocking
+PASS N 26 input 10000 capacità 8 try_* False
+repeat=1 N=26 capacity=8 mode=try
+PASS N 26 input 10000 capacità 8 try_* True
+repeat=1 N=26 capacity=64 mode=blocking
+PASS N 26 input 10000 capacità 64 try_* False
+repeat=1 N=26 capacity=64 mode=try
+PASS N 26 input 10000 capacità 64 try_* True
+repeat=1 N=27 capacity=1 mode=blocking
+PASS N 27 input 10000 capacità 1 try_* False
+repeat=1 N=27 capacity=1 mode=try
+PASS N 27 input 10000 capacità 1 try_* True
+repeat=1 N=27 capacity=3 mode=blocking
+PASS N 27 input 10000 capacità 3 try_* False
+repeat=1 N=27 capacity=3 mode=try
+PASS N 27 input 10000 capacità 3 try_* True
+repeat=1 N=27 capacity=8 mode=blocking
+PASS N 27 input 10000 capacità 8 try_* False
+repeat=1 N=27 capacity=8 mode=try
+PASS N 27 input 10000 capacità 8 try_* True
+repeat=1 N=27 capacity=64 mode=blocking
+PASS N 27 input 10000 capacità 64 try_* False
+repeat=1 N=27 capacity=64 mode=try
+PASS N 27 input 10000 capacità 64 try_* True
+repeat=1 N=28 capacity=1 mode=blocking
+PASS N 28 input 10000 capacità 1 try_* False
+repeat=1 N=28 capacity=1 mode=try
+PASS N 28 input 10000 capacità 1 try_* True
+repeat=1 N=28 capacity=3 mode=blocking
+PASS N 28 input 10000 capacità 3 try_* False
+repeat=1 N=28 capacity=3 mode=try
+PASS N 28 input 10000 capacità 3 try_* True
+repeat=1 N=28 capacity=8 mode=blocking
+PASS N 28 input 10000 capacità 8 try_* False
+repeat=1 N=28 capacity=8 mode=try
+PASS N 28 input 10000 capacità 8 try_* True
+repeat=1 N=28 capacity=64 mode=blocking
+PASS N 28 input 10000 capacità 64 try_* False
+repeat=1 N=28 capacity=64 mode=try
+PASS N 28 input 10000 capacità 64 try_* True
+repeat=2 N=1 capacity=1 mode=blocking
+PASS N 1 input 10000 capacità 1 try_* False
+repeat=2 N=1 capacity=1 mode=try
+PASS N 1 input 10000 capacità 1 try_* True
+repeat=2 N=1 capacity=3 mode=blocking
+PASS N 1 input 10000 capacità 3 try_* False
+repeat=2 N=1 capacity=3 mode=try
+PASS N 1 input 10000 capacità 3 try_* True
+repeat=2 N=1 capacity=8 mode=blocking
+PASS N 1 input 10000 capacità 8 try_* False
+repeat=2 N=1 capacity=8 mode=try
+PASS N 1 input 10000 capacità 8 try_* True
+repeat=2 N=1 capacity=64 mode=blocking
+PASS N 1 input 10000 capacità 64 try_* False
+repeat=2 N=1 capacity=64 mode=try
+PASS N 1 input 10000 capacità 64 try_* True
+repeat=2 N=2 capacity=1 mode=blocking
+PASS N 2 input 10000 capacità 1 try_* False
+repeat=2 N=2 capacity=1 mode=try
+PASS N 2 input 10000 capacità 1 try_* True
+repeat=2 N=2 capacity=3 mode=blocking
+PASS N 2 input 10000 capacità 3 try_* False
+repeat=2 N=2 capacity=3 mode=try
+PASS N 2 input 10000 capacità 3 try_* True
+repeat=2 N=2 capacity=8 mode=blocking
+PASS N 2 input 10000 capacità 8 try_* False
+repeat=2 N=2 capacity=8 mode=try
+PASS N 2 input 10000 capacità 8 try_* True
+repeat=2 N=2 capacity=64 mode=blocking
+PASS N 2 input 10000 capacità 64 try_* False
+repeat=2 N=2 capacity=64 mode=try
+PASS N 2 input 10000 capacità 64 try_* True
+repeat=2 N=3 capacity=1 mode=blocking
+PASS N 3 input 10000 capacità 1 try_* False
+repeat=2 N=3 capacity=1 mode=try
+PASS N 3 input 10000 capacità 1 try_* True
+repeat=2 N=3 capacity=3 mode=blocking
+PASS N 3 input 10000 capacità 3 try_* False
+repeat=2 N=3 capacity=3 mode=try
+PASS N 3 input 10000 capacità 3 try_* True
+repeat=2 N=3 capacity=8 mode=blocking
+PASS N 3 input 10000 capacità 8 try_* False
+repeat=2 N=3 capacity=8 mode=try
+PASS N 3 input 10000 capacità 8 try_* True
+repeat=2 N=3 capacity=64 mode=blocking
+PASS N 3 input 10000 capacità 64 try_* False
+repeat=2 N=3 capacity=64 mode=try
+PASS N 3 input 10000 capacità 64 try_* True
+repeat=2 N=4 capacity=1 mode=blocking
+PASS N 4 input 10000 capacità 1 try_* False
+repeat=2 N=4 capacity=1 mode=try
+PASS N 4 input 10000 capacità 1 try_* True
+repeat=2 N=4 capacity=3 mode=blocking
+PASS N 4 input 10000 capacità 3 try_* False
+repeat=2 N=4 capacity=3 mode=try
+PASS N 4 input 10000 capacità 3 try_* True
+repeat=2 N=4 capacity=8 mode=blocking
+PASS N 4 input 10000 capacità 8 try_* False
+repeat=2 N=4 capacity=8 mode=try
+PASS N 4 input 10000 capacità 8 try_* True
+repeat=2 N=4 capacity=64 mode=blocking
+PASS N 4 input 10000 capacità 64 try_* False
+repeat=2 N=4 capacity=64 mode=try
+PASS N 4 input 10000 capacità 64 try_* True
+repeat=2 N=5 capacity=1 mode=blocking
+PASS N 5 input 10000 capacità 1 try_* False
+repeat=2 N=5 capacity=1 mode=try
+PASS N 5 input 10000 capacità 1 try_* True
+repeat=2 N=5 capacity=3 mode=blocking
+PASS N 5 input 10000 capacità 3 try_* False
+repeat=2 N=5 capacity=3 mode=try
+PASS N 5 input 10000 capacità 3 try_* True
+repeat=2 N=5 capacity=8 mode=blocking
+PASS N 5 input 10000 capacità 8 try_* False
+repeat=2 N=5 capacity=8 mode=try
+PASS N 5 input 10000 capacità 8 try_* True
+repeat=2 N=5 capacity=64 mode=blocking
+PASS N 5 input 10000 capacità 64 try_* False
+repeat=2 N=5 capacity=64 mode=try
+PASS N 5 input 10000 capacità 64 try_* True
+repeat=2 N=6 capacity=1 mode=blocking
+PASS N 6 input 10000 capacità 1 try_* False
+repeat=2 N=6 capacity=1 mode=try
+PASS N 6 input 10000 capacità 1 try_* True
+repeat=2 N=6 capacity=3 mode=blocking
+PASS N 6 input 10000 capacità 3 try_* False
+repeat=2 N=6 capacity=3 mode=try
+PASS N 6 input 10000 capacità 3 try_* True
+repeat=2 N=6 capacity=8 mode=blocking
+PASS N 6 input 10000 capacità 8 try_* False
+repeat=2 N=6 capacity=8 mode=try
+PASS N 6 input 10000 capacità 8 try_* True
+repeat=2 N=6 capacity=64 mode=blocking
+PASS N 6 input 10000 capacità 64 try_* False
+repeat=2 N=6 capacity=64 mode=try
+PASS N 6 input 10000 capacità 64 try_* True
+repeat=2 N=7 capacity=1 mode=blocking
+PASS N 7 input 10000 capacità 1 try_* False
+repeat=2 N=7 capacity=1 mode=try
+PASS N 7 input 10000 capacità 1 try_* True
+repeat=2 N=7 capacity=3 mode=blocking
+PASS N 7 input 10000 capacità 3 try_* False
+repeat=2 N=7 capacity=3 mode=try
+PASS N 7 input 10000 capacità 3 try_* True
+repeat=2 N=7 capacity=8 mode=blocking
+PASS N 7 input 10000 capacità 8 try_* False
+repeat=2 N=7 capacity=8 mode=try
+PASS N 7 input 10000 capacità 8 try_* True
+repeat=2 N=7 capacity=64 mode=blocking
+PASS N 7 input 10000 capacità 64 try_* False
+repeat=2 N=7 capacity=64 mode=try
+PASS N 7 input 10000 capacità 64 try_* True
+repeat=2 N=8 capacity=1 mode=blocking
+PASS N 8 input 10000 capacità 1 try_* False
+repeat=2 N=8 capacity=1 mode=try
+PASS N 8 input 10000 capacità 1 try_* True
+repeat=2 N=8 capacity=3 mode=blocking
+PASS N 8 input 10000 capacità 3 try_* False
+repeat=2 N=8 capacity=3 mode=try
+PASS N 8 input 10000 capacità 3 try_* True
+repeat=2 N=8 capacity=8 mode=blocking
+PASS N 8 input 10000 capacità 8 try_* False
+repeat=2 N=8 capacity=8 mode=try
+PASS N 8 input 10000 capacità 8 try_* True
+repeat=2 N=8 capacity=64 mode=blocking
+PASS N 8 input 10000 capacità 64 try_* False
+repeat=2 N=8 capacity=64 mode=try
+PASS N 8 input 10000 capacità 64 try_* True
+repeat=2 N=9 capacity=1 mode=blocking
+PASS N 9 input 10000 capacità 1 try_* False
+repeat=2 N=9 capacity=1 mode=try
+PASS N 9 input 10000 capacità 1 try_* True
+repeat=2 N=9 capacity=3 mode=blocking
+PASS N 9 input 10000 capacità 3 try_* False
+repeat=2 N=9 capacity=3 mode=try
+PASS N 9 input 10000 capacità 3 try_* True
+repeat=2 N=9 capacity=8 mode=blocking
+PASS N 9 input 10000 capacità 8 try_* False
+repeat=2 N=9 capacity=8 mode=try
+PASS N 9 input 10000 capacità 8 try_* True
+repeat=2 N=9 capacity=64 mode=blocking
+PASS N 9 input 10000 capacità 64 try_* False
+repeat=2 N=9 capacity=64 mode=try
+PASS N 9 input 10000 capacità 64 try_* True
+repeat=2 N=10 capacity=1 mode=blocking
+PASS N 10 input 10000 capacità 1 try_* False
+repeat=2 N=10 capacity=1 mode=try
+PASS N 10 input 10000 capacità 1 try_* True
+repeat=2 N=10 capacity=3 mode=blocking
+PASS N 10 input 10000 capacità 3 try_* False
+repeat=2 N=10 capacity=3 mode=try
+PASS N 10 input 10000 capacità 3 try_* True
+repeat=2 N=10 capacity=8 mode=blocking
+PASS N 10 input 10000 capacità 8 try_* False
+repeat=2 N=10 capacity=8 mode=try
+PASS N 10 input 10000 capacità 8 try_* True
+repeat=2 N=10 capacity=64 mode=blocking
+PASS N 10 input 10000 capacità 64 try_* False
+repeat=2 N=10 capacity=64 mode=try
+PASS N 10 input 10000 capacità 64 try_* True
+repeat=2 N=11 capacity=1 mode=blocking
+PASS N 11 input 10000 capacità 1 try_* False
+repeat=2 N=11 capacity=1 mode=try
+PASS N 11 input 10000 capacità 1 try_* True
+repeat=2 N=11 capacity=3 mode=blocking
+PASS N 11 input 10000 capacità 3 try_* False
+repeat=2 N=11 capacity=3 mode=try
+PASS N 11 input 10000 capacità 3 try_* True
+repeat=2 N=11 capacity=8 mode=blocking
+PASS N 11 input 10000 capacità 8 try_* False
+repeat=2 N=11 capacity=8 mode=try
+PASS N 11 input 10000 capacità 8 try_* True
+repeat=2 N=11 capacity=64 mode=blocking
+PASS N 11 input 10000 capacità 64 try_* False
+repeat=2 N=11 capacity=64 mode=try
+PASS N 11 input 10000 capacità 64 try_* True
+repeat=2 N=12 capacity=1 mode=blocking
+PASS N 12 input 10000 capacità 1 try_* False
+repeat=2 N=12 capacity=1 mode=try
+PASS N 12 input 10000 capacità 1 try_* True
+repeat=2 N=12 capacity=3 mode=blocking
+PASS N 12 input 10000 capacità 3 try_* False
+repeat=2 N=12 capacity=3 mode=try
+PASS N 12 input 10000 capacità 3 try_* True
+repeat=2 N=12 capacity=8 mode=blocking
+PASS N 12 input 10000 capacità 8 try_* False
+repeat=2 N=12 capacity=8 mode=try
+PASS N 12 input 10000 capacità 8 try_* True
+repeat=2 N=12 capacity=64 mode=blocking
+PASS N 12 input 10000 capacità 64 try_* False
+repeat=2 N=12 capacity=64 mode=try
+PASS N 12 input 10000 capacità 64 try_* True
+repeat=2 N=13 capacity=1 mode=blocking
+PASS N 13 input 10000 capacità 1 try_* False
+repeat=2 N=13 capacity=1 mode=try
+PASS N 13 input 10000 capacità 1 try_* True
+repeat=2 N=13 capacity=3 mode=blocking
+PASS N 13 input 10000 capacità 3 try_* False
+repeat=2 N=13 capacity=3 mode=try
+PASS N 13 input 10000 capacità 3 try_* True
+repeat=2 N=13 capacity=8 mode=blocking
+PASS N 13 input 10000 capacità 8 try_* False
+repeat=2 N=13 capacity=8 mode=try
+PASS N 13 input 10000 capacità 8 try_* True
+repeat=2 N=13 capacity=64 mode=blocking
+PASS N 13 input 10000 capacità 64 try_* False
+repeat=2 N=13 capacity=64 mode=try
+PASS N 13 input 10000 capacità 64 try_* True
+repeat=2 N=14 capacity=1 mode=blocking
+PASS N 14 input 10000 capacità 1 try_* False
+repeat=2 N=14 capacity=1 mode=try
+PASS N 14 input 10000 capacità 1 try_* True
+repeat=2 N=14 capacity=3 mode=blocking
+PASS N 14 input 10000 capacità 3 try_* False
+repeat=2 N=14 capacity=3 mode=try
+PASS N 14 input 10000 capacità 3 try_* True
+repeat=2 N=14 capacity=8 mode=blocking
+PASS N 14 input 10000 capacità 8 try_* False
+repeat=2 N=14 capacity=8 mode=try
+PASS N 14 input 10000 capacità 8 try_* True
+repeat=2 N=14 capacity=64 mode=blocking
+PASS N 14 input 10000 capacità 64 try_* False
+repeat=2 N=14 capacity=64 mode=try
+PASS N 14 input 10000 capacità 64 try_* True
+repeat=2 N=15 capacity=1 mode=blocking
+PASS N 15 input 10000 capacità 1 try_* False
+repeat=2 N=15 capacity=1 mode=try
+PASS N 15 input 10000 capacità 1 try_* True
+repeat=2 N=15 capacity=3 mode=blocking
+PASS N 15 input 10000 capacità 3 try_* False
+repeat=2 N=15 capacity=3 mode=try
+PASS N 15 input 10000 capacità 3 try_* True
+repeat=2 N=15 capacity=8 mode=blocking
+PASS N 15 input 10000 capacità 8 try_* False
+repeat=2 N=15 capacity=8 mode=try
+PASS N 15 input 10000 capacità 8 try_* True
+repeat=2 N=15 capacity=64 mode=blocking
+PASS N 15 input 10000 capacità 64 try_* False
+repeat=2 N=15 capacity=64 mode=try
+PASS N 15 input 10000 capacità 64 try_* True
+repeat=2 N=16 capacity=1 mode=blocking
+PASS N 16 input 10000 capacità 1 try_* False
+repeat=2 N=16 capacity=1 mode=try
+PASS N 16 input 10000 capacità 1 try_* True
+repeat=2 N=16 capacity=3 mode=blocking
+PASS N 16 input 10000 capacità 3 try_* False
+repeat=2 N=16 capacity=3 mode=try
+PASS N 16 input 10000 capacità 3 try_* True
+repeat=2 N=16 capacity=8 mode=blocking
+PASS N 16 input 10000 capacità 8 try_* False
+repeat=2 N=16 capacity=8 mode=try
+PASS N 16 input 10000 capacità 8 try_* True
+repeat=2 N=16 capacity=64 mode=blocking
+PASS N 16 input 10000 capacità 64 try_* False
+repeat=2 N=16 capacity=64 mode=try
+PASS N 16 input 10000 capacità 64 try_* True
+repeat=2 N=17 capacity=1 mode=blocking
+PASS N 17 input 10000 capacità 1 try_* False
+repeat=2 N=17 capacity=1 mode=try
+PASS N 17 input 10000 capacità 1 try_* True
+repeat=2 N=17 capacity=3 mode=blocking
+PASS N 17 input 10000 capacità 3 try_* False
+repeat=2 N=17 capacity=3 mode=try
+PASS N 17 input 10000 capacità 3 try_* True
+repeat=2 N=17 capacity=8 mode=blocking
+PASS N 17 input 10000 capacità 8 try_* False
+repeat=2 N=17 capacity=8 mode=try
+PASS N 17 input 10000 capacità 8 try_* True
+repeat=2 N=17 capacity=64 mode=blocking
+PASS N 17 input 10000 capacità 64 try_* False
+repeat=2 N=17 capacity=64 mode=try
+PASS N 17 input 10000 capacità 64 try_* True
+repeat=2 N=18 capacity=1 mode=blocking
+PASS N 18 input 10000 capacità 1 try_* False
+repeat=2 N=18 capacity=1 mode=try
+PASS N 18 input 10000 capacità 1 try_* True
+repeat=2 N=18 capacity=3 mode=blocking
+PASS N 18 input 10000 capacità 3 try_* False
+repeat=2 N=18 capacity=3 mode=try
+PASS N 18 input 10000 capacità 3 try_* True
+repeat=2 N=18 capacity=8 mode=blocking
+PASS N 18 input 10000 capacità 8 try_* False
+repeat=2 N=18 capacity=8 mode=try
+PASS N 18 input 10000 capacità 8 try_* True
+repeat=2 N=18 capacity=64 mode=blocking
+PASS N 18 input 10000 capacità 64 try_* False
+repeat=2 N=18 capacity=64 mode=try
+PASS N 18 input 10000 capacità 64 try_* True
+repeat=2 N=19 capacity=1 mode=blocking
+PASS N 19 input 10000 capacità 1 try_* False
+repeat=2 N=19 capacity=1 mode=try
+PASS N 19 input 10000 capacità 1 try_* True
+repeat=2 N=19 capacity=3 mode=blocking
+PASS N 19 input 10000 capacità 3 try_* False
+repeat=2 N=19 capacity=3 mode=try
+PASS N 19 input 10000 capacità 3 try_* True
+repeat=2 N=19 capacity=8 mode=blocking
+PASS N 19 input 10000 capacità 8 try_* False
+repeat=2 N=19 capacity=8 mode=try
+PASS N 19 input 10000 capacità 8 try_* True
+repeat=2 N=19 capacity=64 mode=blocking
+PASS N 19 input 10000 capacità 64 try_* False
+repeat=2 N=19 capacity=64 mode=try
+PASS N 19 input 10000 capacità 64 try_* True
+repeat=2 N=20 capacity=1 mode=blocking
+PASS N 20 input 10000 capacità 1 try_* False
+repeat=2 N=20 capacity=1 mode=try
+PASS N 20 input 10000 capacità 1 try_* True
+repeat=2 N=20 capacity=3 mode=blocking
+PASS N 20 input 10000 capacità 3 try_* False
+repeat=2 N=20 capacity=3 mode=try
+PASS N 20 input 10000 capacità 3 try_* True
+repeat=2 N=20 capacity=8 mode=blocking
+PASS N 20 input 10000 capacità 8 try_* False
+repeat=2 N=20 capacity=8 mode=try
+PASS N 20 input 10000 capacità 8 try_* True
+repeat=2 N=20 capacity=64 mode=blocking
+PASS N 20 input 10000 capacità 64 try_* False
+repeat=2 N=20 capacity=64 mode=try
+PASS N 20 input 10000 capacità 64 try_* True
+repeat=2 N=21 capacity=1 mode=blocking
+PASS N 21 input 10000 capacità 1 try_* False
+repeat=2 N=21 capacity=1 mode=try
+PASS N 21 input 10000 capacità 1 try_* True
+repeat=2 N=21 capacity=3 mode=blocking
+PASS N 21 input 10000 capacità 3 try_* False
+repeat=2 N=21 capacity=3 mode=try
+PASS N 21 input 10000 capacità 3 try_* True
+repeat=2 N=21 capacity=8 mode=blocking
+PASS N 21 input 10000 capacità 8 try_* False
+repeat=2 N=21 capacity=8 mode=try
+PASS N 21 input 10000 capacità 8 try_* True
+repeat=2 N=21 capacity=64 mode=blocking
+PASS N 21 input 10000 capacità 64 try_* False
+repeat=2 N=21 capacity=64 mode=try
+PASS N 21 input 10000 capacità 64 try_* True
+repeat=2 N=22 capacity=1 mode=blocking
+PASS N 22 input 10000 capacità 1 try_* False
+repeat=2 N=22 capacity=1 mode=try
+PASS N 22 input 10000 capacità 1 try_* True
+repeat=2 N=22 capacity=3 mode=blocking
+PASS N 22 input 10000 capacità 3 try_* False
+repeat=2 N=22 capacity=3 mode=try
+PASS N 22 input 10000 capacità 3 try_* True
+repeat=2 N=22 capacity=8 mode=blocking
+PASS N 22 input 10000 capacità 8 try_* False
+repeat=2 N=22 capacity=8 mode=try
+PASS N 22 input 10000 capacità 8 try_* True
+repeat=2 N=22 capacity=64 mode=blocking
+PASS N 22 input 10000 capacità 64 try_* False
+repeat=2 N=22 capacity=64 mode=try
+PASS N 22 input 10000 capacità 64 try_* True
+repeat=2 N=23 capacity=1 mode=blocking
+PASS N 23 input 10000 capacità 1 try_* False
+repeat=2 N=23 capacity=1 mode=try
+PASS N 23 input 10000 capacità 1 try_* True
+repeat=2 N=23 capacity=3 mode=blocking
+PASS N 23 input 10000 capacità 3 try_* False
+repeat=2 N=23 capacity=3 mode=try
+PASS N 23 input 10000 capacità 3 try_* True
+repeat=2 N=23 capacity=8 mode=blocking
+PASS N 23 input 10000 capacità 8 try_* False
+repeat=2 N=23 capacity=8 mode=try
+PASS N 23 input 10000 capacità 8 try_* True
+repeat=2 N=23 capacity=64 mode=blocking
+PASS N 23 input 10000 capacità 64 try_* False
+repeat=2 N=23 capacity=64 mode=try
+PASS N 23 input 10000 capacità 64 try_* True
+repeat=2 N=24 capacity=1 mode=blocking
+PASS N 24 input 10000 capacità 1 try_* False
+repeat=2 N=24 capacity=1 mode=try
+PASS N 24 input 10000 capacità 1 try_* True
+repeat=2 N=24 capacity=3 mode=blocking
+PASS N 24 input 10000 capacità 3 try_* False
+repeat=2 N=24 capacity=3 mode=try
+PASS N 24 input 10000 capacità 3 try_* True
+repeat=2 N=24 capacity=8 mode=blocking
+PASS N 24 input 10000 capacità 8 try_* False
+repeat=2 N=24 capacity=8 mode=try
+PASS N 24 input 10000 capacità 8 try_* True
+repeat=2 N=24 capacity=64 mode=blocking
+PASS N 24 input 10000 capacità 64 try_* False
+repeat=2 N=24 capacity=64 mode=try
+PASS N 24 input 10000 capacità 64 try_* True
+repeat=2 N=25 capacity=1 mode=blocking
+PASS N 25 input 10000 capacità 1 try_* False
+repeat=2 N=25 capacity=1 mode=try
+PASS N 25 input 10000 capacità 1 try_* True
+repeat=2 N=25 capacity=3 mode=blocking
+PASS N 25 input 10000 capacità 3 try_* False
+repeat=2 N=25 capacity=3 mode=try
+PASS N 25 input 10000 capacità 3 try_* True
+repeat=2 N=25 capacity=8 mode=blocking
+PASS N 25 input 10000 capacità 8 try_* False
+repeat=2 N=25 capacity=8 mode=try
+PASS N 25 input 10000 capacità 8 try_* True
+repeat=2 N=25 capacity=64 mode=blocking
+PASS N 25 input 10000 capacità 64 try_* False
+repeat=2 N=25 capacity=64 mode=try
+PASS N 25 input 10000 capacità 64 try_* True
+repeat=2 N=26 capacity=1 mode=blocking
+PASS N 26 input 10000 capacità 1 try_* False
+repeat=2 N=26 capacity=1 mode=try
+PASS N 26 input 10000 capacità 1 try_* True
+repeat=2 N=26 capacity=3 mode=blocking
+PASS N 26 input 10000 capacità 3 try_* False
+repeat=2 N=26 capacity=3 mode=try
+PASS N 26 input 10000 capacità 3 try_* True
+repeat=2 N=26 capacity=8 mode=blocking
+PASS N 26 input 10000 capacità 8 try_* False
+repeat=2 N=26 capacity=8 mode=try
+PASS N 26 input 10000 capacità 8 try_* True
+repeat=2 N=26 capacity=64 mode=blocking
+PASS N 26 input 10000 capacità 64 try_* False
+repeat=2 N=26 capacity=64 mode=try
+PASS N 26 input 10000 capacità 64 try_* True
+repeat=2 N=27 capacity=1 mode=blocking
+PASS N 27 input 10000 capacità 1 try_* False
+repeat=2 N=27 capacity=1 mode=try
+PASS N 27 input 10000 capacità 1 try_* True
+repeat=2 N=27 capacity=3 mode=blocking
+PASS N 27 input 10000 capacità 3 try_* False
+repeat=2 N=27 capacity=3 mode=try
+PASS N 27 input 10000 capacità 3 try_* True
+repeat=2 N=27 capacity=8 mode=blocking
+PASS N 27 input 10000 capacità 8 try_* False
+repeat=2 N=27 capacity=8 mode=try
+PASS N 27 input 10000 capacità 8 try_* True
+repeat=2 N=27 capacity=64 mode=blocking
+PASS N 27 input 10000 capacità 64 try_* False
+repeat=2 N=27 capacity=64 mode=try
+PASS N 27 input 10000 capacità 64 try_* True
+repeat=2 N=28 capacity=1 mode=blocking
+PASS N 28 input 10000 capacità 1 try_* False
+repeat=2 N=28 capacity=1 mode=try
+PASS N 28 input 10000 capacità 1 try_* True
+repeat=2 N=28 capacity=3 mode=blocking
+PASS N 28 input 10000 capacità 3 try_* False
+repeat=2 N=28 capacity=3 mode=try
+PASS N 28 input 10000 capacità 3 try_* True
+repeat=2 N=28 capacity=8 mode=blocking
+PASS N 28 input 10000 capacità 8 try_* False
+repeat=2 N=28 capacity=8 mode=try
+PASS N 28 input 10000 capacità 8 try_* True
+repeat=2 N=28 capacity=64 mode=blocking
+PASS N 28 input 10000 capacità 64 try_* False
+repeat=2 N=28 capacity=64 mode=try
+PASS N 28 input 10000 capacità 64 try_* True
+repeat=3 N=1 capacity=1 mode=blocking
+PASS N 1 input 10000 capacità 1 try_* False
+repeat=3 N=1 capacity=1 mode=try
+PASS N 1 input 10000 capacità 1 try_* True
+repeat=3 N=1 capacity=3 mode=blocking
+PASS N 1 input 10000 capacità 3 try_* False
+repeat=3 N=1 capacity=3 mode=try
+PASS N 1 input 10000 capacità 3 try_* True
+repeat=3 N=1 capacity=8 mode=blocking
+PASS N 1 input 10000 capacità 8 try_* False
+repeat=3 N=1 capacity=8 mode=try
+PASS N 1 input 10000 capacità 8 try_* True
+repeat=3 N=1 capacity=64 mode=blocking
+PASS N 1 input 10000 capacità 64 try_* False
+repeat=3 N=1 capacity=64 mode=try
+PASS N 1 input 10000 capacità 64 try_* True
+repeat=3 N=2 capacity=1 mode=blocking
+PASS N 2 input 10000 capacità 1 try_* False
+repeat=3 N=2 capacity=1 mode=try
+PASS N 2 input 10000 capacità 1 try_* True
+repeat=3 N=2 capacity=3 mode=blocking
+PASS N 2 input 10000 capacità 3 try_* False
+repeat=3 N=2 capacity=3 mode=try
+PASS N 2 input 10000 capacità 3 try_* True
+repeat=3 N=2 capacity=8 mode=blocking
+PASS N 2 input 10000 capacità 8 try_* False
+repeat=3 N=2 capacity=8 mode=try
+PASS N 2 input 10000 capacità 8 try_* True
+repeat=3 N=2 capacity=64 mode=blocking
+PASS N 2 input 10000 capacità 64 try_* False
+repeat=3 N=2 capacity=64 mode=try
+PASS N 2 input 10000 capacità 64 try_* True
+repeat=3 N=3 capacity=1 mode=blocking
+PASS N 3 input 10000 capacità 1 try_* False
+repeat=3 N=3 capacity=1 mode=try
+PASS N 3 input 10000 capacità 1 try_* True
+repeat=3 N=3 capacity=3 mode=blocking
+PASS N 3 input 10000 capacità 3 try_* False
+repeat=3 N=3 capacity=3 mode=try
+PASS N 3 input 10000 capacità 3 try_* True
+repeat=3 N=3 capacity=8 mode=blocking
+PASS N 3 input 10000 capacità 8 try_* False
+repeat=3 N=3 capacity=8 mode=try
+PASS N 3 input 10000 capacità 8 try_* True
+repeat=3 N=3 capacity=64 mode=blocking
+PASS N 3 input 10000 capacità 64 try_* False
+repeat=3 N=3 capacity=64 mode=try
+PASS N 3 input 10000 capacità 64 try_* True
+repeat=3 N=4 capacity=1 mode=blocking
+PASS N 4 input 10000 capacità 1 try_* False
+repeat=3 N=4 capacity=1 mode=try
+PASS N 4 input 10000 capacità 1 try_* True
+repeat=3 N=4 capacity=3 mode=blocking
+PASS N 4 input 10000 capacità 3 try_* False
+repeat=3 N=4 capacity=3 mode=try
+PASS N 4 input 10000 capacità 3 try_* True
+repeat=3 N=4 capacity=8 mode=blocking
+PASS N 4 input 10000 capacità 8 try_* False
+repeat=3 N=4 capacity=8 mode=try
+PASS N 4 input 10000 capacità 8 try_* True
+repeat=3 N=4 capacity=64 mode=blocking
+PASS N 4 input 10000 capacità 64 try_* False
+repeat=3 N=4 capacity=64 mode=try
+PASS N 4 input 10000 capacità 64 try_* True
+repeat=3 N=5 capacity=1 mode=blocking
+PASS N 5 input 10000 capacità 1 try_* False
+repeat=3 N=5 capacity=1 mode=try
+PASS N 5 input 10000 capacità 1 try_* True
+repeat=3 N=5 capacity=3 mode=blocking
+PASS N 5 input 10000 capacità 3 try_* False
+repeat=3 N=5 capacity=3 mode=try
+PASS N 5 input 10000 capacità 3 try_* True
+repeat=3 N=5 capacity=8 mode=blocking
+PASS N 5 input 10000 capacità 8 try_* False
+repeat=3 N=5 capacity=8 mode=try
+PASS N 5 input 10000 capacità 8 try_* True
+repeat=3 N=5 capacity=64 mode=blocking
+PASS N 5 input 10000 capacità 64 try_* False
+repeat=3 N=5 capacity=64 mode=try
+PASS N 5 input 10000 capacità 64 try_* True
+repeat=3 N=6 capacity=1 mode=blocking
+PASS N 6 input 10000 capacità 1 try_* False
+repeat=3 N=6 capacity=1 mode=try
+PASS N 6 input 10000 capacità 1 try_* True
+repeat=3 N=6 capacity=3 mode=blocking
+PASS N 6 input 10000 capacità 3 try_* False
+repeat=3 N=6 capacity=3 mode=try
+PASS N 6 input 10000 capacità 3 try_* True
+repeat=3 N=6 capacity=8 mode=blocking
+PASS N 6 input 10000 capacità 8 try_* False
+repeat=3 N=6 capacity=8 mode=try
+PASS N 6 input 10000 capacità 8 try_* True
+repeat=3 N=6 capacity=64 mode=blocking
+PASS N 6 input 10000 capacità 64 try_* False
+repeat=3 N=6 capacity=64 mode=try
+PASS N 6 input 10000 capacità 64 try_* True
+repeat=3 N=7 capacity=1 mode=blocking
+PASS N 7 input 10000 capacità 1 try_* False
+repeat=3 N=7 capacity=1 mode=try
+PASS N 7 input 10000 capacità 1 try_* True
+repeat=3 N=7 capacity=3 mode=blocking
+PASS N 7 input 10000 capacità 3 try_* False
+repeat=3 N=7 capacity=3 mode=try
+PASS N 7 input 10000 capacità 3 try_* True
+repeat=3 N=7 capacity=8 mode=blocking
+PASS N 7 input 10000 capacità 8 try_* False
+repeat=3 N=7 capacity=8 mode=try
+PASS N 7 input 10000 capacità 8 try_* True
+repeat=3 N=7 capacity=64 mode=blocking
+PASS N 7 input 10000 capacità 64 try_* False
+repeat=3 N=7 capacity=64 mode=try
+PASS N 7 input 10000 capacità 64 try_* True
+repeat=3 N=8 capacity=1 mode=blocking
+PASS N 8 input 10000 capacità 1 try_* False
+repeat=3 N=8 capacity=1 mode=try
+PASS N 8 input 10000 capacità 1 try_* True
+repeat=3 N=8 capacity=3 mode=blocking
+PASS N 8 input 10000 capacità 3 try_* False
+repeat=3 N=8 capacity=3 mode=try
+PASS N 8 input 10000 capacità 3 try_* True
+repeat=3 N=8 capacity=8 mode=blocking
+PASS N 8 input 10000 capacità 8 try_* False
+repeat=3 N=8 capacity=8 mode=try
+PASS N 8 input 10000 capacità 8 try_* True
+repeat=3 N=8 capacity=64 mode=blocking
+PASS N 8 input 10000 capacità 64 try_* False
+repeat=3 N=8 capacity=64 mode=try
+PASS N 8 input 10000 capacità 64 try_* True
+repeat=3 N=9 capacity=1 mode=blocking
+PASS N 9 input 10000 capacità 1 try_* False
+repeat=3 N=9 capacity=1 mode=try
+PASS N 9 input 10000 capacità 1 try_* True
+repeat=3 N=9 capacity=3 mode=blocking
+PASS N 9 input 10000 capacità 3 try_* False
+repeat=3 N=9 capacity=3 mode=try
+PASS N 9 input 10000 capacità 3 try_* True
+repeat=3 N=9 capacity=8 mode=blocking
+PASS N 9 input 10000 capacità 8 try_* False
+repeat=3 N=9 capacity=8 mode=try
+PASS N 9 input 10000 capacità 8 try_* True
+repeat=3 N=9 capacity=64 mode=blocking
+PASS N 9 input 10000 capacità 64 try_* False
+repeat=3 N=9 capacity=64 mode=try
+PASS N 9 input 10000 capacità 64 try_* True
+repeat=3 N=10 capacity=1 mode=blocking
+PASS N 10 input 10000 capacità 1 try_* False
+repeat=3 N=10 capacity=1 mode=try
+PASS N 10 input 10000 capacità 1 try_* True
+repeat=3 N=10 capacity=3 mode=blocking
+PASS N 10 input 10000 capacità 3 try_* False
+repeat=3 N=10 capacity=3 mode=try
+PASS N 10 input 10000 capacità 3 try_* True
+repeat=3 N=10 capacity=8 mode=blocking
+PASS N 10 input 10000 capacità 8 try_* False
+repeat=3 N=10 capacity=8 mode=try
+PASS N 10 input 10000 capacità 8 try_* True
+repeat=3 N=10 capacity=64 mode=blocking
+PASS N 10 input 10000 capacità 64 try_* False
+repeat=3 N=10 capacity=64 mode=try
+PASS N 10 input 10000 capacità 64 try_* True
+repeat=3 N=11 capacity=1 mode=blocking
+PASS N 11 input 10000 capacità 1 try_* False
+repeat=3 N=11 capacity=1 mode=try
+PASS N 11 input 10000 capacità 1 try_* True
+repeat=3 N=11 capacity=3 mode=blocking
+PASS N 11 input 10000 capacità 3 try_* False
+repeat=3 N=11 capacity=3 mode=try
+PASS N 11 input 10000 capacità 3 try_* True
+repeat=3 N=11 capacity=8 mode=blocking
+PASS N 11 input 10000 capacità 8 try_* False
+repeat=3 N=11 capacity=8 mode=try
+PASS N 11 input 10000 capacità 8 try_* True
+repeat=3 N=11 capacity=64 mode=blocking
+PASS N 11 input 10000 capacità 64 try_* False
+repeat=3 N=11 capacity=64 mode=try
+PASS N 11 input 10000 capacità 64 try_* True
+repeat=3 N=12 capacity=1 mode=blocking
+PASS N 12 input 10000 capacità 1 try_* False
+repeat=3 N=12 capacity=1 mode=try
+PASS N 12 input 10000 capacità 1 try_* True
+repeat=3 N=12 capacity=3 mode=blocking
+PASS N 12 input 10000 capacità 3 try_* False
+repeat=3 N=12 capacity=3 mode=try
+PASS N 12 input 10000 capacità 3 try_* True
+repeat=3 N=12 capacity=8 mode=blocking
+PASS N 12 input 10000 capacità 8 try_* False
+repeat=3 N=12 capacity=8 mode=try
+PASS N 12 input 10000 capacità 8 try_* True
+repeat=3 N=12 capacity=64 mode=blocking
+PASS N 12 input 10000 capacità 64 try_* False
+repeat=3 N=12 capacity=64 mode=try
+PASS N 12 input 10000 capacità 64 try_* True
+repeat=3 N=13 capacity=1 mode=blocking
+PASS N 13 input 10000 capacità 1 try_* False
+repeat=3 N=13 capacity=1 mode=try
+PASS N 13 input 10000 capacità 1 try_* True
+repeat=3 N=13 capacity=3 mode=blocking
+PASS N 13 input 10000 capacità 3 try_* False
+repeat=3 N=13 capacity=3 mode=try
+PASS N 13 input 10000 capacità 3 try_* True
+repeat=3 N=13 capacity=8 mode=blocking
+PASS N 13 input 10000 capacità 8 try_* False
+repeat=3 N=13 capacity=8 mode=try
+PASS N 13 input 10000 capacità 8 try_* True
+repeat=3 N=13 capacity=64 mode=blocking
+PASS N 13 input 10000 capacità 64 try_* False
+repeat=3 N=13 capacity=64 mode=try
+PASS N 13 input 10000 capacità 64 try_* True
+repeat=3 N=14 capacity=1 mode=blocking
+PASS N 14 input 10000 capacità 1 try_* False
+repeat=3 N=14 capacity=1 mode=try
+PASS N 14 input 10000 capacità 1 try_* True
+repeat=3 N=14 capacity=3 mode=blocking
+PASS N 14 input 10000 capacità 3 try_* False
+repeat=3 N=14 capacity=3 mode=try
+PASS N 14 input 10000 capacità 3 try_* True
+repeat=3 N=14 capacity=8 mode=blocking
+PASS N 14 input 10000 capacità 8 try_* False
+repeat=3 N=14 capacity=8 mode=try
+PASS N 14 input 10000 capacità 8 try_* True
+repeat=3 N=14 capacity=64 mode=blocking
+PASS N 14 input 10000 capacità 64 try_* False
+repeat=3 N=14 capacity=64 mode=try
+PASS N 14 input 10000 capacità 64 try_* True
+repeat=3 N=15 capacity=1 mode=blocking
+PASS N 15 input 10000 capacità 1 try_* False
+repeat=3 N=15 capacity=1 mode=try
+PASS N 15 input 10000 capacità 1 try_* True
+repeat=3 N=15 capacity=3 mode=blocking
+PASS N 15 input 10000 capacità 3 try_* False
+repeat=3 N=15 capacity=3 mode=try
+PASS N 15 input 10000 capacità 3 try_* True
+repeat=3 N=15 capacity=8 mode=blocking
+PASS N 15 input 10000 capacità 8 try_* False
+repeat=3 N=15 capacity=8 mode=try
+PASS N 15 input 10000 capacità 8 try_* True
+repeat=3 N=15 capacity=64 mode=blocking
+PASS N 15 input 10000 capacità 64 try_* False
+repeat=3 N=15 capacity=64 mode=try
+PASS N 15 input 10000 capacità 64 try_* True
+repeat=3 N=16 capacity=1 mode=blocking
+PASS N 16 input 10000 capacità 1 try_* False
+repeat=3 N=16 capacity=1 mode=try
+PASS N 16 input 10000 capacità 1 try_* True
+repeat=3 N=16 capacity=3 mode=blocking
+PASS N 16 input 10000 capacità 3 try_* False
+repeat=3 N=16 capacity=3 mode=try
+PASS N 16 input 10000 capacità 3 try_* True
+repeat=3 N=16 capacity=8 mode=blocking
+PASS N 16 input 10000 capacità 8 try_* False
+repeat=3 N=16 capacity=8 mode=try
+PASS N 16 input 10000 capacità 8 try_* True
+repeat=3 N=16 capacity=64 mode=blocking
+PASS N 16 input 10000 capacità 64 try_* False
+repeat=3 N=16 capacity=64 mode=try
+PASS N 16 input 10000 capacità 64 try_* True
+repeat=3 N=17 capacity=1 mode=blocking
+PASS N 17 input 10000 capacità 1 try_* False
+repeat=3 N=17 capacity=1 mode=try
+PASS N 17 input 10000 capacità 1 try_* True
+repeat=3 N=17 capacity=3 mode=blocking
+PASS N 17 input 10000 capacità 3 try_* False
+repeat=3 N=17 capacity=3 mode=try
+PASS N 17 input 10000 capacità 3 try_* True
+repeat=3 N=17 capacity=8 mode=blocking
+PASS N 17 input 10000 capacità 8 try_* False
+repeat=3 N=17 capacity=8 mode=try
+PASS N 17 input 10000 capacità 8 try_* True
+repeat=3 N=17 capacity=64 mode=blocking
+PASS N 17 input 10000 capacità 64 try_* False
+repeat=3 N=17 capacity=64 mode=try
+PASS N 17 input 10000 capacità 64 try_* True
+repeat=3 N=18 capacity=1 mode=blocking
+PASS N 18 input 10000 capacità 1 try_* False
+repeat=3 N=18 capacity=1 mode=try
+PASS N 18 input 10000 capacità 1 try_* True
+repeat=3 N=18 capacity=3 mode=blocking
+PASS N 18 input 10000 capacità 3 try_* False
+repeat=3 N=18 capacity=3 mode=try
+PASS N 18 input 10000 capacità 3 try_* True
+repeat=3 N=18 capacity=8 mode=blocking
+PASS N 18 input 10000 capacità 8 try_* False
+repeat=3 N=18 capacity=8 mode=try
+PASS N 18 input 10000 capacità 8 try_* True
+repeat=3 N=18 capacity=64 mode=blocking
+PASS N 18 input 10000 capacità 64 try_* False
+repeat=3 N=18 capacity=64 mode=try
+PASS N 18 input 10000 capacità 64 try_* True
+repeat=3 N=19 capacity=1 mode=blocking
+PASS N 19 input 10000 capacità 1 try_* False
+repeat=3 N=19 capacity=1 mode=try
+PASS N 19 input 10000 capacità 1 try_* True
+repeat=3 N=19 capacity=3 mode=blocking
+PASS N 19 input 10000 capacità 3 try_* False
+repeat=3 N=19 capacity=3 mode=try
+PASS N 19 input 10000 capacità 3 try_* True
+repeat=3 N=19 capacity=8 mode=blocking
+PASS N 19 input 10000 capacità 8 try_* False
+repeat=3 N=19 capacity=8 mode=try
+PASS N 19 input 10000 capacità 8 try_* True
+repeat=3 N=19 capacity=64 mode=blocking
+PASS N 19 input 10000 capacità 64 try_* False
+repeat=3 N=19 capacity=64 mode=try
+PASS N 19 input 10000 capacità 64 try_* True
+repeat=3 N=20 capacity=1 mode=blocking
+PASS N 20 input 10000 capacità 1 try_* False
+repeat=3 N=20 capacity=1 mode=try
+PASS N 20 input 10000 capacità 1 try_* True
+repeat=3 N=20 capacity=3 mode=blocking
+PASS N 20 input 10000 capacità 3 try_* False
+repeat=3 N=20 capacity=3 mode=try
+PASS N 20 input 10000 capacità 3 try_* True
+repeat=3 N=20 capacity=8 mode=blocking
+PASS N 20 input 10000 capacità 8 try_* False
+repeat=3 N=20 capacity=8 mode=try
+PASS N 20 input 10000 capacità 8 try_* True
+repeat=3 N=20 capacity=64 mode=blocking
+PASS N 20 input 10000 capacità 64 try_* False
+repeat=3 N=20 capacity=64 mode=try
+PASS N 20 input 10000 capacità 64 try_* True
+repeat=3 N=21 capacity=1 mode=blocking
+PASS N 21 input 10000 capacità 1 try_* False
+repeat=3 N=21 capacity=1 mode=try
+PASS N 21 input 10000 capacità 1 try_* True
+repeat=3 N=21 capacity=3 mode=blocking
+PASS N 21 input 10000 capacità 3 try_* False
+repeat=3 N=21 capacity=3 mode=try
+PASS N 21 input 10000 capacità 3 try_* True
+repeat=3 N=21 capacity=8 mode=blocking
+PASS N 21 input 10000 capacità 8 try_* False
+repeat=3 N=21 capacity=8 mode=try
+PASS N 21 input 10000 capacità 8 try_* True
+repeat=3 N=21 capacity=64 mode=blocking
+PASS N 21 input 10000 capacità 64 try_* False
+repeat=3 N=21 capacity=64 mode=try
+PASS N 21 input 10000 capacità 64 try_* True
+repeat=3 N=22 capacity=1 mode=blocking
+PASS N 22 input 10000 capacità 1 try_* False
+repeat=3 N=22 capacity=1 mode=try
+PASS N 22 input 10000 capacità 1 try_* True
+repeat=3 N=22 capacity=3 mode=blocking
+PASS N 22 input 10000 capacità 3 try_* False
+repeat=3 N=22 capacity=3 mode=try
+PASS N 22 input 10000 capacità 3 try_* True
+repeat=3 N=22 capacity=8 mode=blocking
+PASS N 22 input 10000 capacità 8 try_* False
+repeat=3 N=22 capacity=8 mode=try
+PASS N 22 input 10000 capacità 8 try_* True
+repeat=3 N=22 capacity=64 mode=blocking
+PASS N 22 input 10000 capacità 64 try_* False
+repeat=3 N=22 capacity=64 mode=try
+PASS N 22 input 10000 capacità 64 try_* True
+repeat=3 N=23 capacity=1 mode=blocking
+PASS N 23 input 10000 capacità 1 try_* False
+repeat=3 N=23 capacity=1 mode=try
+PASS N 23 input 10000 capacità 1 try_* True
+repeat=3 N=23 capacity=3 mode=blocking
+PASS N 23 input 10000 capacità 3 try_* False
+repeat=3 N=23 capacity=3 mode=try
+PASS N 23 input 10000 capacità 3 try_* True
+repeat=3 N=23 capacity=8 mode=blocking
+PASS N 23 input 10000 capacità 8 try_* False
+repeat=3 N=23 capacity=8 mode=try
+PASS N 23 input 10000 capacità 8 try_* True
+repeat=3 N=23 capacity=64 mode=blocking
+PASS N 23 input 10000 capacità 64 try_* False
+repeat=3 N=23 capacity=64 mode=try
+PASS N 23 input 10000 capacità 64 try_* True
+repeat=3 N=24 capacity=1 mode=blocking
+PASS N 24 input 10000 capacità 1 try_* False
+repeat=3 N=24 capacity=1 mode=try
+PASS N 24 input 10000 capacità 1 try_* True
+repeat=3 N=24 capacity=3 mode=blocking
+PASS N 24 input 10000 capacità 3 try_* False
+repeat=3 N=24 capacity=3 mode=try
+PASS N 24 input 10000 capacità 3 try_* True
+repeat=3 N=24 capacity=8 mode=blocking
+PASS N 24 input 10000 capacità 8 try_* False
+repeat=3 N=24 capacity=8 mode=try
+PASS N 24 input 10000 capacità 8 try_* True
+repeat=3 N=24 capacity=64 mode=blocking
+PASS N 24 input 10000 capacità 64 try_* False
+repeat=3 N=24 capacity=64 mode=try
+PASS N 24 input 10000 capacità 64 try_* True
+repeat=3 N=25 capacity=1 mode=blocking
+PASS N 25 input 10000 capacità 1 try_* False
+repeat=3 N=25 capacity=1 mode=try
+PASS N 25 input 10000 capacità 1 try_* True
+repeat=3 N=25 capacity=3 mode=blocking
+PASS N 25 input 10000 capacità 3 try_* False
+repeat=3 N=25 capacity=3 mode=try
+PASS N 25 input 10000 capacità 3 try_* True
+repeat=3 N=25 capacity=8 mode=blocking
+PASS N 25 input 10000 capacità 8 try_* False
+repeat=3 N=25 capacity=8 mode=try
+PASS N 25 input 10000 capacità 8 try_* True
+repeat=3 N=25 capacity=64 mode=blocking
+PASS N 25 input 10000 capacità 64 try_* False
+repeat=3 N=25 capacity=64 mode=try
+PASS N 25 input 10000 capacità 64 try_* True
+repeat=3 N=26 capacity=1 mode=blocking
+PASS N 26 input 10000 capacità 1 try_* False
+repeat=3 N=26 capacity=1 mode=try
+PASS N 26 input 10000 capacità 1 try_* True
+repeat=3 N=26 capacity=3 mode=blocking
+PASS N 26 input 10000 capacità 3 try_* False
+repeat=3 N=26 capacity=3 mode=try
+PASS N 26 input 10000 capacità 3 try_* True
+repeat=3 N=26 capacity=8 mode=blocking
+PASS N 26 input 10000 capacità 8 try_* False
+repeat=3 N=26 capacity=8 mode=try
+PASS N 26 input 10000 capacità 8 try_* True
+repeat=3 N=26 capacity=64 mode=blocking
+PASS N 26 input 10000 capacità 64 try_* False
+repeat=3 N=26 capacity=64 mode=try
+PASS N 26 input 10000 capacità 64 try_* True
+repeat=3 N=27 capacity=1 mode=blocking
+PASS N 27 input 10000 capacità 1 try_* False
+repeat=3 N=27 capacity=1 mode=try
+PASS N 27 input 10000 capacità 1 try_* True
+repeat=3 N=27 capacity=3 mode=blocking
+PASS N 27 input 10000 capacità 3 try_* False
+repeat=3 N=27 capacity=3 mode=try
+PASS N 27 input 10000 capacità 3 try_* True
+repeat=3 N=27 capacity=8 mode=blocking
+PASS N 27 input 10000 capacità 8 try_* False
+repeat=3 N=27 capacity=8 mode=try
+PASS N 27 input 10000 capacità 8 try_* True
+repeat=3 N=27 capacity=64 mode=blocking
+PASS N 27 input 10000 capacità 64 try_* False
+repeat=3 N=27 capacity=64 mode=try
+PASS N 27 input 10000 capacità 64 try_* True
+repeat=3 N=28 capacity=1 mode=blocking
+PASS N 28 input 10000 capacità 1 try_* False
+repeat=3 N=28 capacity=1 mode=try
+PASS N 28 input 10000 capacità 1 try_* True
+repeat=3 N=28 capacity=3 mode=blocking
+PASS N 28 input 10000 capacità 3 try_* False
+repeat=3 N=28 capacity=3 mode=try
+PASS N 28 input 10000 capacità 3 try_* True
+repeat=3 N=28 capacity=8 mode=blocking
+PASS N 28 input 10000 capacità 8 try_* False
+repeat=3 N=28 capacity=8 mode=try
+PASS N 28 input 10000 capacità 8 try_* True
+repeat=3 N=28 capacity=64 mode=blocking
+PASS N 28 input 10000 capacità 64 try_* False
+repeat=3 N=28 capacity=64 mode=try
+PASS N 28 input 10000 capacità 64 try_* True
+PASS: 672 prove concorrenti, oltre alla suite sequenziale.

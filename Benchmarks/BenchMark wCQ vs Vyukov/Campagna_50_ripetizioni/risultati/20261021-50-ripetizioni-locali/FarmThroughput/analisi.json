@@ -1,0 +1,7 @@
+{
+  "bootstrap_samples": 20000,
+  "confidence_per_configuration": 0.95,
+  "multiple_comparisons_adjusted": false,
+  "practical_advantage_threshold": 0.05,
+  "paired": true
+}

@@ -1,0 +1,33 @@
+{
+  "reference_suite": "BenchMark Vyukov vs RigTorp",
+  "verification": {
+    "grain_work": {
+      "body_identical_to_rigtorp_suite": true,
+      "sha256": "bbb0cb7ac76c5cd4b6d2931aac31ed33cd33ce97e0a7e895d46e84863e19c743"
+    },
+    "farm_work": {
+      "body_identical_to_rigtorp_suite": true,
+      "sha256": "bbb0cb7ac76c5cd4b6d2931aac31ed33cd33ce97e0a7e895d46e84863e19c743"
+    },
+    "tile_grayscale": {
+      "body_identical_to_rigtorp_suite": true,
+      "sha256": "6b8cda301051bd1a541c42310cd119035d2de9aaa55e7a94490d7c778b5bc7aa"
+    },
+    "vyukov_push": {
+      "body_identical_to_rigtorp_suite": true,
+      "sha256": "693fc60d0951ca7134292ad6a92c6654efc416023b70f8bf3aad3c5162c4a6f2"
+    },
+    "vyukov_pop": {
+      "body_identical_to_rigtorp_suite": true,
+      "sha256": "a321f904a9f5b73cfac8a424883b79229e00ea5e8023f986a18b081ada9002ba"
+    }
+  },
+  "changes": [
+    "wCQ backend replaces Rigtorp",
+    "exclusive participant IDs passed explicitly",
+    "link atomic CPU shim",
+    "preflight capacity compatible with wCQ",
+    "configurable Mojo executable"
+  ],
+  "historical_sources_modified": false
+}

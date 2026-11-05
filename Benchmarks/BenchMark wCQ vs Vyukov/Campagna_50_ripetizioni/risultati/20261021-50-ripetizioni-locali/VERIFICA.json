@@ -1,0 +1,59 @@
+{
+  "raw_rows": {
+    "PipelineGrain": 1200,
+    "FarmThroughput": 1200,
+    "ImageTiles": 950
+  },
+  "artifacts_sha256": {
+    "FarmThroughput/farm_efficiency.png": "a9f6f3417befbbb74c11c78d2cbaf14ad1cf8a6ee3682f56ef0412316b24608c",
+    "FarmThroughput/summary.csv": "171d57b3b3696b3a201c40d0256d036a5a262c20e5317a9316db4c9471d2cab0",
+    "FarmThroughput/farm_efficiency.pdf": "f893037243c8c43c9574ce506a972f6eec1d89f93f1e803fe29e023594c8f3bd",
+    "FarmThroughput/confronto_50.csv": "cb3b408d9a577a96df7faa6a1fede4e097ffd2fd8a9ba7d7224a3db1dc86bf9e",
+    "FarmThroughput/confronto_50.md": "5e6c1ca31ae24c0975196c616c1e738570414613449f3f5289f546dd8bd6b9c9",
+    "FarmThroughput/raw.csv": "2feefc1194dc7dc45236946e69a864df8705e02fb6d7f2289145483027bf4f23",
+    "FarmThroughput/farm_throughput.pdf": "beb32de5bcfe5abdaafa91bfb4021e5f253d8e39b3cab4ccebae0989ee65dfba",
+    "FarmThroughput/farm_throughput.png": "d5230521e20299d06be6d26b9282f3cade29ec8c2b173b1724eaf995399abef1",
+    "PipelineGrain/summary.csv": "45994858deeea466a2f72b37f63e34fcfa38d646ef75104ed176a9c273b7a669",
+    "PipelineGrain/confronto_50.csv": "0aa8fbd0a8369754c9cb76687ba7e460d2988971dfd54bd0acab89533485c666",
+    "PipelineGrain/confronto_50.md": "2d9c4b543e38c1758ecb9596f2ea5b63eee1d5538a7c7e73c388898d9ae915a3",
+    "PipelineGrain/pipeline_grain.png": "7146d18081e5cf98ff01a1440e0590aa2bfabad7984dfe8aff74264bf6987230",
+    "PipelineGrain/raw.csv": "0652489f4a6b61f281c986d00a77b300a26c9c847e9e754d19a5a3249bc7c7c7",
+    "PipelineGrain/pipeline_grain.pdf": "f246a325f91ef8a7eefba18578ffa4ea6760f85def2be19ddd5d7af8be6c736f",
+    "ImageTiles/summary.csv": "45c8c332d058f7afbd263d76f4dbe0efcd7ac449fccd05877486dd52edfe1ead",
+    "ImageTiles/throughput_512x512.png": "8f92ff200a815af06ede8a729a6e275a0ae3118e01c2b50c055b62c96b237a7f",
+    "ImageTiles/throughput_512x512.pdf": "5abe43127da687f9619503bdf317bb9dcfc6e04be03d78f887f9677a87c94d96",
+    "ImageTiles/latency_512x512.pdf": "ce76f2e57e6903819c61ea48a1439a684c1ec7982ee0d78bc64bd3e1a5c6d678",
+    "ImageTiles/raw.csv": "60e6097dc414db871c97c15dac0d8d27c50cf62a76141ca3c35fcb9a19079351",
+    "ImageTiles/latency_512x512.png": "1593b4c28989db4dcaa1bc3a1dcead2192fc38ba55235c86e8db0af6709c0e93",
+    "ImageTiles/latencies.csv": "dcc6f2e9e6bcdf1db01331f62f440ba1b9242536101f86ab0fa553905770c792",
+    "ImageTiles/speedup_512x512.pdf": "e97aa04fead9c96609fc9550def7fa93a6baf345f5073d64206779d35cf5c7d7",
+    "ImageTiles/speedup_512x512.png": "eaaba15043c94c4be27dd80d1e07e31b62f74e25abd31b97dffa62aab6d2529b"
+  },
+  "report_generator_sha256": "5fc60adaefa04faf028595617406b34434db4b0f67281ca64b3e03c9fb3ec3b4",
+  "report_artifacts_sha256": {
+    "CONFRONTO.md": "73787175aa0d4df5013bc3e06bae3cdcc7b5ef9b64fbcd7e35b969cc125af556",
+    "confronto.csv": "88774f0b57180a6bde3e59c1dda4b5d21e112b7828e233f8d1d105f122bcaaac",
+    "Confronto_wCQ_Vyukov.pdf": "9b3ff6ece98d8b8907163c24090167f1d472bc6c0e2b63c8786b99bcb6fb190f"
+  },
+  "source_hashes_match": true,
+  "repeat_groups_complete": true,
+  "source_snapshots_sha256": {
+    "sorgenti/MoStream/MPMC_queue_wcq.mojo": "046e386ecfaba193b3ce6992f0fbc0c0555527b0d9b2b9cc52c0163c259ddb09",
+    "sorgenti/Benchmarks/BenchMark wCQ vs Vyukov/PipelineGrain/queues.mojo": "f9650ca699d52e894d178cb0ba71dccf3972a92f66417c646214915300a4d2da",
+    "sorgenti/Benchmarks/BenchMark wCQ vs Vyukov/PipelineGrain/pipeline.mojo": "ae0a45bc960a6bc05ac028fa25246f8078b301847c21f3c1419f2f6365cc8cf7",
+    "sorgenti/Benchmarks/BenchMark wCQ vs Vyukov/PipelineGrain/run.py": "ca795ab0bc14e1a80dc28eaac5684de7c50ed39782c68e787a87911701f6ecfe",
+    "sorgenti/MoStream/lib/wcq_atomics.c": "5f64224caf75ffea120b253eb28faabf06a125d4f1eee3efe09126ab578d4f03",
+    "sorgenti/Benchmarks/BenchMark wCQ vs Vyukov/FarmThroughput/farm.mojo": "473312a05cbe2bc85cf6049075cafde751ef8eb686e297f537c5fb96fa906b72",
+    "sorgenti/Benchmarks/BenchMark wCQ vs Vyukov/FarmThroughput/run.py": "7d569c4ef647946ebc4237f62cde43cc18de86e43ed599272462c2679d333812",
+    "sorgenti/MoStream/lib/libpinning.c": "e5b2a5ec6c38228bed53be99842ac6bb7f7e2581881ae80fd288ab50c3079389",
+    "sorgenti/Benchmarks/BenchMark wCQ vs Vyukov/ImageTiles/image_tiles.mojo": "e107b49de7203faa22281d9ae9820f182cc9db1c699af0c8938bd597490f0ea9",
+    "sorgenti/Benchmarks/BenchMark wCQ vs Vyukov/ImageTiles/run.py": "1b974cef3b45944af444f07771b622108c01b5ed8177fd5d14c82b7f3214abf9",
+    "sorgenti/Benchmarks/ImagePipeline/image_stages.mojo": "aa8ffd5cb5c2bab29f7852251f68d0220d2d20babb86b9819e0856ecbc57c0fc",
+    "sorgenti/Benchmarks/ImagePipeline/ppm_image.mojo": "12f0e545c417ef604ed1baa4b4f99f19993ad0a280483483c85dd14a99ba6ec4"
+  },
+  "additional_artifacts_sha256": {
+    "esecuzione.log": "2fad9232a6bbd909dc4de365d942c4b7544f231837d1707086c488fe0c1e1b3d",
+    "toolchain.json": "f207e028378c387ac337877655df4661edc0c9deeb819b0008d69d84260445e9"
+  },
+  "final_artifact_hashes_verified": true
+}
