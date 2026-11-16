@@ -124,8 +124,7 @@ struct Pipeline[*Ts: NodeTrait]:
         for _ in range(0, np): 
             var core_id = self.coreslist.get_next_core_id()
             var task = executor_task[idx, length](self.nodes[idx],
-                                                  in_comm,+é
-                                                  ì
+                                                  in_comm,
                                                   out_comm,
                                                   core_id)
             tg.create_task(task^)

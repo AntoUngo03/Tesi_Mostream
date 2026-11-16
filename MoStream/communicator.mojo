@@ -61,8 +61,9 @@ struct MessageWrapper[T: MessageTrait](Copyable):
 #   explicit_eos = False (default, runtime cooperativo)
 #     L'EOS non viene mai inserito nella coda. L'ultimo produttore alza il flag
 #     `closed`; un consumatore che trova la coda vuota controlla il flag, ricontrolla
-#     la coda e, se è ancora vuota, costruisce l'EOS da solo. Per questo pop() è un
-#     ciclo di try_pop(), che non blocca mai un worker dello scheduler.
+#     la coda e, se è ancora vuota, costruisce l'EOS da solo. I consumatori usano
+#     solo try_pop(), che non blocca mai un worker dello scheduler; pop() non è
+#     disponibile in questa modalità.
 #
 #   explicit_eos = True (runtime standard)
 #     L'ultimo produttore alza `closed` e poi inserisce nella coda esattamente
@@ -222,26 +223,20 @@ struct Communicator[T: MessageTrait, explicit_eos: Bool = False](Movable):
         # Inoltra il tentativo alla coda.
         return self.queue[].try_push(msg^)
 
-    # pop: estrae un messaggio, aspettando finché ce n'è uno.
-    #   explicit_eos = True: pop bloccante della coda; l'EOS arriva come un messaggio.
-    #   explicit_eos = False: ripete try_pop, che si accorge anche della chiusura.
+    # pop: estrae un messaggio, aspettando finché ce n'è uno (pop bloccante della
+    # coda; per Rigtorp: ticket con fetch_add). L'EOS arriva come un messaggio.
+    # Esiste solo con explicit_eos = True (runtime standard): senza EOS in coda un
+    # pop bloccante non terminerebbe mai a fine stream. Il runtime cooperativo usa
+    # soltanto try_pop().
     def pop(mut self) -> MessageWrapper[Self.T]:
-        # Modalità con EOS espliciti (scelta in compilazione, nessun if a runtime):
-        comptime if Self.explicit_eos:
-            # pop bloccante della coda (per Rigtorp: ticket con fetch_add).
-            return self.queue[].pop()
-        # Modalità classica: ripete senza fermarsi
-        while True:
-            # un tentativo di estrazione non bloccante;
-            var maybe_msg = self.try_pop()
-            # se ha ottenuto un messaggio (dato oppure EOS costruito localmente)
-            if maybe_msg:
-                # lo estrae dall'Optional e lo restituisce.
-                return maybe_msg.take()
+        # Errore di compilazione se chiamato su un Communicator senza EOS espliciti.
+        comptime assert Self.explicit_eos, "{MoStream} Assert: Communicator.pop() requires explicit_eos=True (use try_pop() otherwise)!"
+        # Pop bloccante della coda.
+        return self.queue[].pop()
 
     # try_pop: prova a estrarre senza aspettare. Restituisce None se in questo
     # momento non c'è nulla, oppure un messaggio (anche un EOS se il canale è chiuso).
-    # Usato dal runtime cooperativo e, al suo interno, dal pop() classico.
+    # Usato dal runtime cooperativo (explicit_eos = False).
     def try_pop(mut self) -> Optional[MessageWrapper[Self.T]]:
         # Primo tentativo di estrazione dalla coda.
         var maybe_msg = self.queue[].try_pop()
