@@ -1,0 +1,301 @@
+<!doctype html><html lang="it"><head><meta charset="utf-8"><title>Fase 0: contesa fra produttori</title><style>@page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+:root { --ink: #1e293b; --muted: #64748b; --rule: #cbd5e1; --accent: #1d4ed8; --warm: #b45309; --soft: #f1f5f9; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: "Inter", "Noto Sans", "DejaVu Sans", Arial, sans-serif; color: var(--ink); font-size: 10pt; line-height: 1.45; margin: 0; background: #fff; }
+h1 { font-size: 22pt; line-height: 1.15; margin: 4px 0 6px; }
+h2 { font-size: 14pt; margin: 22px 0 8px; padding-bottom: 3px; border-bottom: 2px solid var(--accent); break-after: avoid; }
+h3 { font-size: 11pt; margin: 14px 0 6px; break-after: avoid; }
+p, li { margin: 5px 0; }
+ul, ol { padding-left: 20px; margin: 6px 0; }
+code { font-family: "JetBrains Mono", "DejaVu Sans Mono", monospace; font-size: 8.6pt; background: var(--soft); padding: 0 3px; border-radius: 3px; }
+pre { background: #0f172a; color: #e2e8f0; padding: 9px 11px; border-radius: 6px; font-size: 7.8pt; line-height: 1.4; white-space: pre-wrap; break-inside: avoid; margin: 8px 0; }
+pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+.cover { border-left: 6px solid var(--accent); padding: 4px 0 6px 14px; margin: 0 0 14px; }
+.kicker { text-transform: uppercase; letter-spacing: .08em; color: var(--accent); font-weight: 700; font-size: 8.5pt; margin: 0; }
+.sub { font-size: 12pt; color: #334155; margin: 2px 0; }
+.meta { color: var(--muted); font-size: 9pt; margin: 4px 0 0; }
+.summary { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 4px 14px 8px; break-inside: avoid; }
+.summary h2 { border: none; margin-top: 8px; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0; break-inside: avoid; }
+table.plain td, table.plain th { border: 1px solid var(--rule); padding: 4px 6px; vertical-align: top; text-align: left; }
+table.plain th { background: var(--soft); }
+table.plain td:first-child { white-space: nowrap; }
+table.data { font-size: 7.9pt; font-variant-numeric: tabular-nums; }
+table.data th { background: var(--soft); border: 1px solid var(--rule); padding: 3px 4px; font-weight: 600; }
+table.data td { border: 1px solid var(--rule); padding: 2px 4px; text-align: right; }
+table.data td.d { color: #334155; font-weight: 600; }
+table.data td.ci { white-space: nowrap; color: var(--muted); }
+table.data td.r { color: var(--warm); font-weight: 700; text-align: left; }
+table.data td.v { color: var(--accent); font-weight: 700; text-align: left; }
+table.data tbody tr:nth-child(4n+1) td, table.data tbody tr:nth-child(4n+2) td, table.data tbody tr:nth-child(4n+3) td, table.data tbody tr:nth-child(4n) td { }
+.caption, figcaption { color: var(--muted); font-size: 8.5pt; margin: 3px 0 10px; }
+figure { margin: 10px 0 12px; break-inside: avoid; }
+figure img { width: 100%; display: block; border: 1px solid #e2e8f0; border-radius: 4px; }
+.note { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 6px 10px; border-radius: 4px; break-inside: avoid; }
+svg.diagram { width: 100%; height: auto; margin: 6px 0 8px; break-inside: avoid; }
+table.data.three td { padding: 2px 3px; }
+table.data.three td.e { text-align: left; font-size: 7.4pt; color: #334155; }
+table.data.three th.old { background: #ede9fe; }
+table.data td.rb { color: var(--warm); font-weight: 700; }
+table.data td.vb { color: var(--accent); font-weight: 700; }
+.easy { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 5px solid #16a34a; border-radius: 6px; padding: 6px 12px; margin: 10px 0; break-inside: avoid; }
+.easy .lab, .thesis .lab { font-size: 8pt; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin: 0 0 2px; }
+.easy .lab { color: #15803d; }
+.thesis { background: #f8fafc; border: 1px solid #cbd5e1; border-left: 5px solid #334155; border-radius: 6px; padding: 6px 12px; margin: 10px 0; break-inside: avoid; }
+.thesis .lab { color: #334155; }
+.thesis p { font-style: italic; }
+.big { font-size: 15pt; font-weight: 700; color: #b91c1c; }
+</style></head><body>
+<header class="cover">
+  <p class="kicker">MoStream · Fase 0 · contesa fra produttori</p>
+  <h1>Quanto costa avere più produttori sulla stessa coda?</h1>
+  <p class="sub">Il benchmark MultiProducer: come è stato costruito, cosa ha misurato e cosa significa per la scelta fra CR-c e PW-c</p>
+  <p class="meta">Mojo 1.1.0 · Intel Xeon Gold 5512U (28 core fisici) · Communicator con EOS espliciti · 10 novembre 2026</p>
+</header>
+
+<section class="summary">
+  <h2>In sintesi</h2>
+  <div class="easy"><p class="lab">In parole semplici</p><p>Immagina una cassetta delle lettere in cui tante persone vogliono imbucare la loro lettera <b>nello stesso momento</b>. Se le persone sono poche, va tutto liscio. Se sono tante, si spingono, si ostacolano e alla fine imbucano <b>meno lettere</b> di quante ne imbucherebbe una persona sola. È proprio quello che abbiamo visto: con 16 produttori sulla stessa coda, con la coda Vyukov, passano <span class="big">5 volte meno</span> messaggi che con un produttore solo.</p>
+  <p>La coda Rigtorp, che fa mettere tutti in fila con un numerino come dal panettiere, regge molto meglio: fino a <b>2,18 volte</b> Vyukov con 16 produttori, e fino a <b>2,22 volte</b> quando la ressa c'è sia per imbucare sia per ritirare. Ma anche Rigtorp perde metà della velocità. La soluzione vera è dare <b>a ogni produttore la sua cassetta</b>: è l'idea della PW-c.</p></div>
+  <div class="thesis"><p class="lab">Per la tesi</p><p>La campagna MultiProducer quantifica, per la prima volta in MoStream, il costo della contesa sul lato dei produttori. In una coda N:1, con Vyukov e T = 0, il throughput passa da 2,63 a 0,53 milioni di input/s aumentando i produttori da 1 a 16; con T = 1 µs sedici produttori ottengono un throughput inferiore a quello di un produttore solo (0,45 contro 0,56 milioni di input/s). Rigtorp attenua il fenomeno, con un rapporto Rigtorp/Vyukov fino a 2,18 in N:1 e 2,22 in N:M, contro un massimo di 1,49 nella configurazione 1:N. La contesa sul push risulta quindi più penalizzante di quella sul pop, e il suo costo non viene rimosso dallo schema CR-c. Questi risultati motivano lo schema PW-c, che elimina la contesa su entrambi i lati.</p></div>
+</section>
+
+<h2>1. Perché abbiamo fatto questo test</h2>
+<p>Per migliorare il <code>Communicator</code> sono stati proposti due schemi alternativi alla singola coda condivisa:</p>
+<ul>
+<li><b>CR-c</b>: una coda MPSC per ogni consumatore. Il produttore sceglie in quale coda scrivere, ogni consumatore legge solo dalla sua.</li>
+<li><b>PW-c</b>: una coda SPSC per ogni coppia produttore-consumatore, quindi N × M code. Nessuna coda è condivisa.</li>
+</ul>
+<p>Le due soluzioni si comportano <b>allo stesso modo quando c'è un solo produttore</b> (1:1 e 1:N): in entrambe ogni consumatore ha una sua coda, con un solo produttore. Si distinguono solo quando i produttori sono <b>più di uno</b>. Lì la CR-c mantiene una coda contesa dai produttori, mentre la PW-c la elimina. Le campagne precedenti misuravano solo 1:1 (PipelineGrain) e 1:N (FarmThroughput), quindi <b>non dicevano nulla</b> sul caso decisivo. La Fase 0 serve a colmare questa lacuna.</p>
+
+<svg viewBox="0 0 760 170" class="diagram" xmlns="http://www.w3.org/2000/svg" font-family="Inter, Arial, sans-serif" font-size="11">
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#334155"/></marker></defs>
+  <g transform="translate(10,10)">
+    <text x="110" y="10" text-anchor="middle" font-weight="700">1:N (FarmThroughput)</text>
+    <rect x="0" y="62" width="60" height="26" rx="4" fill="#dbeafe" stroke="#1d4ed8"/><text x="30" y="79" text-anchor="middle">P</text>
+    <rect x="85" y="60" width="50" height="30" fill="#f1f5f9" stroke="#475569"/><text x="110" y="79" text-anchor="middle">coda</text>
+    <line x1="60" y1="75" x2="83" y2="75" stroke="#334155" marker-end="url(#a)"/>
+    <g fill="#fef3c7" stroke="#b45309"><rect x="165" y="22" width="50" height="22" rx="4"/><rect x="165" y="64" width="50" height="22" rx="4"/><rect x="165" y="106" width="50" height="22" rx="4"/></g>
+    <text x="190" y="37" text-anchor="middle">C</text><text x="190" y="79" text-anchor="middle">C</text><text x="190" y="121" text-anchor="middle">C</text>
+    <g stroke="#b91c1c" stroke-width="1.6"><line x1="135" y1="70" x2="163" y2="33" marker-end="url(#a)"/><line x1="135" y1="75" x2="163" y2="75" marker-end="url(#a)"/><line x1="135" y1="80" x2="163" y2="117" marker-end="url(#a)"/></g>
+    <text x="110" y="150" text-anchor="middle" fill="#b91c1c">contesa fra consumatori (pop)</text>
+  </g>
+  <g transform="translate(270,10)">
+    <text x="110" y="10" text-anchor="middle" font-weight="700">N:1 (MultiProducer n1)</text>
+    <g fill="#dbeafe" stroke="#1d4ed8"><rect x="0" y="22" width="50" height="22" rx="4"/><rect x="0" y="64" width="50" height="22" rx="4"/><rect x="0" y="106" width="50" height="22" rx="4"/></g>
+    <text x="25" y="37" text-anchor="middle">P</text><text x="25" y="79" text-anchor="middle">P</text><text x="25" y="121" text-anchor="middle">P</text>
+    <rect x="85" y="60" width="50" height="30" fill="#f1f5f9" stroke="#475569"/><text x="110" y="79" text-anchor="middle">coda</text>
+    <g stroke="#b91c1c" stroke-width="1.6"><line x1="50" y1="33" x2="83" y2="70" marker-end="url(#a)"/><line x1="50" y1="75" x2="83" y2="75" marker-end="url(#a)"/><line x1="50" y1="117" x2="83" y2="80" marker-end="url(#a)"/></g>
+    <rect x="165" y="64" width="50" height="22" rx="4" fill="#fef3c7" stroke="#b45309"/><text x="190" y="79" text-anchor="middle">C</text>
+    <line x1="135" y1="75" x2="163" y2="75" stroke="#334155" marker-end="url(#a)"/>
+    <text x="110" y="150" text-anchor="middle" fill="#b91c1c">contesa fra produttori (push)</text>
+  </g>
+  <g transform="translate(530,10)">
+    <text x="110" y="10" text-anchor="middle" font-weight="700">N:M (MultiProducer nm)</text>
+    <g fill="#dbeafe" stroke="#1d4ed8"><rect x="0" y="22" width="50" height="22" rx="4"/><rect x="0" y="64" width="50" height="22" rx="4"/><rect x="0" y="106" width="50" height="22" rx="4"/></g>
+    <text x="25" y="37" text-anchor="middle">P</text><text x="25" y="79" text-anchor="middle">P</text><text x="25" y="121" text-anchor="middle">P</text>
+    <rect x="85" y="60" width="50" height="30" fill="#f1f5f9" stroke="#475569"/><text x="110" y="79" text-anchor="middle">coda</text>
+    <g stroke="#b91c1c" stroke-width="1.6"><line x1="50" y1="33" x2="83" y2="70" marker-end="url(#a)"/><line x1="50" y1="75" x2="83" y2="75" marker-end="url(#a)"/><line x1="50" y1="117" x2="83" y2="80" marker-end="url(#a)"/>
+    <line x1="135" y1="70" x2="163" y2="33" marker-end="url(#a)"/><line x1="135" y1="75" x2="163" y2="75" marker-end="url(#a)"/><line x1="135" y1="80" x2="163" y2="117" marker-end="url(#a)"/></g>
+    <g fill="#fef3c7" stroke="#b45309"><rect x="165" y="22" width="50" height="22" rx="4"/><rect x="165" y="64" width="50" height="22" rx="4"/><rect x="165" y="106" width="50" height="22" rx="4"/></g>
+    <text x="190" y="37" text-anchor="middle">C</text><text x="190" y="79" text-anchor="middle">C</text><text x="190" y="121" text-anchor="middle">C</text>
+    <text x="110" y="150" text-anchor="middle" fill="#b91c1c">contesa su entrambi i lati</text>
+  </g>
+</svg>
+<div class="easy"><p class="lab">In parole semplici</p><p>Abbiamo due idee per riorganizzare le cassette delle lettere. Le due idee danno lo stesso risultato quando chi imbuca è una persona sola. Per capire quale è meglio, dovevamo vedere cosa succede quando <b>chi imbuca sono in tanti</b>. Prima di questo test non l'avevamo mai misurato.</p></div>
+<div class="thesis"><p class="lab">Per la tesi</p><p>Gli schemi CR-c e PW-c coincidono nelle topologie con un solo produttore e si differenziano esclusivamente in presenza di più produttori sullo stesso canale. La Fase 0 ha quindi lo scopo di misurare, con il Communicator attuale, il costo della contesa sul lato dei produttori nelle configurazioni N:1 e N:M, che le campagne precedenti non coprivano.</p></div>
+
+<h2>2. Come l'abbiamo fatto</h2>
+<h3>Il benchmark</h3>
+<p>È stato scritto un benchmark nuovo, <code>Benchmarks/MoStreamSynthetic/MultiProducer/nm.mojo</code>, con una <b>sola coda</b> fra due stadi replicati:</p>
+<pre><code>Pipeline((parallel(NMSource, P), parallel(NMSink, C)))</code></pre>
+<ul>
+<li><b>I produttori</b> si dividono gli input 1…M senza sovrapposizioni: il produttore r emette r+1, r+1+P, r+1+2P, … Ognuno esegue la propria parte del lavoro e fa <code>push</code> nella coda.</li>
+<li><b>I consumatori</b> completano il lavoro, scrivono l'ID ricevuto in un registro privato e aggiornano un digest, cioè un'impronta del risultato.</li>
+<li><b>Dopo la misura</b> si controlla che ogni input sia arrivato <b>esattamente una volta</b> e con il risultato corretto. Se il controllo fallisce, la campagna si ferma.</li>
+</ul>
+<h3>I due scenari</h3>
+<table class="plain">
+<tr><th></th><th>N:1</th><th>N:M</th></tr>
+<tr><td>Produttori e consumatori</td><td>P = 1, 2, 4, 8, 16 produttori, 1 consumatore</td><td>P = C = 2, 4, 8</td></tr>
+<tr><td>Chi fa il lavoro T</td><td>tutto il produttore</td><td>metà il produttore, metà il consumatore</td></tr>
+<tr><td>Dove c'è contesa</td><td>sul <code>push</code>, fra i produttori</td><td>su <code>push</code> e <code>pop</code></td></tr>
+</table>
+<h3>I parametri</h3>
+<p>Gli stessi delle campagne precedenti, per poterle confrontare: T = 0, 1, 2, 5 µs, 50.000 input, capacità 1024, <b>50 ripetizioni</b>, pinning su core fisici distinti, seed 42. In ogni ripetizione si misurano entrambe le code, Vyukov e Rigtorp, in ordine casuale. In totale sono <b>3.200 misure</b>.</p>
+<p>Il lavoro T è un ciclo di calcolo calibrato. Si misura quanto dura un'iterazione (mediana di 5 calibrazioni) e si ricava quante iterazioni servono per ogni T. Questa volta il runner <b>controlla la calibrazione</b>: se si scosta di più del 5% dal valore atteso, la campagna non parte, perché vorrebbe dire che la CPU ha cambiato frequenza. Il valore misurato è 2,875 ns per iterazione, uguale a quello delle campagne precedenti.</p>
+<div class="easy"><p class="lab">In parole semplici</p><p>Abbiamo costruito un piccolo "gioco": alcuni thread producono numeri, li mettono nella coda, altri li prendono. Ogni numero deve arrivare <b>una volta sola</b>, e controlliamo che sia così. Abbiamo ripetuto ogni prova 50 volte con ciascuna delle due code, per essere sicuri che i risultati non siano un colpo di fortuna.</p></div>
+
+<h3>Come si leggono i numeri</h3>
+<table class="plain">
+<tr><td><b>Throughput</b></td><td>input elaborati al secondo: più è alto, meglio è. In tabella è la mediana delle 50 ripetizioni, in milioni.</td></tr>
+<tr><td><b>R/V</b></td><td>throughput di Rigtorp diviso throughput di Vyukov. Sopra 1 vince Rigtorp: 2,00 vuol dire il doppio. Sotto 1 vince Vyukov.</td></tr>
+<tr><td><b>IC 95%</b></td><td>l'intervallo in cui, con buona probabilità, sta il vero valore di R/V. Si calcola con il <i>bootstrap appaiato</i>: si rifanno 20.000 "campagne simulate" pescando a caso le ripetizioni, tenendo sempre insieme le due misure della stessa ripetizione.</td></tr>
+<tr><td><b>Coppie vinte</b></td><td>in quante delle 50 ripetizioni Rigtorp è stata più veloce di Vyukov.</td></tr>
+<tr><td><b>CV</b></td><td>coefficiente di variazione: quanto variano le misure di una coda, in percentuale.</td></tr>
+<tr><td><b>Esito</b></td><td>se l'IC contiene 1, <i>non distinguibile</i>. Se lo esclude, vince la coda più veloce quando la differenza supera il 5%; altrimenti <i>differenza &lt; 5%</i>.</td></tr>
+</table>
+<div class="easy"><p class="lab">In parole semplici</p><p>R/V è come dire «quante volte Rigtorp è più veloce di Vyukov». L'intervallo di confidenza è come un margine di errore: se è tutto sopra 1, siamo sicuri che Rigtorp è più veloce; se tocca 1, non possiamo dirlo.</p></div>
+
+<h2>3. Risultati: N:1, tanti produttori e un solo consumatore</h2>
+<p>Esiti: Rigtorp: <b>8</b>, Vyukov: <b>2</b>, differenza < 5%: <b>3</b>, non distinguibile: <b>7</b>.</p>
+<table class="data"><thead><tr><th>P</th><th>T µs</th><th>Vyukov<br>(M input/s)</th><th>Rigtorp<br>(M input/s)</th><th>R/V</th><th>IC 95%</th><th>coppie vinte<br>da Rigtorp</th><th>CV<br>V / R</th><th>esito</th></tr></thead><tbody><tr><td>1</td><td>0</td><td>2,63</td><td>2,20</td><td class="vb">0,84</td><td class="ci">0,79–0,89</td><td>9/50</td><td>15% / 14%</td><td class="v">Vyukov</td></tr>
+<tr><td>1</td><td>1</td><td>0,56</td><td>0,61</td><td class="rb">1,08</td><td class="ci">1,05–1,12</td><td>45/50</td><td>6% / 6%</td><td class="r">Rigtorp</td></tr>
+<tr><td>1</td><td>2</td><td>0,36</td><td>0,37</td><td class="b">1,04</td><td class="ci">1,03–1,05</td><td>41/50</td><td>3% / 4%</td><td class="">differenza < 5%</td></tr>
+<tr><td>1</td><td>5</td><td>0,18</td><td>0,19</td><td class="b">1,02</td><td class="ci">1,02–1,03</td><td>49/50</td><td>1% / 1%</td><td class="">differenza < 5%</td></tr>
+<tr><td>2</td><td>0</td><td>1,86</td><td>1,58</td><td class="vb">0,85</td><td class="ci">0,82–0,89</td><td>15/50</td><td>17% / 16%</td><td class="v">Vyukov</td></tr>
+<tr><td>2</td><td>1</td><td>0,85</td><td>0,88</td><td class="b">1,03</td><td class="ci">0,98–1,11</td><td>29/50</td><td>12% / 10%</td><td class="">non distinguibile</td></tr>
+<tr><td>2</td><td>2</td><td>0,54</td><td>0,54</td><td class="b">1,01</td><td class="ci">0,99–1,03</td><td>29/50</td><td>8% / 9%</td><td class="">non distinguibile</td></tr>
+<tr><td>2</td><td>5</td><td>0,30</td><td>0,30</td><td class="b">1,01</td><td class="ci">1,00–1,03</td><td>33/50</td><td>3% / 4%</td><td class="">non distinguibile</td></tr>
+<tr><td>4</td><td>0</td><td>1,16</td><td>1,42</td><td class="rb">1,23</td><td class="ci">1,01–1,28</td><td>28/50</td><td>21% / 17%</td><td class="r">Rigtorp</td></tr>
+<tr><td>4</td><td>1</td><td>0,96</td><td>1,05</td><td class="rb">1,09</td><td class="ci">1,04–1,13</td><td>33/50</td><td>16% / 18%</td><td class="r">Rigtorp</td></tr>
+<tr><td>4</td><td>2</td><td>0,71</td><td>0,72</td><td class="b">1,02</td><td class="ci">0,99–1,10</td><td>32/50</td><td>12% / 12%</td><td class="">non distinguibile</td></tr>
+<tr><td>4</td><td>5</td><td>0,39</td><td>0,39</td><td class="b">1,01</td><td class="ci">0,99–1,05</td><td>26/50</td><td>9% / 8%</td><td class="">non distinguibile</td></tr>
+<tr><td>8</td><td>0</td><td>0,74</td><td>1,02</td><td class="rb">1,37</td><td class="ci">1,28–1,53</td><td>42/50</td><td>34% / 25%</td><td class="r">Rigtorp</td></tr>
+<tr><td>8</td><td>1</td><td>0,85</td><td>1,01</td><td class="rb">1,19</td><td class="ci">1,12–1,30</td><td>38/50</td><td>21% / 19%</td><td class="r">Rigtorp</td></tr>
+<tr><td>8</td><td>2</td><td>0,82</td><td>1,00</td><td class="b">1,22</td><td class="ci">0,98–1,38</td><td>33/50</td><td>14% / 19%</td><td class="">non distinguibile</td></tr>
+<tr><td>8</td><td>5</td><td>0,54</td><td>0,53</td><td class="b">0,99</td><td class="ci">0,92–1,12</td><td>28/50</td><td>12% / 12%</td><td class="">non distinguibile</td></tr>
+<tr><td>16</td><td>0</td><td>0,53</td><td>1,06</td><td class="rb">2,03</td><td class="ci">1,85–2,74</td><td>44/50</td><td>36% / 28%</td><td class="r">Rigtorp</td></tr>
+<tr><td>16</td><td>1</td><td>0,45</td><td>0,99</td><td class="rb">2,18</td><td class="ci">1,76–2,32</td><td>45/50</td><td>40% / 30%</td><td class="r">Rigtorp</td></tr>
+<tr><td>16</td><td>2</td><td>0,50</td><td>0,78</td><td class="rb">1,56</td><td class="ci">1,50–1,77</td><td>48/50</td><td>20% / 24%</td><td class="r">Rigtorp</td></tr>
+<tr><td>16</td><td>5</td><td>0,66</td><td>0,69</td><td class="b">1,05</td><td class="ci">1,01–1,09</td><td>29/50</td><td>16% / 19%</td><td class="">differenza < 5%</td></tr></tbody></table>
+<p class="caption">Throughput mediano in milioni di input/s su 50 ripetizioni. In arancione vince Rigtorp, in blu vince Vyukov.</p>
+<figure><img src="img/MultiProducer_n1.png"><figcaption>N:1. Sopra: rapporto Rigtorp/Vyukov con IC 95%, colorato per esito. Sotto: throughput delle due code (mediana e fascia min–max) al variare dei produttori.</figcaption></figure>
+<h3>Cosa si vede</h3>
+<ul>
+<li><b>Aggiungere produttori fa crollare il throughput.</b> Con Vyukov e T = 0 si passa da 2,63 milioni di input/s con 1 produttore a <b>0,53</b> con 16, cioè 5,0 volte meno. Con T = 1 µs, 16 produttori fanno <b>meno di uno solo</b> (0,45 contro 0,56).</li>
+<li><b>Il consumatore non è il limite.</b> Da solo riesce a smaltire almeno 2,63 milioni di input/s (il caso con un produttore e T = 0, dove il limite potrebbe essere anche il produttore). Con molti produttori il collo di bottiglia è quindi la coda contesa.</li>
+<li><b>Rigtorp regge molto meglio</b>: con 16 produttori vale 2,03 volte Vyukov a T = 0 e 2,18 a T = 1, con 45 coppie vinte su 50. Anche Rigtorp però scende da 2,20 a 1,06 milioni di input/s.</li>
+<li><b>Con un solo produttore vince Vyukov</b> (0,84 a T = 0): è una coda 1:1, come nella PipelineGrain.</li>
+<li><b>Con T = 5 µs le code sono quasi pari</b>: i produttori passano quasi tutto il tempo a calcolare, e la ressa sulla coda è poca.</li>
+</ul>
+<div class="easy"><p class="lab">In parole semplici</p><p>Più persone mettiamo a imbucare nella stessa cassetta, più si pestano i piedi. Con Vyukov, quando sono 16, entrano <b>5 volte meno lettere</b> di quando c'era una persona sola. Con Rigtorp, dove si prende il numerino, va molto meglio: circa il doppio di Vyukov. Ma neanche il numerino fa miracoli: si perde comunque metà della velocità.</p></div>
+<div class="thesis"><p class="lab">Per la tesi</p><p>Nella configurazione N:1 il throughput diminuisce all'aumentare del numero di produttori, a causa della contesa sul contatore di inserimento della coda. Con Vyukov, per T = 0, il throughput si riduce di un fattore 5,0 fra 1 e 16 produttori, e per T = 1 µs sedici produttori ottengono un throughput inferiore a quello di un singolo produttore. La prenotazione tramite fetch_add di Rigtorp, che non richiede ritentativi, attenua il fenomeno (rapporto Rigtorp/Vyukov fino a 2,18 con intervallo di confidenza interamente sopra la parità), senza eliminarlo.</p></div>
+
+<h2>4. Risultati: N:M, tanti produttori e tanti consumatori</h2>
+<p>Esiti: Rigtorp: <b>7</b>, non distinguibile: <b>5</b>.</p>
+<table class="data"><thead><tr><th>P = C</th><th>T µs</th><th>Vyukov<br>(M input/s)</th><th>Rigtorp<br>(M input/s)</th><th>R/V</th><th>IC 95%</th><th>coppie vinte<br>da Rigtorp</th><th>CV<br>V / R</th><th>esito</th></tr></thead><tbody><tr><td>2</td><td>0</td><td>1,66</td><td>2,10</td><td class="rb">1,27</td><td class="ci">1,21–1,35</td><td>40/50</td><td>16% / 20%</td><td class="r">Rigtorp</td></tr>
+<tr><td>2</td><td>1</td><td>1,13</td><td>1,19</td><td class="b">1,05</td><td class="ci">1,00–1,12</td><td>32/50</td><td>11% / 12%</td><td class="">non distinguibile</td></tr>
+<tr><td>2</td><td>2</td><td>0,75</td><td>0,77</td><td class="b">1,03</td><td class="ci">0,98–1,09</td><td>28/50</td><td>9% / 10%</td><td class="">non distinguibile</td></tr>
+<tr><td>2</td><td>5</td><td>0,41</td><td>0,41</td><td class="b">1,00</td><td class="ci">0,97–1,04</td><td>26/50</td><td>6% / 7%</td><td class="">non distinguibile</td></tr>
+<tr><td>4</td><td>0</td><td>1,24</td><td>1,81</td><td class="rb">1,45</td><td class="ci">1,26–1,62</td><td>48/50</td><td>12% / 23%</td><td class="r">Rigtorp</td></tr>
+<tr><td>4</td><td>1</td><td>1,02</td><td>1,48</td><td class="rb">1,45</td><td class="ci">1,37–1,49</td><td>46/50</td><td>12% / 17%</td><td class="r">Rigtorp</td></tr>
+<tr><td>4</td><td>2</td><td>0,91</td><td>0,99</td><td class="rb">1,09</td><td class="ci">1,00–1,18</td><td>31/50</td><td>12% / 16%</td><td class="r">Rigtorp</td></tr>
+<tr><td>4</td><td>5</td><td>0,56</td><td>0,56</td><td class="b">0,99</td><td class="ci">0,95–1,03</td><td>20/50</td><td>9% / 11%</td><td class="">non distinguibile</td></tr>
+<tr><td>8</td><td>0</td><td>0,89</td><td>1,97</td><td class="rb">2,22</td><td class="ci">1,88–2,62</td><td>49/50</td><td>15% / 31%</td><td class="r">Rigtorp</td></tr>
+<tr><td>8</td><td>1</td><td>0,78</td><td>1,27</td><td class="rb">1,63</td><td class="ci">1,50–1,85</td><td>47/50</td><td>16% / 34%</td><td class="r">Rigtorp</td></tr>
+<tr><td>8</td><td>2</td><td>0,75</td><td>1,06</td><td class="rb">1,41</td><td class="ci">1,33–1,54</td><td>45/50</td><td>13% / 24%</td><td class="r">Rigtorp</td></tr>
+<tr><td>8</td><td>5</td><td>0,71</td><td>0,73</td><td class="b">1,02</td><td class="ci">0,91–1,14</td><td>29/50</td><td>18% / 15%</td><td class="">non distinguibile</td></tr></tbody></table>
+<p class="caption">Throughput mediano in milioni di input/s. Il lavoro T è diviso a metà fra produttore e consumatore.</p>
+<figure><img src="img/MultiProducer_nm.png"><figcaption>N:M. Sopra: rapporto Rigtorp/Vyukov con IC 95%. Sotto: throughput delle due code.</figcaption></figure>
+<h3>Cosa si vede</h3>
+<ul>
+<li><b>È il caso con la differenza più grande</b>: con 8 produttori e 8 consumatori e T = 0, Rigtorp vale <b>2,22 volte</b> Vyukov (1,97 contro 0,89 milioni di input/s), con 49 coppie vinte su 50.</li>
+<li><b>Il vantaggio cresce con il numero di thread</b> ed è significativo in 7 configurazioni su 12. Con T = 5 µs le due code sono pari.</li>
+<li><b>Vyukov peggiora aggiungendo thread</b>: con T = 0 passa da 1,66 (2 + 2) a 0,89 milioni di input/s (8 + 8). Avere più thread non serve, perché si ostacolano sulla coda.</li>
+</ul>
+<div class="easy"><p class="lab">In parole semplici</p><p>Qui la ressa c'è da tutte e due le parti: tanti imbucano e tanti ritirano dalla stessa cassetta. Con Vyukov, mettere più persone peggiora le cose. Con Rigtorp va più del doppio meglio. Ma l'idea migliore resta non avere un'unica cassetta per tutti.</p></div>
+<div class="thesis"><p class="lab">Per la tesi</p><p>Nella configurazione N:M la contesa agisce su entrambi i contatori della coda e i due effetti si sommano: il rapporto Rigtorp/Vyukov raggiunge 2,22 con otto produttori e otto consumatori, e il throughput di Vyukov diminuisce all'aumentare del numero di thread. Il fenomeno scompare per un lavoro di 5 µs per input, quando la frequenza degli accessi alla coda si riduce.</p></div>
+
+<h2>5. Quale lato della coda soffre di più la contesa</h2>
+<figure><img src="img/RV_per_lato_contesa.png"><figcaption>Rapporto Rigtorp/Vyukov con IC 95% nelle tre topologie, alla stessa scala: 1:N (FarmThroughput, verde), N:1 (rosso), N:M (viola). In ascissa il numero di repliche dal lato conteso.</figcaption></figure>
+<table class="plain">
+<tr><th>Topologia</th><th>Dove c'è contesa</th><th>R/V massimo</th></tr>
+<tr><td>1:N (FarmThroughput)</td><td>fra consumatori, sul <code>pop</code></td><td>1,49</td></tr>
+<tr><td>N:1</td><td>fra produttori, sul <code>push</code></td><td><b>2,18</b></td></tr>
+<tr><td>N:M</td><td>su entrambi i lati</td><td><b>2,22</b> (già con 8 + 8)</td></tr>
+</table>
+<ul>
+<li>A parità di numero di thread contesi, <b>la contesa sul <code>push</code> costa più di quella sul <code>pop</code></b>: con 16 repliche e T = 1 µs, R/V vale 2,18 in N:1 contro 1,49 in 1:N.</li>
+<li>Quando la contesa c'è su entrambi i lati, l'effetto è ancora più forte, e compare con meno thread.</li>
+</ul>
+<div class="easy"><p class="lab">In parole semplici</p><p>Abbiamo scoperto che è peggio avere tanta gente che <b>imbuca</b> che tanta gente che <b>ritira</b>. E se ci sono tutte e due le cose insieme, è peggio ancora.</p></div>
+<div class="thesis"><p class="lab">Per la tesi</p><p>Il confronto fra le tre topologie mostra che la contesa sul lato dei produttori è più penalizzante di quella sul lato dei consumatori, e che la presenza di contesa su entrambi i lati ne amplifica gli effetti. Ne consegue che una riorganizzazione del Communicator limitata al lato dei consumatori non affronterebbe la principale fonte di degrado misurata.</p></div>
+
+<h2>6. Lo sbilanciamento del carico</h2>
+<p>Con più consumatori si è misurato anche <b>come gli input si distribuiscono</b> fra di loro. Per ogni esecuzione si calcolano:</p>
+<ul>
+<li><b>max/media</b>: gli input del consumatore più carico rispetto alla media. Vale 1 se il carico è perfettamente bilanciato, C se un solo consumatore riceve tutto;</li>
+<li><b>min/media</b>: lo stesso per il consumatore meno carico. Vale 0 se qualcuno non riceve nulla.</li>
+</ul>
+<p>Per ogni configurazione si riporta la mediana sulle 50 ripetizioni e il caso peggiore.</p>
+<h3>N:M</h3>
+<table class="data"><thead><tr><th rowspan="2">consumatori</th><th rowspan="2">T µs</th><th colspan="3">Vyukov</th><th colspan="3">Rigtorp</th></tr><tr><th>max/media<br>mediana</th><th>max/media<br>peggiore</th><th>min/media<br>mediana</th><th>max/media<br>mediana</th><th>max/media<br>peggiore</th><th>min/media<br>mediana</th></tr></thead><tbody><tr><td>2</td><td>0</td><td>1,07</td><td>1,78</td><td>0,93</td><td>1,04</td><td>1,82</td><td>0,96</td></tr>
+<tr><td>2</td><td>1</td><td>1,03</td><td>1,39</td><td>0,97</td><td>1,10</td><td>1,42</td><td>0,90</td></tr>
+<tr><td>2</td><td>2</td><td>1,11</td><td>1,38</td><td>0,89</td><td>1,08</td><td>1,38</td><td>0,92</td></tr>
+<tr><td>2</td><td>5</td><td>1,10</td><td>1,36</td><td>0,90</td><td>1,11</td><td>1,41</td><td>0,89</td></tr>
+<tr><td>4</td><td>0</td><td>1,46</td><td>2,72</td><td>0,58</td><td>1,63</td><td>2,53</td><td>0,43</td></tr>
+<tr><td>4</td><td>1</td><td>1,34</td><td>2,35</td><td>0,67</td><td>1,52</td><td>2,26</td><td>0,56</td></tr>
+<tr><td>4</td><td>2</td><td>1,35</td><td>2,27</td><td>0,76</td><td>1,32</td><td>1,99</td><td>0,76</td></tr>
+<tr><td>4</td><td>5</td><td>1,22</td><td>1,63</td><td>0,86</td><td>1,19</td><td>1,82</td><td>0,84</td></tr>
+<tr><td>8</td><td>0</td><td>1,60</td><td>4,38</td><td>0,61</td><td>1,83</td><td>5,69</td><td>0,12</td></tr>
+<tr><td>8</td><td>1</td><td>1,46</td><td>2,77</td><td>0,67</td><td>2,13</td><td>3,83</td><td>0,12</td></tr>
+<tr><td>8</td><td>2</td><td>1,59</td><td>2,36</td><td>0,64</td><td>1,80</td><td>3,32</td><td>0,37</td></tr>
+<tr><td>8</td><td>5</td><td>1,46</td><td>1,87</td><td>0,67</td><td>1,48</td><td>1,96</td><td>0,68</td></tr></tbody></table>
+<h3>1:N (FarmThroughput, per confronto)</h3>
+<table class="data"><thead><tr><th rowspan="2">consumatori</th><th rowspan="2">T µs</th><th colspan="3">Vyukov</th><th colspan="3">Rigtorp</th></tr><tr><th>max/media<br>mediana</th><th>max/media<br>peggiore</th><th>min/media<br>mediana</th><th>max/media<br>mediana</th><th>max/media<br>peggiore</th><th>min/media<br>mediana</th></tr></thead><tbody><tr><td>2</td><td>0</td><td>1,04</td><td>1,68</td><td>0,96</td><td>1,02</td><td>1,86</td><td>0,98</td></tr>
+<tr><td>2</td><td>1</td><td>1,04</td><td>1,42</td><td>0,96</td><td>1,04</td><td>1,36</td><td>0,96</td></tr>
+<tr><td>2</td><td>2</td><td>1,16</td><td>1,33</td><td>0,84</td><td>1,26</td><td>1,39</td><td>0,74</td></tr>
+<tr><td>2</td><td>5</td><td>1,07</td><td>1,21</td><td>0,93</td><td>1,08</td><td>1,20</td><td>0,92</td></tr>
+<tr><td>4</td><td>0</td><td>1,26</td><td>3,76</td><td>0,49</td><td>1,22</td><td>3,72</td><td>0,53</td></tr>
+<tr><td>4</td><td>1</td><td>1,37</td><td>1,76</td><td>0,69</td><td>1,36</td><td>1,80</td><td>0,68</td></tr>
+<tr><td>4</td><td>2</td><td>1,36</td><td>1,89</td><td>0,72</td><td>1,42</td><td>1,84</td><td>0,67</td></tr>
+<tr><td>4</td><td>5</td><td>1,34</td><td>1,53</td><td>0,79</td><td>1,33</td><td>1,48</td><td>0,79</td></tr>
+<tr><td>8</td><td>0</td><td>1,62</td><td>6,72</td><td>0,45</td><td>1,58</td><td>6,68</td><td>0,51</td></tr>
+<tr><td>8</td><td>1</td><td>1,57</td><td>2,85</td><td>0,50</td><td>1,84</td><td>3,26</td><td>0,27</td></tr>
+<tr><td>8</td><td>2</td><td>1,63</td><td>2,41</td><td>0,59</td><td>1,76</td><td>2,51</td><td>0,51</td></tr>
+<tr><td>8</td><td>5</td><td>1,59</td><td>2,23</td><td>0,68</td><td>1,57</td><td>1,98</td><td>0,70</td></tr>
+<tr><td>16</td><td>0</td><td>2,02</td><td>14,20</td><td>0,33</td><td>1,85</td><td>14,51</td><td>0,08</td></tr>
+<tr><td>16</td><td>1</td><td>1,69</td><td>4,22</td><td>0,31</td><td>2,52</td><td>5,68</td><td>0,02</td></tr>
+<tr><td>16</td><td>2</td><td>1,97</td><td>4,22</td><td>0,30</td><td>2,43</td><td>4,74</td><td>0,00</td></tr>
+<tr><td>16</td><td>5</td><td>1,80</td><td>2,52</td><td>0,45</td><td>1,92</td><td>2,86</td><td>0,44</td></tr></tbody></table>
+<figure><img src="img/sbilanciamento.png"><figcaption>max/media al variare del numero di consumatori: mediana (linea) e caso peggiore (fascia). Linea continua: 1:N; tratteggio: N:M.</figcaption></figure>
+<h3>Cosa si vede</h3>
+<ul>
+<li><b>Con la coda condivisa il carico non è bilanciato.</b> Con 8 + 8 e T = 1 µs il consumatore più carico riceve in mediana 1,46 volte la media con Vyukov e 2,13 con Rigtorp. Nei casi peggiori alcuni consumatori non ricevono nulla.</li>
+<li><b>Non è necessariamente un difetto.</b> In una coda condivisa l'input va a chi è libero: se un consumatore basta a smaltire quello che arriva, gli altri restano senza lavoro, ma il throughput non ne soffre.</li>
+<li><b>Una parte dello sbilanciamento dipende probabilmente dalla durata breve delle prove</b> (25–50 ms): i thread partono in momenti diversi, e chi parte prima prende di più. È un'ipotesi da verificare con prove più lunghe.</li>
+</ul>
+<div class="easy"><p class="lab">In parole semplici</p><p>Con un'unica cassetta, chi arriva prima prende più lettere. Alcuni lavorano tanto e altri quasi niente. Non sappiamo ancora se questo rallenti il lavoro: con un'unica cassetta, se chi ritira è già abbastanza veloce, può anche non contare. Con cassette separate, invece, le lettere andranno distribuite bene, altrimenti uno resta sommerso e gli altri stanno fermi.</p></div>
+<div class="thesis"><p class="lab">Per la tesi</p><p>Anche con la coda condivisa la distribuzione degli input fra i consumatori risulta disomogenea, con rapporti max/media in mediana fino a 2,52. Poiché in una coda condivisa l'assegnazione è guidata dalla disponibilità dei consumatori, tale disomogeneità non implica di per sé una perdita di throughput. Nello schema PW-c, in cui l'assegnazione è decisa dal produttore, la politica di bilanciamento diventa invece determinante: il valore misurato costituisce il termine di confronto per valutarla.</p></div>
+
+<h2>7. Cosa significa per la scelta fra CR-c e PW-c</h2>
+<table class="plain">
+<tr><th>Topologia</th><th>CR-c (M code MPSC)</th><th>PW-c (N × M code SPSC)</th></tr>
+<tr><td><b>N:1</b>, il caso peggiore misurato</td><td><b>Non cambia nulla</b>: resta una sola coda contesa da tutti i produttori</td><td><b>Elimina la contesa</b>: N code 1:1, che il consumatore scorre</td></tr>
+<tr><td>N:M</td><td>Divide la contesa dei produttori su M code</td><td>Elimina la contesa su entrambi i lati</td></tr>
+<tr><td>1:N</td><td>Elimina la contesa fra consumatori</td><td>Elimina la contesa fra consumatori</td></tr>
+</table>
+<ul>
+<li>La fonte di degrado più grave, la contesa fra produttori nell'N:1 (fino a 5 volte meno throughput), <b>non viene risolta dalla CR-c</b> e viene eliminata dalla PW-c.</li>
+<li><b>Il margine potenziale</b>: nell'N:1 il consumatore da solo smaltisce almeno 2,63 milioni di input/s, mentre oggi con 16 produttori se ne ottengono 0,53 (Vyukov) e 1,06 (Rigtorp). Nella PW-c il limite diventerebbe il consumatore, meno il costo di scorrere 16 code: è la quantità da misurare nelle prossime fasi.</li>
+<li><b>Il punto critico della PW-c</b> sarà il bilanciamento del carico, perché l'input non andrà più automaticamente a chi è libero.</li>
+</ul>
+<div class="easy"><p class="lab">In parole semplici</p><p>La prima idea (CR-c) dà una cassetta a ogni persona che ritira, ma chi imbuca continua a spingersi davanti alla stessa cassetta. La seconda idea (PW-c) dà una cassetta a ogni coppia "chi imbuca, chi ritira": nessuno si spinge più. Siccome abbiamo scoperto che il problema più grande è proprio la ressa di chi imbuca, la seconda idea è quella giusta.</p></div>
+<div class="thesis"><p class="lab">Per la tesi</p><p>I risultati della Fase 0 indicano lo schema PW-c come direzione preferibile. La principale fonte di degrado misurata, la contesa sul lato dei produttori in configurazione N:1, non è affrontata dallo schema CR-c, che mantiene una coda MPSC condivisa per ciascun consumatore, mentre è eliminata dallo schema PW-c. Il throughput ottenibile da un singolo consumatore senza contesa (2,63 milioni di input/s) fornisce una stima del margine di miglioramento rispetto ai valori attuali con sedici produttori (0,53 e 1,06 milioni di input/s con Vyukov e Rigtorp), al netto del costo di polling sulle code di ingresso.</p></div>
+
+<h2>8. Limiti e prossimi passi</h2>
+<h3>Limiti</h3>
+<ul>
+<li><b>Variabilità alta</b> con 8–16 produttori (CV fino al 30–40%). Gli IC dei risultati principali sono comunque lontani da 1, quindi le conclusioni restano valide.</li>
+<li><b>Lo sbilanciamento è probabilmente gonfiato</b> dalla durata breve delle prove.</li>
+<li><b>Intervalli individuali</b>, senza correzione per i confronti multipli: i casi al limite vanno presi con cautela.</li>
+<li><b>Una sola sessione</b> su una sola macchina, con frequenza della CPU non fissata, anche se la calibrazione è stata controllata.</li>
+</ul>
+<h3>Prossimi passi</h3>
+<ol>
+<li><b>Fase 1</b>: portare in Mojo la coda SPSC di FastFlow, con test unitari e un microbenchmark 1:1 contro Vyukov e Rigtorp.</li>
+<li><b>Fase 2</b>: implementare il <code>Communicator</code> PW-c, con indice della replica, scelta della coda da parte del produttore, polling del consumatore ed EOS per coda.</li>
+<li><b>Fasi 3–5</b>: verifica di correttezza, CR-c come confronto, campagne su 1:1, 1:N, N:1 e N:M, più un carico con lavoro variabile per mettere alla prova il bilanciamento.</li>
+</ol>
+
+<h2>Appendice: file e riproducibilità</h2>
+<table class="plain">
+<tr><td>Benchmark</td><td><code>Benchmarks/MoStreamSynthetic/MultiProducer/nm.mojo</code>, <code>run.py</code></td></tr>
+<tr><td>Campagna</td><td><code>Benchmarks/MoStreamSynthetic/campagna-50-multiproducer-20261110/</code> (raw.csv, summary.csv, metadata.json)</td></tr>
+<tr><td>Riferimento 1:N</td><td><code>Benchmarks/MoStreamSynthetic/campagna-50-explicit-eos-20261106/FarmThroughput/</code></td></tr>
+<tr><td>Analisi</td><td><code>Benchmarks/MoStreamSynthetic/analizza_multiproducer.py</code> → <code>analisi/</code> (ANALISI.md, valutazione.csv, sbilanciamento.csv, grafici)</td></tr>
+<tr><td>Questa relazione</td><td><code>docs/Relazione_Fase0_MultiProducer/genera_relazione.py</code>: legge tutti i numeri dai CSV</td></tr>
+</table>
+</body></html>

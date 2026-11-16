@@ -16,7 +16,7 @@
 from std.runtime._asyncrt import TaskGroup
 from std.runtime import parallelism_level
 from MoStream.communicator import MessageTrait, Communicator
-from MoStream.communication_queue import COMMUNICATION_QUEUE_NAME
+from MoStream.communication_queue import COMMUNICATION_QUEUE_NAME, USE_SPSC
 from MoStream.node import NodeTrait, seq, parallel
 from MoStream.emitter import Emitter
 from MoStream.standard_runtime import executor_task
@@ -114,17 +114,18 @@ struct Pipeline[*Ts: NodeTrait]:
                  M: MessageTrait]
                  (mut self,
                  mut tg: TaskGroup,
-                 in_comm: Pointer[mut=True, Communicator[M], MutUntrackedOrigin]) raises:
+                 in_comm: Pointer[mut=True, Communicator[M, True], MutUntrackedOrigin]) raises:
         var np = self.nodes[idx].parallelism() # parallelism of node idx
-        var out_comm = Pointer[Communicator[Self.Ts[idx].StageT.OutType], MutUntrackedOrigin].unsafe_dangling()
+        var out_comm = Pointer[Communicator[Self.Ts[idx].StageT.OutType, True], MutUntrackedOrigin].unsafe_dangling()
         comptime if idx < Self.N-1:
             var nc = self.nodes[idx+1].parallelism()
-            out_comm = unsafe_alloc[Communicator[Self.Ts[idx].StageT.OutType]](1)
-            out_comm.unsafe_write(Communicator[Self.Ts[idx].StageT.OutType](pN=np, cN=nc, queue_size=self.queue_size))
-        for _ in range(0, np):
+            out_comm = unsafe_alloc[Communicator[Self.Ts[idx].StageT.OutType, True]](1)
+            out_comm.unsafe_write(Communicator[Self.Ts[idx].StageT.OutType, True](pN=np, cN=nc, queue_size=self.queue_size))
+        for _ in range(0, np): 
             var core_id = self.coreslist.get_next_core_id()
             var task = executor_task[idx, length](self.nodes[idx],
-                                                  in_comm,
+                                                  in_comm,+é
+                                                  ì
                                                   out_comm,
                                                   core_id)
             tg.create_task(task^)
@@ -140,6 +141,7 @@ struct Pipeline[*Ts: NodeTrait]:
         if (self.getNumNodes() > parallelism_level()):
             print_red_color("{MoStream} Error: the number of nodes in the pipeline is greater than the number threads available in the thread pool!")
             raise Error("error in run()")
+        self._check_queue_topology()
         var pinning = "disabled"
         if self.coreslist.enabled:
             pinning = "enabled"
@@ -147,9 +149,10 @@ struct Pipeline[*Ts: NodeTrait]:
         print_cyan_color("{MoStream} Standard MoStream runtime is used with " + String(self.getNumNodes()) + " threads")
         print_cyan_color("{MoStream} CPU pinning is " + pinning)
         print_cyan_color("{MoStream} Inter-stage queue: " + String(COMMUNICATION_QUEUE_NAME))
+        print_cyan_color("{MoStream} End-of-stream protocol: explicit EOS messages, blocking pop")
         print_cyan_color("{MoStream} Pipeline starts...")
         var tg = TaskGroup()
-        var first_comm = Pointer[Communicator[Self.Ts[0].StageT.InType], MutUntrackedOrigin].unsafe_dangling()
+        var first_comm = Pointer[Communicator[Self.Ts[0].StageT.InType, True], MutUntrackedOrigin].unsafe_dangling()
         self._run_from[0, Self.N](tg, first_comm)
         tg.wait()
         print_cyan_color("{MoStream} ...terminated successfully!")
@@ -181,6 +184,7 @@ struct Pipeline[*Ts: NodeTrait]:
         if (n_workers > parallelism_level()):
             print_red_color("{MoStream} Error: the number of workers of the cooperative scheduler is greater than the number threads available in the thread pool!")
             raise Error("error in run_cooperative()")
+        self._check_queue_topology()
         var pinning = "disabled"
         if self.coreslist.enabled:
             pinning = "enabled"
@@ -194,6 +198,7 @@ struct Pipeline[*Ts: NodeTrait]:
         print_cyan_color("{MoStream} Cooperative MoStream runtime is used with " + String(n_workers) + " threads")
         print_cyan_color("{MoStream} CPU pinning is " + pinning)
         print_cyan_color("{MoStream} Inter-stage queue: " + String(COMMUNICATION_QUEUE_NAME))
+        print_cyan_color("{MoStream} End-of-stream protocol: closed flag, try_pop")
         print_cyan_color("{MoStream} Pipeline starts...")
         var scheduler = Scheduler(self.nodes)
         scheduler.start(self.nodes, n_workers, self.coreslist)
@@ -202,6 +207,18 @@ struct Pipeline[*Ts: NodeTrait]:
     # enable/disable pinning for the pipeline threads
     def setPinning(mut self, enabled: Bool):
         self.coreslist.setPinning(enabled)
+
+    # check the channels against the selected inter-stage queue before any communicator or task exists:
+    # the SPSC queue (MOSTREAM_SPSC) is correct only on channels with one producer and one consumer.
+    # Rejecting here, instead of in the Communicator constructor, avoids raising while tasks are running.
+    def _check_queue_topology(self) raises:
+        comptime if USE_SPSC:
+            comptime for i in range(0, Self.N - 1):
+                var producers = self.nodes[i].parallelism()
+                var consumers = self.nodes[i + 1].parallelism()
+                if producers != 1 or consumers != 1:
+                    print_red_color("{MoStream} Error: the SPSC queue (MOSTREAM_SPSC) supports only channels with one producer and one consumer, but the channel between stage " + String(i) + " and stage " + String(i + 1) + " is " + String(producers) + ":" + String(consumers) + "!")
+                    raise Error("error in run()")
 
     # set the size of the queues used by the communicators between stages
     def setQueueSize(mut self, queue_size: Int):

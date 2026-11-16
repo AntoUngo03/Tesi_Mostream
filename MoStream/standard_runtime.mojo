@@ -31,8 +31,8 @@ async def executor_task[NodeT: NodeTrait,
                  idx: Int,
                  len: Int]
                  (mut node: NodeT,
-                 inComm: Pointer[mut=True, Communicator[In], MutUntrackedOrigin],
-                 outComm: Pointer[mut=True, Communicator[Out], MutUntrackedOrigin],
+                 inComm: Pointer[mut=True, Communicator[In, True], MutUntrackedOrigin],
+                 outComm: Pointer[mut=True, Communicator[Out, True], MutUntrackedOrigin],
                  core_id: Int):
     try:
         var s = node.make_stage() # create a copy of the stage executed by this task
@@ -58,8 +58,8 @@ def execute_source[Stage: StageTrait,
                   In: MessageTrait,
                   Out: MessageTrait]
                   (mut s: Stage,
-                  inComm: Pointer[mut=True, Communicator[In], MutUntrackedOrigin],
-                  outComm: Pointer[mut=True, Communicator[Out], MutUntrackedOrigin]) raises:
+                  inComm: Pointer[mut=True, Communicator[In, True], MutUntrackedOrigin],
+                  outComm: Pointer[mut=True, Communicator[Out, True], MutUntrackedOrigin]) raises:
     var end_of_stream = False
     while (not end_of_stream):
         var output = s.next_element()
@@ -75,8 +75,8 @@ def execute_sink[Stage: StageTrait,
                 In: MessageTrait,
                 Out: MessageTrait]
                 (mut s: Stage,
-                inComm: Pointer[mut=True, Communicator[In], MutUntrackedOrigin],
-                outComm: Pointer[mut=True, Communicator[Out], MutUntrackedOrigin]) raises:
+                inComm: Pointer[mut=True, Communicator[In, True], MutUntrackedOrigin],
+                outComm: Pointer[mut=True, Communicator[Out, True], MutUntrackedOrigin]) raises:
     var end_of_stream = False
     while (not end_of_stream):
         var input = inComm[].pop()
@@ -95,8 +95,8 @@ def execute_transform[Stage: StageTrait,
                      In: MessageTrait,
                      Out: MessageTrait]
                      (mut s: Stage,
-                     inComm: Pointer[mut=True, Communicator[In], MutUntrackedOrigin],
-                     outComm: Pointer[mut=True, Communicator[Out], MutUntrackedOrigin]) raises:
+                     inComm: Pointer[mut=True, Communicator[In, True], MutUntrackedOrigin],
+                     outComm: Pointer[mut=True, Communicator[Out, True], MutUntrackedOrigin]) raises:
     var end_of_stream = False
     while (not end_of_stream):
         var input = inComm[].pop()
@@ -118,10 +118,10 @@ def execute_transform_many[Stage: StageTrait,
                           In: MessageTrait,
                           Out: MessageTrait]
                           (mut s: Stage,
-                          inComm: Pointer[mut=True, Communicator[In], MutUntrackedOrigin],
-                          outComm: Pointer[mut=True, Communicator[Out], MutUntrackedOrigin]) raises:
+                          inComm: Pointer[mut=True, Communicator[In, True], MutUntrackedOrigin],
+                          outComm: Pointer[mut=True, Communicator[Out, True], MutUntrackedOrigin]) raises:
     var end_of_stream = False
-    var e = Emitter(outComm) # False because runtime is the standard one here
+    var e = Emitter(outComm) # standard runtime: output communicator with explicit EOS
     while (not end_of_stream):
         var input = inComm[].pop()
         if input.eos:
